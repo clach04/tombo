@@ -1,0 +1,301 @@
+English
+New Memo
+Return to list
+Save
+Insert date1
+Insert date2
+Root
+Tool
+Edit
+Initialize APP button failed.
+New
+Update
+View
+memo
+Save memo failed(%d).
+Get SIP status failed.
+Create folder failed.
+Erase password in memory
+Erase password
+Folding failed.
+Not enough memory.
+Password doesn't match.
+Can't get password.
+Set timer failed.
+Remove directory failed.
+There are files that aren't memos.
+Remove file failed.
+Create directory failed.
+Copy file failed.
+Memo has been modified. Save changes?
+Confirm
+Can't open memo
+Password doesn't match. Continue?
+Password doesn't match.
+Password mismatch
+Directory doesn't exist. Create?
+Create directory
+Choose folder
+Register password.
+Change password
+Please set password.
+Get password failed.
+Get fingerprint failed.
+Password has registered.
+Register password failed.
+Save data failed.
+Encryption failed.(%d)
+Decryption faield.(%d)
+Move failed.
+Copy failed.
+String not found
+Delete selected memo?
+Delete memo
+Delete memo failed.
+Delete memo that before encrypted failed. Please delete manually.
+Delete memo that before decrypted failed. Please delete manually.
+No filename.
+Same name file exists.
+Rename file failed(%d).
+Delete selected folder?
+Delete folder
+No foldername.
+Same folder name exists.
+Rename folder failed(%d).
+Get dateformat failed.
+Can't set root folder as '\\'
+%y\t:Year(2001)\r\n%Y\t:Year(01)\r\n%M\t:Month(01,02,..)\r\n%b\t:Month(Jan,Feb,..)\r\n%d\t:Day(01,02..)\r\n%D\t:Day(1,2,..)\r\n%W\t:WDay(Sun,Mon,..)\r\n%H\t:Hour(12H:00..11)\r\n%I\t:Hour(12H:01..12)\r\n%h\t:Hour(24H)\r\n%a\t:AM,PM\r\n%m\t:Min(01,02,..)\r\n%s\t:Sec(01,02,..)\r\n%%\t:\"%\"\r\n%n\t:newline\r\n%fn\t:file path(n is 0-9)\r\n%Fn\t:file path
+Search result
+Encrypt files under the folder?
+Encrypt files
+Delete some plain file failed.
+Some files are not encrypted.
+Decrypt files under the folder?
+Decrypt files
+Delete some encrypted file failed.
+Some files are not decrypted.
+Self test of encryption libs failed(%s). Encryption are not work correctly.
+Self test failed
+Wait a moment...
+Search failed(%d).
+Search has been canceled.
+Quick filter
+Create virtual folder failed.
+Grep result
+Virtual folder name
+Delete selected virtual folder?
+Delete virtual folder
+Filter settings
+Source
+Filter
+View path
+Filter ype
+Condition
+Find
+Num of items
+Last update
+Sort
+%d item(s)
+Newer than %d day before
+Older than %d day before
+Dictionary order
+Reverse dic order
+Old order of last update
+New order of last update
+Old order of create date
+New order of create date
+Asc order of file size
+Dsc order of file size
+Initialize dialog failed.
+Generate pattern failed
+Please set positive number
+Invalid font size
+Dst folder is subfolder of src folder
+Not display path
+View before file name
+View after file name
+Name
+Path
+Delete bookmarks
+Deleting selected bookmarks. Are you sure?
+Memo
+Password
+Font
+Date
+Memo view
+Security
+Toppage
+Property
+Main
+Save
+AppButton
+SIP
+Encoding
+Memo
+Tool
+Edit
+NewFolder
+Cut
+Copy
+Paste
+Rename
+Delete
+Find
+Find Next
+Find Prev
+Quick filter
+Encrypt
+Decrypt
+Select All
+Exit
+About
+Options
+Virtual folder
+ForgetPass
+Wrap Text
+&File
+New &Memo\tCtrl+N
+New folder
+&Rename file
+&Delete\tDEL
+&Save\tCtrl+S
+E&xit
+&Edit
+Cu&t\tCtrl+X
+&Copy\tCtrl+C
+&Paste\tCtrl+V
+Select &All\tCtrl+A
+&Find\tCtrl+F
+Find Prev\tF3
+Find Next\tShift+F3
+Quick filter\tCtrl+G
+Insert Date1\tCtrl+1
+Insert Date2\tCtrl+2
+&BookMark
+&Add bookmark
+&Edit bookmark
+&Tools
+Wrap Text
+Two panes
+Status bar
+Stay topmost
+&Encrypt\tCtrl+E
+Decry&pt\tCtrl+P
+Erase password
+Virtual folder
+&Options
+&Help
+&About TOMBO
+Jump to original
+OK
+Cancel
+Edit bookmark
+UP
+DN
+Delete
+Select File
+Virtual folder settings
+Up
+Dn
+Save
+New
+Ren
+Del
+Number filter
+Num Items:
+Find filter
+Search str:
+Case sensitive
+Include encrypted memo
+Find to file name
+Invert match
+Sort filter
+Sort Type:
+Timestamp filter
+days before
+Newer
+Older
+Up
+Dn
+Del
+Find
+Num
+Date
+Sort
+Target:
+Search:
+Save
+Name:
+New folder
+Password
+Default note
+Use selected
+Use blank
+Root folder:
+Folder to store Tombo Notes
+Sync file name and title
+Rename file name if headline changed.
+Open notes read-only mode
+Tree:
+Use default font
+Memo:
+Use ClearType font(XP only)
+Date1:
+Date2:
+Keep cursor position
+Restore last cursor position when re-opening.
+Tab stop:
+Set tab stop width
+Show title
+Show note title in titlebar.
+Password timeout(min):
+Timeout length(1-60).
+Search
+Search str:
+Direction
+Up
+Down
+Button1
+Button2
+Button3
+Button4
+Button5
+Assign application button to action button. It is enabled after restarting TOMBO
+Disable close notes on edit view
+Keep space over the SIP
+Default(System native)
+Greek
+&Search
+Ext tool1
+Open by Explorer
+Open by association
+External Apps
+Use file association
+Application1:
+Application2:
+CAUTION:\r\nIf external application creates backup file, TOMBO is \r\n*NOT DELETE* it. Please check yourself before encryption whether backup file exists or not.
+Choose application
+app(*.exe)\0*.exe\0all(*.*)\0*.*\0\0
+Two panes
+Add bookmark
+Edit bookmark
+Use ClearType font
+Disable save daialog
+Toolbar
+Save options failed. Change may not be reflected.
+Use random filename
+When encrypting, generate file name by random number.
+Get headline failed for some notes due to wrong password. Display ???????? the notes.
+TOMBO registry erase tool
+The registry entry that TOMBO 1.14 or orlder uses are erased. Are you sure?
+Canceled.
+Deleted.
+There are no registry entry.
+Delete failed(%d).
+When starting select the tree item last selected
+File encoding
+Unicode(UTF16LE)
+UTF-8
+Set file encoding. Auto detection/conversion is not supported, so do not change if you hanve already some notes.
+Undo
+File

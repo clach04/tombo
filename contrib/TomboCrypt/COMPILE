@@ -1,0 +1,1 @@
+gcc -lstdc++ -DTOMBO -oTomboCrypt *.cpp *.c

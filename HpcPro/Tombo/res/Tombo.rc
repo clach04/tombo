@@ -1,0 +1,681 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_MEMOSELECT_IMAGES   BITMAP  DISCARDABLE     "../../../Src/image/memoimg.bmp"
+IDB_ARTICLEBOX          BITMAP  DISCARDABLE     "../../../Src/image/draftimg.bmp"
+IDB_TOOLBAR             BITMAP  DISCARDABLE     "../../../Src/image/toolbar.bmp"
+IDB_TOOLBAR_DETAILS     BITMAP  DISCARDABLE     "../../../Src/image/mdtoolbar.bmp"
+IDB_REBAR               BITMAP  DISCARDABLE     "../../../Src/image/rebar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_TOMBO               ICON    DISCARDABLE     "../../../Src/image/Tombo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 212, 102
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE 0x80000000L
+CAPTION "About TOMBO"
+FONT 8, "Tahoma"
+BEGIN
+    ICON            IDI_TOMBO,IDC_STATIC,5,5,20,20
+    LTEXT           "Tombo Ver. 1.4",IDC_VERSIONINFO,30,10,166,8,SS_NOPREFIX
+    EDITTEXT        IDC_COPYRIGHT,5,30,200,65,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL | 
+                    NOT WS_TABSTOP
+END
+
+IDD_PASSWORD DIALOG DISCARDABLE  0, 0, 114, 53
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Password"
+FONT 9, "Tahoma"
+BEGIN
+    EDITTEXT        IDC_PASS,5,5,105,12,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASS2,5,20,105,12,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,25,35,40,12
+    PUSHBUTTON      "Cancel",IDCANCEL,70,35,40,12
+END
+
+IDD_PROPTAB_FOLDER DIALOG DISCARDABLE  0, 0, 151, 110
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    LTEXT           "Folder:",IDC_PROPTAB_FOLDER_LABEL,5,5,45,10
+    PUSHBUTTON      "...",IDC_FOLDERSEL,135,5,15,10
+    LTEXT           "Folder to store Tombo Notes",IDC_PROPTAB_FOLDER_HELP1,
+                    10,25,120,10
+    CONTROL         "Sync file name and title",IDC_KEEPTITLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,40,125,10
+    LTEXT           "Rename file name if headline changed.",
+                    IDC_PROPTAB_FOLDER_HELP2,10,55,120,20
+    COMBOBOX        IDC_TOPFOLDER,55,5,80,70,CBS_DROPDOWN | CBS_AUTOHSCROLL | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Open notes read-only mode",IDC_PROP_READONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,80,109,10
+END
+
+IDD_FILESELECT DIALOG DISCARDABLE  0, 0, 134, 89
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select File"
+FONT 9, "Tahoma"
+BEGIN
+    PUSHBUTTON      "OK",IDOK,55,70,35,15
+    PUSHBUTTON      "CANCEL",IDCANCEL,95,70,35,15
+    CONTROL         "Tree1",IDC_FILESELECT_TREE,"SysTreeView32",
+                    TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | 
+                    WS_BORDER | WS_TABSTOP,5,0,125,65
+END
+
+IDD_PROPTAB_PASSWORD DIALOG DISCARDABLE  0, 0, 131, 121
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    EDITTEXT        IDC_PASS1,5,15,85,12,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PASS2,5,40,85,12,ES_PASSWORD | ES_AUTOHSCROLL
+    LTEXT           "Password:",IDC_STATIC,5,5,105,10
+    LTEXT           "ReEnter:",IDC_STATIC,5,30,75,10
+    EDITTEXT        IDC_PROP_PASSWORD_DESC,5,55,120,60,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY
+    PUSHBUTTON      "Option",IDC_PROP_SETPASS,95,40,25,12
+END
+
+IDD_NEWFOLDER DIALOG DISCARDABLE  0, 0, 103, 38
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "NewFolder"
+FONT 9, "Tahoma"
+BEGIN
+    EDITTEXT        IDC_NEWFOLDER_NAME,5,5,95,10,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,15,20,40,15
+    PUSHBUTTON      "Cancel",IDCANCEL,60,20,40,14
+END
+
+IDD_PROPTAB_PASS_TIMEOUT DIALOG DISCARDABLE  0, 0, 136, 111
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    LTEXT           "Password timeout(min):",IDC_PROPTAB_PASS_TIMEOUT_LABEL,
+                    5,5,120,10
+    EDITTEXT        IDC_PASS_TIMEOUT,60,20,35,12,ES_AUTOHSCROLL
+    LTEXT           "Timeout length(1-60).",IDC_PROPTAB_PASS_TIMEOUT_HELP,5,
+                    40,125,20
+    CONTROL         "Use random",IDC_PASS_TIMEOUT_USE_SAFEFILE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,65,125,10
+    LTEXT           "Static",IDC_PROPTAB_PASS_TIMEOUT_SAFEFILE_HELP,5,80,130,
+                    30
+END
+
+IDD_PROPTAB_FONT DIALOG DISCARDABLE  0, 0, 162, 107
+STYLE WS_CHILD
+FONT 9, "Tahoma"
+BEGIN
+    LTEXT           "Tree:",IDC_PROPTAB_FONT_TREE_LABEL,5,5,25,10
+    LTEXT           "Memo:",IDC_PROPTAB_FONT_EDIT_LABEL,5,50,25,10
+    COMBOBOX        IDC_FONT_SELECT_NAME,10,20,95,65,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FONT_DETAILS_NAME,10,65,95,65,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FONT_SELECT_SIZE,110,20,35,65,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FONT_DETAILS_SIZE,110,65,35,65,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Use default",IDC_FONT_SELECT_USEDEFAULT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,30,5,60,10
+    CONTROL         "Use default",IDC_FONT_DETAILS_USEDEFAULT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,30,50,65,10
+    CONTROL         "ClearType font",IDC_FONT_SELECT_CLEARTYPE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,45,35,105,10
+    CONTROL         "ClearType font",IDC_FONT_DETAILS_CLEARTYPE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,45,80,105,10
+END
+
+IDD_PROPTAB_INSDATE DIALOG DISCARDABLE  0, 0, 152, 102
+STYLE WS_CHILD
+FONT 9, "Tahoma"
+BEGIN
+    LTEXT           "Date1:",IDC_PROPTAB_INSDATE_DATE1,5,5,25,10
+    LTEXT           "Date2:",IDC_PROPTAB_INSDATE_DATE2,5,20,25,10
+    EDITTEXT        IDC_PROP_DATEFORMAT1,35,5,110,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PROP_DATEFORMAT2,35,20,110,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DATEFORMAT_DESC,5,40,140,50,ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | NOT 
+                    WS_TABSTOP
+END
+
+IDD_PROPTAB_KEEPCARET DIALOG DISCARDABLE  0, 0, 147, 97
+STYLE WS_CHILD
+FONT 9, "Tahoma"
+BEGIN
+    CONTROL         "Keep Caret",IDC_PROP_KEEPCARET,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,10,5,115,10
+    LTEXT           " ",IDC_PROPTAB_KEEPCARET_HELP1,5,20,135,20
+    LTEXT           "TabStop",IDC_PROPTAB_KEEPCARET_LABEL,10,45,45,10
+    EDITTEXT        IDC_PROP_TABSTOP,55,45,40,12,ES_AUTOHSCROLL
+    LTEXT           " ",IDC_PROPTAB_KEEPCARET_HELP2,20,61,105,10
+    CONTROL         "Disable Save Dialog",IDC_PROPTAB_DISABLESAVEDLG,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,75,110,10
+END
+
+IDD_SEARCH DIALOG DISCARDABLE  0, 0, 163, 89
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE 0x80000000L
+CAPTION "Search"
+FONT 9, "Tahoma"
+BEGIN
+    COMBOBOX        IDC_SEARCH_STRING,5,20,145,75,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Search Str:",IDC_SEARCH_FIND_LABEL,5,5,40,10
+    CONTROL         "Case sensitive",IDC_SEARCH_CASESENSITIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,40,95,10
+    CONTROL         "Find encrypted memo",IDC_SEARCH_ENCRYPTMEMO,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,55,100,10
+    CONTROL         "Find to file name",IDC_FILENAMEONLY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,70,90,10
+    CONTROL         "Up",IDC_SEARCH_DIRECTION_UP,"Button",BS_AUTORADIOBUTTON,
+                    115,50,29,10
+    CONTROL         "Down",IDC_SEARCH_DIRECTION_DOWN,"Button",
+                    BS_AUTORADIOBUTTON,115,60,29,10
+    GROUPBOX        "Direction",IDC_SEARCH_DIRECT_LABEL,110,40,40,35
+END
+
+IDD_SEARCHING DIALOG DISCARDABLE  0, 0, 89, 59
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP
+FONT 9, "Tahoma"
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,20,35,50,14
+    CTEXT           "Searching...",IDC_SEARCHMSG,5,16,80,8
+END
+
+IDD_GREPTAB_MAIN DIALOG DISCARDABLE  0, 0, 146, 91
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    LTEXT           "Target dir:",IDC_GREPTAB_MAIN_POSLABEL,5,5,44,8
+    LTEXT           "Static",IDC_GREPTAB_MAIN_STARTDIR,50,5,90,10
+    LTEXT           "Search str:",IDC_GREPTAB_MAIN_STRLABEL,5,20,38,8
+    COMBOBOX        IDC_GREPTAB_MAIN_SEARCHSTRING,45,20,100,70,CBS_DROPDOWN | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Case sensitive",IDC_GREPTAB_MAIN_CASESENSITIVE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,40,76,10
+    CONTROL         "Include encrypted memo",IDC_GREPTAB_MAIN_ENCRYPTNOTE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,55,81,10
+    CONTROL         "Find to file name",IDC_GREPTAB_MAIN_FILENAME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,70,78,10
+END
+
+IDD_GREPTAB_PERSIST DIALOG DISCARDABLE  0, 0, 146, 91
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+END
+
+IDD_FILTERCTL DIALOG DISCARDABLE  0, 0, 179, 98
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Virtual folder"
+FONT 9, "Tahoma"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,30,80,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,85,80,50,14
+    CONTROL         "List1",IDC_FILTERCTL_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | 
+                    WS_BORDER | WS_TABSTOP,30,5,105,70
+    CONTROL         "Save",IDC_FILTERCTL_KEEP,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,145,5,30,10
+    PUSHBUTTON      "Up",IDC_FILTERCTL_UP,5,20,20,14
+    PUSHBUTTON      "DN",IDC_FILTERCTL_DOWN,5,40,20,14
+    PUSHBUTTON      "New",IDC_FILTERCTL_NEW,145,20,25,14
+    PUSHBUTTON      "Del",IDC_FILTERCTL_DELETE,145,60,25,14
+    PUSHBUTTON      "Ren",IDC_FILTERCTL_RENAME,145,40,25,14
+END
+
+IDD_FILTERDEF_ADD_LIMIT DIALOG DISCARDABLE  0, 0, 119, 65
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Number filter"
+FONT 9, "Tahoma"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,5,45,50,14
+    PUSHBUTTON      "CANCEL",IDCANCEL,60,45,50,14
+    LTEXT           "Num Items:",IDC_FILTERDEF_ADD_LIMIT_ITEMS,5,15,36,8
+    EDITTEXT        IDC_FILTERDEF_LIMIT_NUMLIMIT,50,15,40,14,ES_AUTOHSCROLL
+END
+
+IDD_FILTERDEF_ADD_REGEX DIALOG DISCARDABLE  0, 0, 135, 109
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Find filter"
+FONT 9, "Tahoma"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,10,90,50,14
+    PUSHBUTTON      "CANCEL",IDCANCEL,65,90,50,14
+    LTEXT           "Search str:",IDC_FILTERDEF_ADD_REGEX_LABEL,5,10,36,8
+    COMBOBOX        IDC_FILTERDEF_REGEX_SEARCHSTR,50,10,80,80,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Case sensitive",IDC_FILTERDEF_REGEX_CASESENSITIVE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,77,10
+    CONTROL         "Include encrypted memo",IDC_FILTERDEF_REGEX_CRYPTMEMO,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,45,78,10
+    CONTROL         "Find to file name",IDC_FILTERDEF_REGEX_FILENAME,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,60,85,10
+    CONTROL         "Invert match",IDC_FILTERDEF_REGEX_NEGATE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,75,83,10
+END
+
+IDD_FILTERDEF_ADD_SORT DIALOG DISCARDABLE  0, 0, 134, 65
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Sort filter"
+FONT 9, "Tahoma"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,10,40,50,14
+    PUSHBUTTON      "CANCEL",IDCANCEL,65,40,50,14
+    COMBOBOX        IDC_FILTERDEF_SORT_TYPE,45,15,80,85,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Sort Type:",IDC_FILTERDEF_ADD_SORT_LABEL,5,15,35,8
+END
+
+IDD_FILTERDEF_ADD_TIMESTAMP DIALOG DISCARDABLE  0, 0, 119, 93
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Timestamp filter"
+FONT 9, "Tahoma"
+BEGIN
+    EDITTEXT        IDC_FILTERDEF_TS_DELTADAY,25,10,30,14,ES_AUTOHSCROLL
+    CONTROL         "Newer",IDC_FILTERDEF_TS_NEWER,"Button",
+                    BS_AUTORADIOBUTTON,35,35,46,10
+    CONTROL         "Older",IDC_FILTERDEF_TS_OLDER,"Button",
+                    BS_AUTORADIOBUTTON,35,50,41,10
+    DEFPUSHBUTTON   "OK",IDOK,5,75,50,14
+    PUSHBUTTON      "CANCEL",IDCANCEL,60,75,50,14
+    LTEXT           "days before",IDC_FILTERDEF_ADD_TIMESTAMP_BASEPOINT,60,
+                    15,26,8
+END
+
+IDD_FILTERDEF_FILTER DIALOG DISCARDABLE  0, 0, 181, 95
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    CONTROL         "List1",IDC_FILTERDEF_FILTER_LIST,"SysListView32",
+                    LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | 
+                    WS_BORDER | WS_TABSTOP,5,5,105,85
+    PUSHBUTTON      "Up",IDC_FILTERDEF_FILTER_UP,115,15,25,14
+    PUSHBUTTON      "Dn",IDC_FILTERDEF_FILTER_DOWN,115,35,25,14
+    PUSHBUTTON      "Find",IDC_FILTERDEF_FILTER_REGEX,145,10,30,14
+    PUSHBUTTON      "Num",IDC_FILTERDEF_FILTER_LIMIT,145,30,30,14
+    PUSHBUTTON      "Date",IDC_FILTERDEF_FILTER_TIMESTAMP,145,50,30,14
+    PUSHBUTTON      "Sort",IDC_FILTERDEF_FILTER_SORT,145,70,30,14
+    PUSHBUTTON      "Del",IDC_FILTERDEF_FILTER_DELETE,115,65,25,14
+END
+
+IDD_FILTERDEF_SRC DIALOG DISCARDABLE  0, 0, 136, 50
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    EDITTEXT        IDC_FILTERDEF_SRC_PATH,5,15,120,14,ES_AUTOHSCROLL
+END
+
+IDD_PROPTAB_DEFNOTE DIALOG DISCARDABLE  0, 0, 141, 110
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    EDITTEXT        IDC_PROPTAB_DEFNOTE_PATH,5,40,115,12,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    PUSHBUTTON      "Use current",IDC_PROPTAB_DEFNOTE_SETCURRENT,60,60,60,14
+    PUSHBUTTON      "Use blank",IDC_PROPTAB_DEFNOTE_SETBLANK,60,80,60,14
+    LTEXT           "Top page",IDC_PROPTAB_DEFNOTE_LABEL,5,25,36,8
+    CONTROL         "Use Last",IDC_PROPTAB_DEFNOTE_USELAST,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,5,130,10
+END
+
+IDD_BOOKMARK_EDIT DIALOG DISCARDABLE  0, 0, 187, 99
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit bookmarks"
+FONT 9, "Tahoma"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,70,80,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,125,80,50,14
+    CONTROL         "List1",IDC_BMEDIT_LIST,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,30,5,150,70
+    PUSHBUTTON      "Up",IDC_BMEDIT_UP,5,15,20,14
+    PUSHBUTTON      "Dn",IDC_BMEDIT_DOWN,5,35,20,14
+    PUSHBUTTON      "Del",IDC_BMEDIT_DELETE,10,80,50,14
+END
+
+IDD_PROPTAB_EXTAPP DIALOG DISCARDABLE  0, 0, 201, 96
+STYLE WS_CHILD | WS_BORDER
+FONT 9, "Tahoma"
+BEGIN
+    CONTROL         "Use file association",IDC_PROP_EXTAPP_USEASSOC,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,5,74,10
+    EDITTEXT        IDC_PROP_EXTAPP_PATH_EXTAPP1,10,35,70,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PROP_EXTAPP_PATH_EXTAPP2,10,70,70,12,ES_AUTOHSCROLL
+    LTEXT           "Application1",IDC_PROP_EXTAPP_TTL_EXTAPP1,5,20,60,8
+    LTEXT           "Application2",IDC_PROP_EXTAPP_TTL_EXTAPP2,5,55,60,8
+    PUSHBUTTON      "...",IDC_PROPTAB_EXTAPP_CHOOSE1,85,35,20,10
+    PUSHBUTTON      "...",IDC_PROPTAB_EXTAPP_CHOOSE2,85,70,20,10
+    EDITTEXT        IDC_PROP_EXTAPP_CAUTION,110,5,75,80,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY
+END
+
+IDD_PROPTAB_CODEPAGE DIALOG DISCARDABLE  0, 0, 142, 102
+STYLE WS_CHILD
+FONT 9, "System"
+BEGIN
+    LTEXT           "CodePage:",IDC_PROPTAB_CODEPAGE_LABEL,10,5,35,8
+    COMBOBOX        IDC_PROPTAB_CODEPAGE_CODEPAGE,5,20,135,90,
+                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_PROPTAB_CODEPAGE_NOTICE,0,40,140,55,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_READONLY
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_CONTEXTMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Menu"
+    BEGIN
+        MENUITEM "切り取り",                    IDM_CUT
+        MENUITEM "コピー",                      IDM_COPY
+        MENUITEM SEPARATOR
+        MENUITEM "暗号化",                      IDM_ENCRYPT
+        MENUITEM "復号化",                      IDM_DECRYPT
+        MENUITEM SEPARATOR
+        MENUITEM "検索",                        IDM_SEARCH
+        MENUITEM SEPARATOR
+        MENUITEM "新規フォルダ",                IDM_NEWFOLDER
+        MENUITEM SEPARATOR
+        MENUITEM "削除",                        IDM_DELETEITEM
+        MENUITEM "名前の変更",                  IDM_RENAME
+        MENUITEM SEPARATOR
+        MENUITEM "リンク元へ移動",              IDM_TRACELINK
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_PROPTAB_FOLDER, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 105
+    END
+
+    IDD_PROPTAB_FONT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 155
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 100
+    END
+
+    IDD_PROPTAB_INSDATE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 145
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 95
+    END
+
+    IDD_PROPTAB_KEEPCARET, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 140
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 90
+    END
+
+    IDD_SEARCH, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 156
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 82
+    END
+
+    IDD_SEARCHING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 82
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 52
+    END
+
+    IDD_GREPTAB_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 139
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 84
+    END
+
+    IDD_GREPTAB_PERSIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 139
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 84
+    END
+
+    IDD_FILTERCTL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 172
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 91
+    END
+
+    IDD_FILTERDEF_ADD_LIMIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 112
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 58
+    END
+
+    IDD_FILTERDEF_ADD_REGEX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 128
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 102
+    END
+
+    IDD_FILTERDEF_ADD_SORT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 127
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 58
+    END
+
+    IDD_FILTERDEF_ADD_TIMESTAMP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 112
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+
+    IDD_FILTERDEF_FILTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 174
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 88
+    END
+
+    IDD_FILTERDEF_SRC, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 129
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 43
+    END
+
+    IDD_PROPTAB_DEFNOTE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_BOOKMARK_EDIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 92
+    END
+
+    IDD_PROPTAB_EXTAPP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 194
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 89
+    END
+
+    IDD_PROPTAB_CODEPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 135
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 95
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCEL_SELECT ACCELERATORS DISCARDABLE 
+BEGIN
+    "8",            IDM_SEARCH_PREV,        VIRTKEY, CONTROL, NOINVERT
+    "9",            IDM_SEARCH_NEXT,        VIRTKEY, CONTROL, NOINVERT
+    "A",            IDM_SELALL,             VIRTKEY, CONTROL, NOINVERT
+    "E",            IDM_ENCRYPT,            VIRTKEY, CONTROL, NOINVERT
+    "F",            IDM_SEARCH,             VIRTKEY, CONTROL, NOINVERT
+    "G",            IDM_GREP,               VIRTKEY, CONTROL, NOINVERT
+    "N",            IDM_NEWMEMO,            VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_DECRYPT,            VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
+    "S",            IDM_SAVE,               VIRTKEY, CONTROL, NOINVERT
+    VK_F3,          IDM_SEARCH_NEXT,        VIRTKEY, NOINVERT
+    VK_F3,          IDM_SEARCH_PREV,        VIRTKEY, SHIFT, NOINVERT
+END
+
+IDR_ACCEL_DETAIL ACCELERATORS DISCARDABLE 
+BEGIN
+    "1",            IDM_INSDATE1,           VIRTKEY, CONTROL, NOINVERT
+    "2",            IDM_INSDATE2,           VIRTKEY, CONTROL, NOINVERT
+    "8",            IDM_SEARCH_PREV,        VIRTKEY, CONTROL, NOINVERT
+    "9",            IDM_SEARCH_NEXT,        VIRTKEY, CONTROL, NOINVERT
+    "B",            IDM_TOGGLEREADONLY,     VIRTKEY, CONTROL, NOINVERT
+    "C",            IDM_COPY,               VIRTKEY, CONTROL, NOINVERT
+    "F",            IDM_SEARCH,             VIRTKEY, CONTROL, NOINVERT
+    "N",            IDM_NEWMEMO,            VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
+    "S",            IDM_SAVE,               VIRTKEY, CONTROL, NOINVERT
+    "V",            IDM_PASTE,              VIRTKEY, CONTROL, NOINVERT
+    VK_ESCAPE,      IDM_RETURNLIST,         VIRTKEY, NOINVERT
+    VK_ESCAPE,      IDM_RETURNLIST,         VIRTKEY, SHIFT, NOINVERT
+    VK_F3,          IDM_SEARCH_NEXT,        VIRTKEY, NOINVERT
+    VK_F3,          IDM_SEARCH_PREV,        VIRTKEY, SHIFT, NOINVERT
+    "X",            IDM_CUT,                VIRTKEY, CONTROL, NOINVERT
+    "Z",            IDM_UNDO,               VIRTKEY, CONTROL, NOINVERT
+END
+
+#endif    // Japanese resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

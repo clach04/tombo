@@ -1,0 +1,17 @@
+<!ELEMENT folders (vfolder*) >
+
+<!ELEMENT src     EMPTY      >
+<!ATTLIST src
+          folder        CDATA #REQUIRED
+          checkencrypt  CDATA #IMPLIED>
+
+<!ELEMENT grep    (grep|src) >
+<!ATTLIST grep
+          pattern       CDATA #REQUIRED
+          not           CDATA #IMPLIED
+          casesensitive CDATA #IMPLIED
+          filenameonly  CDATA #IMPLIED>
+
+<!ELEMENT vfolder (grep|src) >
+<!ATTLIST vfolder
+          name          CDATA #REQUIRED>

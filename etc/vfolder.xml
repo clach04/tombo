@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE folders SYSTEM "TOMBO_vfolder.dtd">
+<!-- 
+Sample file of virtual folder. 
+Place this file as same folder as Tombo.exe, you may be happy ;-)
+
+In current version, encoding is allowed only UTF-8 or UTF-16.
+-->
+
+<folders>
+  <vfolder name='High priority'>
+    <grep pattern='Ass:' not='True'>
+      <grep pattern='Pri: H'>
+        <src folder="\Todo"/>
+      </grep>
+    </grep>
+  </vfolder>
+  <vfolder name='Mid priority'>
+    <grep pattern='Ass:' not='True'>
+      <grep pattern='Pri: [Mm]'>
+        <src folder="\Todo"/>
+      </grep>
+    </grep>
+  </vfolder>
+  <vfolder name='Assigned'>
+    <grep pattern='Ass: (.*)' >
+      <src folder="\Todo"/>
+    </grep>
+  </vfolder>
+</folders>

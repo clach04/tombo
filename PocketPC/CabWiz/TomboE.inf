@@ -1,0 +1,87 @@
+[Version]
+Signature = "$Windows NT$"
+Provider = "FlatFish"
+CESignature = "$Windows CE$"
+
+[DefaultInstall]
+AddReg=RegSettings.All
+CEShortcuts = Shortcuts.All
+
+[DefaultInstall.SH3]
+CopyFiles = Files.SH3
+
+[DefaultInstall.MIPS]
+CopyFiles = Files.MIPS
+
+[DefaultInstall.ARM]
+CopyFiles = Files.ARM
+
+[SourceDisksNames]
+1 = ,"Common Files",,C:\work2\SF\Tombo\Src\MsgRes\TomboMsg\en
+
+[SourceDisksNames.SH3]
+2 = ,"SH3 files",,C:\work2\SF\Tombo\PocketPC\Tombo\SH3Rel
+3 = ,"SH3 DLL",,C:\work2\SF\Tombo\oniguruma\sh3
+4 = ,"RegErase",,C:\work2\SF\Tombo\HPCPro\RegErase\SH3Rel
+
+[SourceDisksNames.MIPS]
+2 = ,"MIPS files",,C:\work2\SF\Tombo\PocketPC\Tombo\MIPSRel
+3 = ,"MIPS DLL",,C:\work2\SF\Tombo\oniguruma\mips
+4 = ,"RegErase",,C:\work2\SF\Tombo\HPCPro\RegErase\MIPSRel
+
+[SourceDisksNames.ARM]
+2 = ,"ARM files",,C:\work2\SF\Tombo\PocketPC\Tombo\ARMRel
+3 = ,"ARM DLL",,C:\work2\SF\Tombo\oniguruma\arm
+4 = ,"RegErase",,C:\work2\SF\Tombo\HPCPro\RegErase\ARMRel
+
+[SourceDisksFiles]
+TomboMsg.txt = 1
+
+[SourceDisksFiles.SH3]
+Tombo.exe = 2
+oniguruma.dll = 3
+RegErase.exe = 4
+
+[SourceDisksFiles.MIPS]
+Tombo.exe = 2
+oniguruma.dll = 3
+RegErase.exe = 4
+
+[SourceDisksFiles.ARM]
+Tombo.exe = 2
+oniguruma.dll = 3
+RegErase.exe = 4
+
+[DestinationDirs]
+Files.SH3 = 0,%InstallDir%\Tombo
+Files.MIPS = 0,%InstallDir%\Tombo
+Files.ARM = 0,%InstallDir%\Tombo
+Shortcuts.All = ,%CE11%
+
+[CEStrings]
+AppName = TOMBO
+InstallDir = %CE1%
+
+[Shortcuts.All]
+Tombo,0,tombo.exe
+
+[Files.SH3]
+Tombo.exe,,,0
+TomboMsg.txt,,,0
+oniguruma.dll,,,0
+RegErase.exe,,,0
+
+[Files.MIPS]
+Tombo.exe,,,0
+TomboMsg.txt,,,0
+oniguruma.dll,,,0
+RegErase.exe,,,0
+
+[Files.ARM]
+Tombo.exe,,,0
+TomboMsg.txt,,,0
+oniguruma.dll,,,0
+RegErase.exe,,,0
+
+[RegSettings.All]
+
