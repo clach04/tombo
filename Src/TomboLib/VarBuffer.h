@@ -30,9 +30,7 @@ public:
 
 	BOOL Clear(BOOL bReAlloc);
 
-#ifdef UNIT_TEST
 	DWORD CurrentUse() { return nCurrentUse; }
-#endif
 };
 
 ////////////////////////////////////////////////////
