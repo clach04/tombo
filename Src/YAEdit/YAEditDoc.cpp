@@ -129,12 +129,11 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 
 	DWORD nPhLinesBefore = pPhLineMgr->MaxLine();
 
+	// get string which removed by this action.
 	LPTSTR pOldTxt = pPhLineMgr->GetRegionString(pDelRegion);
-	ArrayAutoPointer<TCHAR> ap(pOldTxt);
 
-	if (pUndo != NULL && pUndo->rRegion.posEnd !=  pDelRegion->posEnd) {
+	if (pUndo != NULL) {
 		delete pUndo;
-		pUndo = NULL;
 	}
 
 	// delete region and insert string
@@ -145,15 +144,12 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 	}
 	DWORD nPhLinesAfter = pPhLineMgr->MaxLine();
 
-	if (pUndo == NULL) {
-		pUndo = new UndoInfo(pOldTxt);
-		ap.set(NULL);
-		if (pUndo == NULL) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return FALSE; }
-		pUndo->rRegion = rNewRegion;
-	} else if (*pOldTxt == TEXT('\0')) {
-		pUndo->rRegion.posEnd = rNewRegion.posEnd;
-	}
+	// remember old string
+	pUndo = new UndoInfo(pOldTxt);
+	if (pUndo == NULL) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return FALSE; }
+	pUndo->rRegion = rNewRegion;
 
+	// notify to view
 	if (pListener && !pListener->UpdateNotify(pPhLineMgr, pDelRegion, &rNewRegion, nPhLinesBefore, nPhLinesAfter, nAffLines)) {
 		return FALSE;
 	}

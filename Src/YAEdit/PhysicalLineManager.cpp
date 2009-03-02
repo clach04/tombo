@@ -393,6 +393,7 @@ BOOL PhysicalLineManager::ReplaceRegion(const Region *pRegion, LPCTSTR pString, 
 	if (pLastLine) {
 		pAppend = pMemMgr->ConCat(pAppend, pLastLine->GetDataArea() + pRegion->posEnd.col, pLastLine->nUsed - pRegion->posEnd.col);
 	} else {
+		// replace in one line
 		pAppend = pMemMgr->ConCat(pAppend, pFirstLine->GetDataArea() + pRegion->posEnd.col, pFirstLine->nUsed - pRegion->posEnd.col);
 	}
 	if (pAppend == NULL) return FALSE;

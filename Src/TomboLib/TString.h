@@ -64,6 +64,10 @@ public:
 	BOOL Set(LPCTSTR p);
 	BOOL Set(const SharedString& s);
 	LPCTSTR Get() const;
+
+#ifdef UNIT_TEST
+	SharedBuf *GetBuf() { return pBuf; }
+#endif
 };
 
 ////////////////////////////////////

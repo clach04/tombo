@@ -1,5 +1,5 @@
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/TestAssert.h>
+#include <windows.h>
+#include "../stdafx.h"
 
 #include <windows.h>
 #include <tchar.h>
@@ -11,87 +11,73 @@
 #include "VarBuffer.h"
 #include "URIScanner.h"
 
-#define TEST_CLASS_NAME URIScannerTest
+static TestRunner *runner;
 
-class TEST_CLASS_NAME : public CppUnit::TestFixture {
-	CPPUNIT_TEST_SUITE(TEST_CLASS_NAME);
-	CPPUNIT_TEST(URIListTest1);
+static void URIListTest1();
+static void URIScanTest1();
+static void URIScanTest2();
+static void URIScanTest3();
+static void URIScanTest4();
+static void URIScanTest5();
+static void URIScanTest6();
+static void URIScanTest7();
+static void URIScanTest8();
+static void PartialScanTest1();
+static void PartialScanTest2();
+static void InterruptTest1();
+static void InterruptTest2();
+static void InterruptTest3();
+static void InterruptTest4();
 
-	CPPUNIT_TEST(URIScanTest1);
-	CPPUNIT_TEST(URIScanTest2);
-	CPPUNIT_TEST(URIScanTest3);
-	CPPUNIT_TEST(URIScanTest4);
-	CPPUNIT_TEST(URIScanTest5);
-	CPPUNIT_TEST(URIScanTest6);
-	CPPUNIT_TEST(URIScanTest7);
-	CPPUNIT_TEST(URIScanTest8);
-	CPPUNIT_TEST(PartialScanTest1);
-	CPPUNIT_TEST(PartialScanTest2);
+void URIScannerTest(TestRunner *r) {
+	runner = r;
+	runner->WriteMsg("URIScannerTest\r\n");
 
-	CPPUNIT_TEST(InterruptTest1);
-	CPPUNIT_TEST(InterruptTest2);
-	CPPUNIT_TEST(InterruptTest3);
-	CPPUNIT_TEST(InterruptTest4);
+	URIListTest1();
+	URIScanTest1();
+	URIScanTest2();
+	URIScanTest3();
+	URIScanTest4();
+	URIScanTest5();
+	URIScanTest6();
+	URIScanTest7();
+	URIScanTest8();
+	PartialScanTest1();
+	PartialScanTest2();
+	InterruptTest1();
+	InterruptTest2();
+	InterruptTest3();
+	InterruptTest4();
+}
 
-	CPPUNIT_TEST_SUITE_END();
-
-public:
-	TEST_CLASS_NAME() {}
-	~TEST_CLASS_NAME() {}
-
-	virtual void setUp() {}
-	virtual void tearDown() {}
-
-	void URIListTest1();
-
-	void URIScanTest1();
-	void URIScanTest2();
-	void URIScanTest3();
-	void URIScanTest4();
-	void URIScanTest5();
-	void URIScanTest6();
-	void URIScanTest7();
-	void URIScanTest8();
-	void PartialScanTest1();
-	void PartialScanTest2();
-	void InterruptTest1();
-	void InterruptTest2();
-	void InterruptTest3();
-	void InterruptTest4();
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(TEST_CLASS_NAME);
-
-////////////////////////////////////////////////
-
-void TEST_CLASS_NAME::URIListTest1() {
+void URIListTest1() {
 	URIList list;
-	CPPUNIT_ASSERT(list.Init());
+	runner->assert(list.Init());
 
-	CPPUNIT_ASSERT(list.Add(NULL, NULL));
+	runner->assert(list.Add(NULL, NULL));
 
 	TomboURI uri;
 	uri.Init("tombo://default/test");
-	CPPUNIT_ASSERT(list.Add(&uri, NULL));
+	runner->assert(list.Add(&uri, NULL));
 
 	{	// the case of when uri2 released first.
 		TomboURI uri2;
 		uri2.Init("tombo://default/test2");
-		CPPUNIT_ASSERT(list.Add(&uri2, NULL));
+		runner->assert(list.Add(&uri2, NULL));
 	}
 
-	CPPUNIT_ASSERT(list.Add(NULL, "test"));
+	runner->assert(list.Add(NULL, "test"));
 
-	CPPUNIT_ASSERT(list.GetSize() == 4);
+	runner->assert(list.GetSize() == 4);
 
-	CPPUNIT_ASSERT(list.GetURI(0) == NULL);
-	CPPUNIT_ASSERT(list.GetTitle(0) == NULL);
-	CPPUNIT_ASSERT(strcmp(list.GetURI(1)->GetFullURI(), "tombo://default/test") == 0);
-	CPPUNIT_ASSERT(list.GetTitle(1) == NULL);
-	CPPUNIT_ASSERT(strcmp(list.GetURI(2)->GetFullURI(), "tombo://default/test2") == 0);
-	CPPUNIT_ASSERT(list.GetTitle(2) == NULL);
-	CPPUNIT_ASSERT(list.GetURI(3) == NULL);
-	CPPUNIT_ASSERT(strcmp(list.GetTitle(3), "test") == 0);
+	runner->assert(list.GetURI(0) == NULL);
+	runner->assert(list.GetTitle(0) == NULL);
+	runner->assert(strcmp(list.GetURI(1)->GetFullURI(), "tombo://default/test") == 0);
+	runner->assert(list.GetTitle(1) == NULL);
+	runner->assert(strcmp(list.GetURI(2)->GetFullURI(), "tombo://default/test2") == 0);
+	runner->assert(list.GetTitle(2) == NULL);
+	runner->assert(list.GetURI(3) == NULL);
+	runner->assert(strcmp(list.GetTitle(3), "test") == 0);
 }
 
 ////////////////////////////////////////////////
@@ -253,12 +239,12 @@ void TestScanner1::FullScanTest(LPCTSTR pTestName, LPCTSTR pCorrect, DummyRepoBa
 
 	TestScanner1 s1;
 
-	CPPUNIT_ASSERT(s1.Init(pRepo, &base, FALSE));
+	runner->assert(s1.Init(pRepo, &base, FALSE));
 
 	BOOL bResult = s1.FullScan();
-	CPPUNIT_ASSERT_EQUAL(bResult, TRUE);
+	runner->assert(bResult == TRUE);
 	LPCTSTR pResultStr = s1.sbuf.Get(0);
-	CPPUNIT_ASSERT(s1.Check(pTestName, pCorrect));
+	runner->assert(s1.Check(pTestName, pCorrect));
 }
 
 void TestScanner1::ScanTest(LPCTSTR pTestName, LPCTSTR pCorrect, DummyRepoBase *pRepo, const TomboURI *pURI, BOOL bReverse)
@@ -268,12 +254,12 @@ void TestScanner1::ScanTest(LPCTSTR pTestName, LPCTSTR pCorrect, DummyRepoBase *
 
 	TestScanner1 s1;
 
-	CPPUNIT_ASSERT(s1.Init(pRepo, &base, FALSE));
+	runner->assert(s1.Init(pRepo, &base, FALSE));
 
 	BOOL bResult = s1.Scan(pURI, bReverse);
-	CPPUNIT_ASSERT_EQUAL(bResult, TRUE);
+	runner->assert(bResult == TRUE);
 	LPCTSTR pResultStr = s1.sbuf.Get(0);
-	CPPUNIT_ASSERT(s1.Check(pTestName, pCorrect));
+	runner->assert(s1.Check(pTestName, pCorrect));
 }
 
 BOOL TestScanner1::Check(LPCTSTR pMsg, LPCTSTR pCorrect)
@@ -311,7 +297,7 @@ URIList *Repo1::GetChild(const TomboURI *pFolderURI, BOOL bSkipEncrypt, BOOL bLo
 }
 
 // test runner
-void TEST_CLASS_NAME::URIScanTest1() 
+void URIScanTest1() 
 {
 	LPCTSTR pTest = "TEST1";
 	LPCTSTR pCorrect = 
@@ -345,7 +331,7 @@ URIList *Repo2::GetChild(const TomboURI *pFolderURI, BOOL bSkipEncrypt, BOOL bLo
 	return pList;
 }
 
-void TEST_CLASS_NAME::URIScanTest2() 
+void URIScanTest2() 
 {
 	LPCTSTR pTest = "TEST3";
 	LPCTSTR pCorrect = 
@@ -387,7 +373,7 @@ URIList *Repo3::GetChild(const TomboURI *pFolderURI, BOOL bSkipEncrypt, BOOL bLo
 	return pList;
 }
 
-void TEST_CLASS_NAME::URIScanTest3() 
+void URIScanTest3() 
 {
 	LPCTSTR pTest = "TEST3";
 	LPCTSTR pCorrect = 
@@ -455,7 +441,7 @@ URIList *Repo4::GetChild(const TomboURI *pFolderURI, BOOL bSkipEncrypt, BOOL bLo
 	return pList;
 }
 
-void TEST_CLASS_NAME::URIScanTest4() 
+void URIScanTest4() 
 {
 	LPCTSTR pTest = "TEST4";
 	LPCTSTR pCorrect = 
@@ -496,7 +482,7 @@ void TestScanner2::Node()
 	}
 }
 
-void TEST_CLASS_NAME::URIScanTest5() 
+void URIScanTest5() 
 {
 	LPCTSTR pTest = "TEST5";
 	LPCTSTR pCorrect = 
@@ -516,12 +502,12 @@ void TEST_CLASS_NAME::URIScanTest5()
 
 	TestScanner2 s1;
 
-	CPPUNIT_ASSERT(s1.Init(&rep, &base, FALSE));
+	runner->assert(s1.Init(&rep, &base, FALSE));
 
 	BOOL bResult = s1.FullScan();
-	CPPUNIT_ASSERT_EQUAL(bResult, TRUE);
+	runner->assert(bResult == TRUE);
 	LPCTSTR pResultStr = s1.sbuf.Get(0);
-	CPPUNIT_ASSERT(s1.Check(pTest, pCorrect));
+	runner->assert(s1.Check(pTest, pCorrect));
 }
 
 ////////////////////////////////////////////////
@@ -544,7 +530,7 @@ URIList *Repo6::GetChild(const TomboURI *pFolderURI, BOOL bSkipEncrypt, BOOL bLo
 	}
 }
 
-void TEST_CLASS_NAME::URIScanTest6() 
+void URIScanTest6() 
 {
 	LPCTSTR pTest = "TEST6";
 	LPCTSTR pCorrect = 
@@ -575,7 +561,7 @@ URIList *Repo7::GetChild(const TomboURI *pFolderURI, BOOL bSkipEncrypt, BOOL bLo
 	return NULL;
 }
 
-void TEST_CLASS_NAME::URIScanTest7() 
+void URIScanTest7() 
 {
 	LPCTSTR pTest = "TEST7";
 	LPCTSTR pCorrect = 
@@ -591,7 +577,7 @@ void TEST_CLASS_NAME::URIScanTest7()
 //
 // reverse order of URIScanTest4()
 
-void TEST_CLASS_NAME::URIScanTest8() 
+void URIScanTest8() 
 {
 	LPCTSTR pTest = "TEST8";
 	LPCTSTR pCorrect = 
@@ -617,7 +603,7 @@ void TEST_CLASS_NAME::URIScanTest8()
 //
 // partial scan test
 
-void TEST_CLASS_NAME::PartialScanTest1() 
+void PartialScanTest1() 
 {
 	LPCTSTR pTest = "TEST-P1";
 	LPCTSTR pCorrect = 
@@ -646,7 +632,7 @@ void TEST_CLASS_NAME::PartialScanTest1()
 //
 // baseURI and startURI is same
 
-void TEST_CLASS_NAME::PartialScanTest2() 
+void PartialScanTest2() 
 {
 	LPCTSTR pTest = "PSTEST2";
 	LPCTSTR pCorrect = 
@@ -675,7 +661,7 @@ void TEST_CLASS_NAME::PartialScanTest2()
 //
 // cancelled at root
 
-void TEST_CLASS_NAME::InterruptTest1() 
+void InterruptTest1() 
 {
 	LPCTSTR pTest = "IRTEST1";
 	LPCTSTR pCorrect = 
@@ -693,7 +679,7 @@ void TEST_CLASS_NAME::InterruptTest1()
 //
 // cancelled at sub folder
 
-void TEST_CLASS_NAME::InterruptTest2() 
+void InterruptTest2() 
 {
 	LPCTSTR pTest = "IRTEST1";
 	LPCTSTR pCorrect = 
@@ -716,7 +702,7 @@ void TEST_CLASS_NAME::InterruptTest2()
 //
 // cancelled at sub folder
 
-void TEST_CLASS_NAME::InterruptTest3() 
+void InterruptTest3() 
 {
 	LPCTSTR pTest = "IRTEST1";
 	LPCTSTR pCorrect = 
@@ -742,7 +728,7 @@ void TEST_CLASS_NAME::InterruptTest3()
 //
 // cancelled at sub folder
 
-void TEST_CLASS_NAME::InterruptTest4() 
+void InterruptTest4() 
 {
 	LPCTSTR pTest = "IRTEST1";
 	LPCTSTR pCorrect = 

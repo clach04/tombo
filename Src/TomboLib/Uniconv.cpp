@@ -1362,7 +1362,7 @@ char *EscapeXMLStr(LPCTSTR pStr)
 // Base64 encode/decode
 ////////////////////////////////////////////////////
 
-#if defined(USE_CPPUNIT)
+#ifdef UNIT_TEST
 DWORD g_Base64EncodeAllocSize;
 #endif
 
@@ -1376,7 +1376,7 @@ char *Base64Encode(const LPBYTE pBinary, DWORD nSrcLen)
 	if (nSrcLen % 3 != 0) { nBufSiz += 4; }
 	nBufSiz++; // for \0
 
-#if defined(USE_CPPUNIT)
+#ifdef UNIT_TEST
 	g_Base64EncodeAllocSize = nBufSiz;
 #endif
 

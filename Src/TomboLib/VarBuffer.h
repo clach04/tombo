@@ -27,11 +27,12 @@ public:
 
 	LPBYTE GetBuffer() { return pBuf; }
 	LPBYTE Get(DWORD nOffset) { return pBuf + nOffset; }
-	DWORD CurrentUse() { return nCurrentUse; }
 
 	BOOL Clear(BOOL bReAlloc);
 
-	friend class VarBufferTest;
+#ifdef UNIT_TEST
+	DWORD CurrentUse() { return nCurrentUse; }
+#endif
 };
 
 ////////////////////////////////////////////////////

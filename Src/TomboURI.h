@@ -6,11 +6,13 @@
 /////////////////////////////////////////////
 
 class TomboURI {
+#ifdef UNIT_TEST
+public:
+#endif
 	int nMaxPathItem;
 
 	SharedString uri;
 
-	friend class TomboURITest;
 public:
 	///////////////////////////////
 	// ctor, dtor and initializer
