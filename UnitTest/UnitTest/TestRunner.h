@@ -25,4 +25,8 @@ public:
 	void TestFail(LPCTSTR pTestCaseName);
 
 	void assert(BOOL b);
+	void assert(BOOL b, LPCTSTR pFile, long lLine);
 };
+
+#define ASSERT(b) runner->assert(b, __FILE__, __LINE__)
+#define TESTCASE runner->WriteMsg(__FUNCTION__)

@@ -9,6 +9,7 @@ class YAEditListener;
 
 class UndoInfo;
 
+
 ////////////////////////////////////////////////////
 // Document container for YAE
 ////////////////////////////////////////////////////
@@ -63,14 +64,33 @@ public:
 	void ConvertBytesToCoordinate(DWORD nPos, Coordinate *pPos);
 
 	////////////////////////////////////////////////////
-	// set current document status as undo point
-	BOOL InsertUndoPoint();
-
-	////////////////////////////////////////////////////
 	// only for testing
+#ifdef UNIT_TEST
+	UndoInfo *GetUndoInfo() { return pUndo; }
+#endif
+};
 
-	LPCTSTR GetUndoStr();
-	const Region GetUndoRegion();
+/////////////////////////////////////////////////////////////////////////////
+// undo info
+/////////////////////////////////////////////////////////////////////////////
+
+class UndoInfo {
+#ifdef UNIT_TEST
+public:
+#endif
+	LPTSTR pPrevStr;
+	Region rPrevRegion;
+
+	LPTSTR pNewStr;
+	Region rNewRegion;
+
+public:
+	UndoInfo();
+	~UndoInfo();
+
+	BOOL SetPrev(const Region *pRegion, LPTSTR pPrevStr);
+	BOOL SetNew(const Region *pRegion, LPTSTR pNewStr);
+	BOOL CmdUndo(YAEditDoc *pDoc);
 };
 
 #endif

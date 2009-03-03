@@ -23,6 +23,7 @@ static void ConvertBytesToCoordinateTest2();
 static void UndoTest1();
 static void UndoTest2();
 static void UndoTest3();
+static void UndoTest4();
 
 void YAEditDocTest(TestRunner *r) {
 	runner = r;
@@ -41,7 +42,7 @@ void YAEditDocTest(TestRunner *r) {
 	UndoTest1();
 	UndoTest2();
 	UndoTest3();
-
+	UndoTest4();
 }
 
 ////////////////////////////////////////////////
@@ -50,65 +51,65 @@ void YAEditDocTest(TestRunner *r) {
 void LoadTest1() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT(""), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 1);
+	ASSERT(pLM->MaxLine() == 1);
 	LineInfo *pLi = pLM->GetLineInfo(0);
 
-	runner->assert(pLi->pLine->nUsed == 0);
+	ASSERT(pLi->pLine->nUsed == 0);
 }
 
 // 1 line string without CRLF
 void LoadTest2() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("Hello world"), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 1);
+	ASSERT(pLM->MaxLine() == 1);
 	LineInfo *pLi = pLM->GetLineInfo(0);
 
-	runner->assert(pLi->pLine->nUsed == 11);
+	ASSERT(pLi->pLine->nUsed == 11);
 }
 
 // 2 line string
 void LoadTest3() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("Hellow\r\nworld"), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 2);
+	ASSERT(pLM->MaxLine() == 2);
 	LineInfo *pLi0 = pLM->GetLineInfo(0);
-	runner->assert(pLi0->pLine->nUsed == 6);
+	ASSERT(pLi0->pLine->nUsed == 6);
 
 	LPCTSTR p0 = pLM->GetLine(0);
-	runner->assert(_tcsncmp(p0, TEXT("Hellow"), 6) == 0);
+	ASSERT(_tcsncmp(p0, TEXT("Hellow"), 6) == 0);
 
 	LineInfo *pLi1 = pLM->GetLineInfo(1);
-	runner->assert(pLi1->pLine->nUsed == 5);
+	ASSERT(pLi1->pLine->nUsed == 5);
 	LPCTSTR p1 = pLM->GetLine(1);
-	runner->assert(_tcsncmp(p1, TEXT("world"), 5) == 0);	
+	ASSERT(_tcsncmp(p1, TEXT("world"), 5) == 0);	
 }
 
 // 2 line string end with CRLF
 void LoadTest4() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("Hello\r\n"), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 2);
+	ASSERT(pLM->MaxLine() == 2);
 
 	LineInfo *pLi0 = pLM->GetLineInfo(0);
-	runner->assert(pLi0->pLine->nUsed == 5);
+	ASSERT(pLi0->pLine->nUsed == 5);
 
 	LPCTSTR p0 = pLM->GetLine(0);
-	runner->assert(_tcsncmp(p0, TEXT("Hello"), 5) == 0);
+	ASSERT(_tcsncmp(p0, TEXT("Hello"), 5) == 0);
 
 	LineInfo *pLi1 = pLM->GetLineInfo(1);
-	runner->assert(pLi1->pLine->nUsed == 0);
+	ASSERT(pLi1->pLine->nUsed == 0);
 }
 
 // 2 line string start with CRLF
@@ -116,19 +117,19 @@ void LoadTest5() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("\r\nHello"), NULL, NULL);
 
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 2);
+	ASSERT(pLM->MaxLine() == 2);
 
 	LineInfo *pLi0 = pLM->GetLineInfo(0);
-	runner->assert(pLi0->pLine->nUsed == 0);
+	ASSERT(pLi0->pLine->nUsed == 0);
 
 	LineInfo *pLi1 = pLM->GetLineInfo(1);
-	runner->assert(pLi1->pLine->nUsed == 5);
+	ASSERT(pLi1->pLine->nUsed == 5);
 
 	LPCTSTR p1 = pLM->GetLine(1);
-	runner->assert(_tcsncmp(p1, TEXT("Hello"), 5) == 0);
+	ASSERT(_tcsncmp(p1, TEXT("Hello"), 5) == 0);
 
 }
 
@@ -140,22 +141,22 @@ void LoadTest6() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("\r\n\r\n\r\n"), NULL, NULL);
 
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 4);
+	ASSERT(pLM->MaxLine() == 4);
 
 	LineInfo *pLi0 = pLM->GetLineInfo(0);
-	runner->assert(pLi0->pLine->nUsed == 0);
+	ASSERT(pLi0->pLine->nUsed == 0);
 
 	LineInfo *pLi1 = pLM->GetLineInfo(1);
-	runner->assert(pLi1->pLine->nUsed == 0);
+	ASSERT(pLi1->pLine->nUsed == 0);
 
 	LineInfo *pLi2 = pLM->GetLineInfo(2);
-	runner->assert(pLi2->pLine->nUsed == 0);
+	ASSERT(pLi2->pLine->nUsed == 0);
 
 	LineInfo *pLi3 = pLM->GetLineInfo(3);
-	runner->assert(pLi3->pLine->nUsed == 0);
+	ASSERT(pLi3->pLine->nUsed == 0);
 
 }
 
@@ -169,31 +170,31 @@ void LoadTest7() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("\r\n\r\nabc\r\n\r\n\r\n"), NULL, NULL);
 
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 6);
+	ASSERT(pLM->MaxLine() == 6);
 
 	LineInfo *pLi0 = pLM->GetLineInfo(0);
-	runner->assert(pLi0->pLine->nUsed == 0);
+	ASSERT(pLi0->pLine->nUsed == 0);
 
 	LineInfo *pLi1 = pLM->GetLineInfo(1);
-	runner->assert(pLi1->pLine->nUsed == 0);
+	ASSERT(pLi1->pLine->nUsed == 0);
 
 	LineInfo *pLi2 = pLM->GetLineInfo(2);
-	runner->assert(pLi2->pLine->nUsed == 3);
+	ASSERT(pLi2->pLine->nUsed == 3);
 	LPCTSTR p2 = pLM->GetLine(2);
-	runner->assert(_tcsncmp(p2, TEXT("abc"), 3) == 0);
+	ASSERT(_tcsncmp(p2, TEXT("abc"), 3) == 0);
 
 
 	LineInfo *pLi3 = pLM->GetLineInfo(3);
-	runner->assert(pLi3->pLine->nUsed == 0);
+	ASSERT(pLi3->pLine->nUsed == 0);
 
 	LineInfo *pLi4 = pLM->GetLineInfo(4);
-	runner->assert(pLi4->pLine->nUsed == 0);
+	ASSERT(pLi4->pLine->nUsed == 0);
 
 	LineInfo *pLi5 = pLM->GetLineInfo(5);
-	runner->assert(pLi5->pLine->nUsed == 0);
+	ASSERT(pLi5->pLine->nUsed == 0);
 
 }
 
@@ -204,25 +205,25 @@ void LoadTest8() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	BOOL bResult = pDoc->Init(TEXT("abc\r\ndef\r\nghi"), NULL, NULL);
 
-	runner->assert(bResult);
+	ASSERT(bResult);
 	PhysicalLineManager *pLM = pDoc->GetPhMgr();
 
-	runner->assert(pLM->MaxLine() == 3);
+	ASSERT(pLM->MaxLine() == 3);
 
 	LineInfo *pLi0 = pLM->GetLineInfo(0);
-	runner->assert(pLi0->pLine->nUsed == 3);
+	ASSERT(pLi0->pLine->nUsed == 3);
 	LPCTSTR p0 = pLM->GetLine(0);
-	runner->assert(_tcsncmp(p0, TEXT("abc"), 3) == 0);
+	ASSERT(_tcsncmp(p0, TEXT("abc"), 3) == 0);
 
 	LineInfo *pLi1 = pLM->GetLineInfo(1);
-	runner->assert(pLi1->pLine->nUsed == 3);
+	ASSERT(pLi1->pLine->nUsed == 3);
 	LPCTSTR p1 = pLM->GetLine(1);
-	runner->assert(_tcsncmp(p1, TEXT("def"), 3) == 0);
+	ASSERT(_tcsncmp(p1, TEXT("def"), 3) == 0);
 
 	LineInfo *pLi2 = pLM->GetLineInfo(2);
-	runner->assert(pLi2->pLine->nUsed == 3);
+	ASSERT(pLi2->pLine->nUsed == 3);
 	LPCTSTR p2 = pLM->GetLine(2);
-	runner->assert(_tcsncmp(p2, TEXT("ghi"), 3) == 0);
+	ASSERT(_tcsncmp(p2, TEXT("ghi"), 3) == 0);
 }
 
 // abcCRLF
@@ -235,28 +236,28 @@ void ConvertBytesToCoordinateTest1()
 
 	Coordinate pos;
 	pDoc->ConvertBytesToCoordinate(0, &pos);
-	runner->assert(pos.row == 0 && pos.col == 0);
+	ASSERT(pos.row == 0 && pos.col == 0);
 
 	pDoc->ConvertBytesToCoordinate(2, &pos);
-	runner->assert(pos.row == 0 && pos.col == 2);
+	ASSERT(pos.row == 0 && pos.col == 2);
 
 	pDoc->ConvertBytesToCoordinate(5, &pos);
-	runner->assert(pos.row == 1 && pos.col == 0);
+	ASSERT(pos.row == 1 && pos.col == 0);
 
 	pDoc->ConvertBytesToCoordinate(6, &pos);
-	runner->assert(pos.row == 1 && pos.col == 1);
+	ASSERT(pos.row == 1 && pos.col == 1);
 
 	pDoc->ConvertBytesToCoordinate(9, &pos);
-	runner->assert(pos.row == 1 && pos.col == 4);
+	ASSERT(pos.row == 1 && pos.col == 4);
 
 	pDoc->ConvertBytesToCoordinate(11, &pos);
-	runner->assert(pos.row == 2 && pos.col == 0);
+	ASSERT(pos.row == 2 && pos.col == 0);
 
 	pDoc->ConvertBytesToCoordinate(16, &pos);
-	runner->assert(pos.row == 2 && pos.col == 5);
+	ASSERT(pos.row == 2 && pos.col == 5);
 
 	pDoc->ConvertBytesToCoordinate(100, &pos);
-	runner->assert(pos.row == 2 && pos.col == 5);
+	ASSERT(pos.row == 2 && pos.col == 5);
 }
 
 void ConvertBytesToCoordinateTest2()
@@ -268,7 +269,7 @@ void ConvertBytesToCoordinateTest2()
 	BOOL bResult = pDoc->Init(TEXT("TOMBO 1.16\r\n"), NULL, NULL);
 	pDoc->ConvertBytesToCoordinate(11, &pos);
 
-	runner->assert(pos.row == 1 && pos.col == 0);
+	ASSERT(pos.row == 1 && pos.col == 0);
 }
 
 // initial state
@@ -277,14 +278,13 @@ void UndoTest1()
 	YAEditDoc *pDoc = new YAEditDoc();
 
 	BOOL bResult = pDoc->Init(TEXT("a"), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
 
 	Region r0(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
 
-	Region r = pDoc->GetUndoRegion();
-	LPCTSTR p = pDoc->GetUndoStr();
+	UndoInfo *pUndo = pDoc->GetUndoInfo();
+	ASSERT(pUndo == NULL);
 
-	runner->assert(r0 == r && p == NULL);
 }
 
 void UndoTest2()
@@ -292,28 +292,29 @@ void UndoTest2()
 	YAEditDoc *pDoc = new YAEditDoc();
 
 	BOOL bResult = pDoc->Init(TEXT("a"), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
+	// a I
 
 	Region rReplace(1, 0, 1, 0);
 	bResult = pDoc->ReplaceString(&rReplace, TEXT("bcd"));
-	runner->assert(bResult);
+	ASSERT(bResult);
 	// abcd I
 
-	Region r = pDoc->GetUndoRegion();
-	LPCTSTR p = pDoc->GetUndoStr();
-
-	Region rExpected(1, 0, 4, 0);
-	LPCTSTR pExpected = TEXT("");
-	runner->assert(r == rExpected);
-	runner->assert(_tcscmp(p, pExpected) == 0);
+	UndoInfo *pUndo = pDoc->GetUndoInfo();
+	Region rExpectedPrev(1, 0, 1, 0);
+	Region rExpectedNew(1, 0, 4, 0);
+	ASSERT(pUndo->rPrevRegion == rExpectedPrev);
+	ASSERT(pUndo->rNewRegion == rExpectedNew);
+	ASSERT(_tcscmp(pUndo->pPrevStr, TEXT("")) == 0);
+	ASSERT(_tcscmp(pUndo->pNewStr, TEXT("bcd")) == 0);
 
 	// Undo
 	bResult = pDoc->Undo();
-	runner->assert(bResult);
+	ASSERT(bResult);
 
 	DWORD nLen;
 	LPTSTR pUndo1 = pDoc->GetDocumentData(&nLen);
-	runner->assert(_tcsncmp(pUndo1, TEXT("a"), nLen) == 0);
+	ASSERT(_tcsncmp(pUndo1, TEXT("a"), nLen) == 0);
 
 }
 
@@ -322,29 +323,61 @@ void UndoTest3()
 	YAEditDoc *pDoc = new YAEditDoc();
 
 	BOOL bResult = pDoc->Init(TEXT("abcde"), NULL, NULL);
-	runner->assert(bResult);
+	ASSERT(bResult);
 
 	Region rReplace(2, 0, 4, 0);
 	bResult = pDoc->ReplaceString(&rReplace, TEXT("fgh"));
-	runner->assert(bResult);
+	ASSERT(bResult);
 	// abcd I
 
-	Region r = pDoc->GetUndoRegion();
-	LPCTSTR p = pDoc->GetUndoStr();
+	UndoInfo *pUndo = pDoc->GetUndoInfo();
 
-	Region rExpected(2, 0, 5, 0);
-	LPCTSTR pExpected = TEXT("cd");
-	runner->assert(r == rExpected);
-	runner->assert(_tcscmp(p, pExpected) == 0);
+	Region rExpectedPrev(2, 0, 4, 0);
+	Region rExpectedNew(2, 0, 5, 0);
+	ASSERT(pUndo->rPrevRegion == rExpectedPrev);
+	ASSERT(pUndo->rNewRegion == rExpectedNew);
+
+	ASSERT(_tcscmp(pUndo->pPrevStr, TEXT("cd")) == 0);
+	ASSERT(_tcscmp(pUndo->pNewStr, TEXT("fgh")) == 0);
 
 
 	// Undo
 	bResult = pDoc->Undo();
-	runner->assert(bResult);
+	ASSERT(bResult);
 
 	DWORD nLen;
 	LPTSTR pUndo1 = pDoc->GetDocumentData(&nLen);
-	runner->assert(_tcsncmp(pUndo1, TEXT("abcde"), nLen) == 0);
+	ASSERT(_tcsncmp(pUndo1, TEXT("abcde"), nLen) == 0);
 
 }
 
+void UndoTest4() {
+
+	YAEditDoc *pDoc = new YAEditDoc();
+	ASSERT(pDoc->Init(TEXT("-----"), NULL, NULL));
+
+	// -----
+	Region rReplace(2, 0, 2, 0);
+	ASSERT(pDoc->ReplaceString(&rReplace, TEXT("a")));
+	// --a---
+	Region rReplace2(3, 0, 3, 0);
+	ASSERT(pDoc->ReplaceString(&rReplace2, TEXT("b")));
+	// --ab---
+
+	DWORD nLen;
+	LPTSTR pResult;
+
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--ab---"), nLen) == 0);
+	ASSERT(nLen == 7);
+
+	// Undo!
+	ASSERT(pDoc->Undo());
+
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("-----"), nLen) == 0);
+	ASSERT(nLen == 5);
+
+}

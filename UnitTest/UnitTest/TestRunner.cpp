@@ -49,6 +49,16 @@ void TestRunner::TestFail(LPCTSTR pTestCase) {
 	nFail++;
 }
 
+void TestRunner::assert(BOOL b, LPCTSTR pFile, long lLine) {
+	if (b) {
+		TestSuccess();
+	} else {
+		TCHAR buf[1024];
+		sprintf(buf, " %s : %ld", pFile, lLine);
+		TestFail(buf);
+	}
+}
+
 void TestRunner::assert(BOOL b) {
 	if (b) {
 		TestSuccess();

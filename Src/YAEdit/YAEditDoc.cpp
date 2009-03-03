@@ -17,30 +17,30 @@
 // undo info
 /////////////////////////////////////////////////////////////////////////////
 
-class UndoInfo {
-public:
-	LPTSTR pUndoStr;
-	Region rRegion;
-
-	UndoInfo(LPTSTR pUndoStr);
-	~UndoInfo();
-};
-
-UndoInfo::UndoInfo(LPTSTR p) : pUndoStr(p)
+UndoInfo::UndoInfo() : pPrevStr(NULL), pNewStr(NULL)
 {
 }
+
 
 UndoInfo::~UndoInfo()
 {
-	delete[] pUndoStr;
+	delete[] pPrevStr;
 }
 
-LPCTSTR YAEditDoc::GetUndoStr() { if (pUndo) return pUndo->pUndoStr; else return NULL; }
-const Region YAEditDoc::GetUndoRegion()
-{
-	Region r(0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF);
-	if (pUndo) return pUndo->rRegion; 
-	else return r;
+BOOL UndoInfo::SetPrev(const Region *pRegion, LPTSTR p) {
+	rPrevRegion = *pRegion;
+	pPrevStr = p;
+	return TRUE;
+}
+
+BOOL UndoInfo::SetNew(const Region *pRegion, LPTSTR p) {
+	rNewRegion = *pRegion;
+	pNewStr = p;
+	return TRUE;
+}
+
+BOOL UndoInfo::CmdUndo(YAEditDoc *pDoc) {
+	return pDoc->ReplaceString(&rNewRegion, pPrevStr);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -127,14 +127,16 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 	// if read only mode, ignore editing.
 	if (bReadOnly) return TRUE;
 
+	if (pUndo == NULL) {
+		pUndo = new UndoInfo();
+		if (pUndo == NULL) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return FALSE; }
+	}
+
 	DWORD nPhLinesBefore = pPhLineMgr->MaxLine();
 
-	// get string which removed by this action.
-	LPTSTR pOldTxt = pPhLineMgr->GetRegionString(pDelRegion);
-
-	if (pUndo != NULL) {
-		delete pUndo;
-	}
+	// preserve string and region removed by this action.
+	LPTSTR pPrevText = pPhLineMgr->GetRegionString(pDelRegion);
+	pUndo->SetPrev(pDelRegion, pPrevText);
 
 	// delete region and insert string
 	Region rNewRegion;
@@ -142,14 +144,12 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 	if (!pPhLineMgr->ReplaceRegion(pDelRegion, pString, &nAffLines, &rNewRegion)) {
 		return FALSE;
 	}
-	DWORD nPhLinesAfter = pPhLineMgr->MaxLine();
 
-	// remember old string
-	pUndo = new UndoInfo(pOldTxt);
-	if (pUndo == NULL) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return FALSE; }
-	pUndo->rRegion = rNewRegion;
+	// preserve string and region after replaced.
+	pUndo->SetNew(&rNewRegion, StringDup(pString));
 
 	// notify to view
+	DWORD nPhLinesAfter = pPhLineMgr->MaxLine();
 	if (pListener && !pListener->UpdateNotify(pPhLineMgr, pDelRegion, &rNewRegion, nPhLinesBefore, nPhLinesAfter, nAffLines)) {
 		return FALSE;
 	}
@@ -161,13 +161,11 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 BOOL YAEditDoc::Undo()
 {
 	if (pUndo == NULL) return TRUE;
-	UndoInfo *p = pUndo;
-	AutoPointer<UndoInfo> ap(p);
+
+	BOOL bResult = pUndo->CmdUndo(this);
+	delete pUndo;
 	pUndo = NULL;
-
-	if (!ReplaceString(&(p->rRegion), p->pUndoStr)) return FALSE;
-
-	return TRUE;
+	return bResult;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -251,13 +249,4 @@ void YAEditDoc::ConvertBytesToCoordinate(DWORD nPos, Coordinate *pPos)
 	// if pos is grater than docment size, set EOL
 	pPos->row = n - 1;
 	pPos->col = p->pLine->nUsed;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-// 
-/////////////////////////////////////////////////////////////////////////////
-
-BOOL YAEditDoc::InsertUndoPoint()
-{
-	return TRUE;
 }
