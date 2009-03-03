@@ -413,4 +413,20 @@ void UndoTest5() {
 	ASSERT(pResult != NULL);
 	ASSERT(_tcsncmp(pResult, TEXT("--a---"), nLen) == 0);
 	ASSERT(nLen == 6);
+
+	// Undo
+	ASSERT(pDoc->Undo());
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("-----"), nLen) == 0);
+	ASSERT(nLen == 5);
+
+	// Undo(exactly say, this is Redo)
+	ASSERT(pDoc->Undo());
+
+	// expect is --a---
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--a---"), nLen) == 0);
+	ASSERT(nLen == 6);
 }
