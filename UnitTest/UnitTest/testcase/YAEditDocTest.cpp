@@ -4,6 +4,7 @@
 
 #include "VarBuffer.h"
 #include "Region.h"
+#include "TString.h"
 #include "YAEditDoc.h"
 #include "PhysicalLineManager.h"
 #include "MemManager.h"
@@ -307,8 +308,8 @@ void UndoTest2()
 	Region rExpectedNew(1, 0, 4, 0);
 	ASSERT(pUndo->rPrevRegion == rExpectedPrev);
 	ASSERT(pUndo->rNewRegion == rExpectedNew);
-	ASSERT(_tcscmp(pUndo->pPrevStr, TEXT("")) == 0);
-	ASSERT(_tcscmp(pUndo->pNewStr, TEXT("bcd")) == 0);
+	ASSERT(_tcscmp(pUndo->sPrevStr.Get(), TEXT("")) == 0);
+	ASSERT(_tcscmp(pUndo->sNewStr.Get(), TEXT("bcd")) == 0);
 
 	// Undo
 	bResult = pDoc->Undo();
@@ -339,8 +340,8 @@ void UndoTest3()
 	ASSERT(pUndo->rPrevRegion == rExpectedPrev);
 	ASSERT(pUndo->rNewRegion == rExpectedNew);
 
-	ASSERT(_tcscmp(pUndo->pPrevStr, TEXT("cd")) == 0);
-	ASSERT(_tcscmp(pUndo->pNewStr, TEXT("fgh")) == 0);
+	ASSERT(_tcscmp(pUndo->sPrevStr.Get(), TEXT("cd")) == 0);
+	ASSERT(_tcscmp(pUndo->sNewStr.Get(), TEXT("fgh")) == 0);
 
 
 	// Undo

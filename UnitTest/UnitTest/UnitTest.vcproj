@@ -303,10 +303,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Src\YAEdit\YAEditDoc.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\Src\YAEdit\YAEditDoc.h"
 					>
 				</File>
@@ -358,6 +354,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Src\TomboLib\VarBuffer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Src\YAEdit\YAEditDoc.cpp"
 					>
 				</File>
 			</Filter>

@@ -3,7 +3,6 @@
 #include "AutoPtr.h"
 #include "Region.h"
 #include "VarBuffer.h"
-#include "YAEditDoc.h"
 #include "LineWrapper.h"
 #include "LineWrapperImpl.h"
 #include "YAEdit.h"
@@ -12,41 +11,39 @@
 #include "LineManager.h"
 #include "PhysicalLineManager.h"
 #include "StringSplitter.h"
+#include "TString.h"
+#include "YAEditDoc.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // undo info
 /////////////////////////////////////////////////////////////////////////////
 
-UndoInfo::UndoInfo() : pPrevStr(NULL), pNewStr(NULL), bUndoApplied(FALSE)
+UndoInfo::UndoInfo() : bUndoApplied(FALSE), bOpenRegion(TRUE)
 {
 }
 
 
 UndoInfo::~UndoInfo()
 {
-	delete[] pPrevStr;
-}
-
-BOOL UndoInfo::SetPrev(const Region *pRegion, LPTSTR p) {
-	rPrevRegion = *pRegion;
-	pPrevStr = p;
-	return TRUE;
-}
-
-BOOL UndoInfo::SetNew(const Region *pRegion, LPTSTR p) {
-	rNewRegion = *pRegion;
-	pNewStr = p;
-	return TRUE;
 }
 
 BOOL UndoInfo::CmdUndo(YAEditDoc *pDoc) {
 	if (bUndoApplied) {
 		bUndoApplied = FALSE;
-		return pDoc->ReplaceString(&rPrevRegion, pNewStr, TRUE);
+		return pDoc->ReplaceString(&rPrevRegion, sNewStr.Get(), TRUE);
 	} else {
 		bUndoApplied = TRUE;
-		return pDoc->ReplaceString(&rNewRegion, pPrevStr, TRUE);
+		return pDoc->ReplaceString(&rNewRegion, sPrevStr.Get(), TRUE);
 	}
+}
+
+BOOL UndoInfo::UpdateUndoRegion(const Region *pPrevRegion, LPCTSTR pPrev, const Region *pNewRegion, LPCTSTR pNew) {
+	rPrevRegion = *pPrevRegion;
+	if (!sPrevStr.Set(pPrev)) return FALSE;
+//	pPrevStr = pPrev;
+
+	rNewRegion = *pNewRegion;
+	return sNewStr.Set(pNew);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -140,11 +137,7 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString, BOOL bK
 
 	DWORD nPhLinesBefore = pPhLineMgr->MaxLine();
 
-	// preserve string and region removed by this action.
-	if (!bKeepUndo) {
-		LPTSTR pPrevText = pPhLineMgr->GetRegionString(pDelRegion);
-		pUndo->SetPrev(pDelRegion, pPrevText);
-	}
+	LPTSTR pPrevText = pPhLineMgr->GetRegionString(pDelRegion);
 
 	// delete region and insert string
 	Region rNewRegion;
@@ -153,9 +146,13 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString, BOOL bK
 		return FALSE;
 	}
 
+	// preserve string and region after replaced.
 	if (!bKeepUndo) {
-		// preserve string and region after replaced.
-		pUndo->SetNew(&rNewRegion, StringDup(pString));
+		if (!pUndo->UpdateUndoRegion(pDelRegion, pPrevText, &rNewRegion, pString)) {
+			return FALSE;
+		}
+	} else {
+		delete [] pPrevText;
 	}
 
 	// notify to view
@@ -173,8 +170,6 @@ BOOL YAEditDoc::Undo()
 	if (pUndo == NULL) return TRUE;
 
 	BOOL bResult = pUndo->CmdUndo(this);
-//	delete pUndo;
-//	pUndo = NULL;
 	return bResult;
 }
 

@@ -49,7 +49,10 @@ public:
 	////////////////////////////////////////////////////
 	// retrieve & set line 
 
+	// bKeepUndo is usualy set FALSE. Only undo operation set true.
+	// when the value is true, ReplaceString do not change UndoInfo value.
 	BOOL ReplaceString(const Region *pRegion, LPCTSTR pString, BOOL bKeepUndo = FALSE);
+
 	BOOL Undo();
 
 	BOOL IsModify() { return bModified; }
@@ -78,20 +81,28 @@ class UndoInfo {
 #ifdef UNIT_TEST
 public:
 #endif
-	LPTSTR pPrevStr;
+//	LPTSTR pPrevStr;
+	TString sPrevStr;
 	Region rPrevRegion;
 
-	LPTSTR pNewStr;
+//	LPTSTR pNewStr;
+	TString sNewStr;
 	Region rNewRegion;
 
+	// true if this undo is applied. At creation time, this value is false and set true
+	// when YAEditDoc::Undo is called.
 	BOOL bUndoApplied;
 
+	// Assume type 'a' and 'b', we expect remove 'ab' when undoing. If this value is ture, 
+	// UndoInfo merge current changes and previous changes.
+	BOOL bOpenRegion;
 public:
 	UndoInfo();
 	~UndoInfo();
 
-	BOOL SetPrev(const Region *pRegion, LPTSTR pPrevStr);
-	BOOL SetNew(const Region *pRegion, LPTSTR pNewStr);
+	BOOL UpdateUndoRegion(const Region *pPrevRegion, LPCTSTR pPrevStr, 
+							const Region *pNewRegion, LPCTSTR pNewStr);
+
 	BOOL CmdUndo(YAEditDoc *pDoc);
 };
 
