@@ -49,7 +49,7 @@ public:
 	////////////////////////////////////////////////////
 	// retrieve & set line 
 
-	BOOL ReplaceString(const Region *pRegion, LPCTSTR pString);
+	BOOL ReplaceString(const Region *pRegion, LPCTSTR pString, BOOL bKeepUndo = FALSE);
 	BOOL Undo();
 
 	BOOL IsModify() { return bModified; }
@@ -83,6 +83,8 @@ public:
 
 	LPTSTR pNewStr;
 	Region rNewRegion;
+
+	BOOL bUndoApplied;
 
 public:
 	UndoInfo();

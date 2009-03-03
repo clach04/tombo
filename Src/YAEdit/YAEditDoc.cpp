@@ -17,7 +17,7 @@
 // undo info
 /////////////////////////////////////////////////////////////////////////////
 
-UndoInfo::UndoInfo() : pPrevStr(NULL), pNewStr(NULL)
+UndoInfo::UndoInfo() : pPrevStr(NULL), pNewStr(NULL), bUndoApplied(FALSE)
 {
 }
 
@@ -40,7 +40,13 @@ BOOL UndoInfo::SetNew(const Region *pRegion, LPTSTR p) {
 }
 
 BOOL UndoInfo::CmdUndo(YAEditDoc *pDoc) {
-	return pDoc->ReplaceString(&rNewRegion, pPrevStr);
+	if (bUndoApplied) {
+		bUndoApplied = FALSE;
+		return pDoc->ReplaceString(&rPrevRegion, pNewStr, TRUE);
+	} else {
+		bUndoApplied = TRUE;
+		return pDoc->ReplaceString(&rNewRegion, pPrevStr, TRUE);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -122,7 +128,7 @@ BOOL YAEditDoc::ReleaseDoc()
 // Replace string
 /////////////////////////////////////////////////////////////////////////////
 
-BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
+BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString, BOOL bKeepUndo)
 {
 	// if read only mode, ignore editing.
 	if (bReadOnly) return TRUE;
@@ -135,8 +141,10 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 	DWORD nPhLinesBefore = pPhLineMgr->MaxLine();
 
 	// preserve string and region removed by this action.
-	LPTSTR pPrevText = pPhLineMgr->GetRegionString(pDelRegion);
-	pUndo->SetPrev(pDelRegion, pPrevText);
+	if (!bKeepUndo) {
+		LPTSTR pPrevText = pPhLineMgr->GetRegionString(pDelRegion);
+		pUndo->SetPrev(pDelRegion, pPrevText);
+	}
 
 	// delete region and insert string
 	Region rNewRegion;
@@ -145,8 +153,10 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString)
 		return FALSE;
 	}
 
-	// preserve string and region after replaced.
-	pUndo->SetNew(&rNewRegion, StringDup(pString));
+	if (!bKeepUndo) {
+		// preserve string and region after replaced.
+		pUndo->SetNew(&rNewRegion, StringDup(pString));
+	}
 
 	// notify to view
 	DWORD nPhLinesAfter = pPhLineMgr->MaxLine();
@@ -163,8 +173,8 @@ BOOL YAEditDoc::Undo()
 	if (pUndo == NULL) return TRUE;
 
 	BOOL bResult = pUndo->CmdUndo(this);
-	delete pUndo;
-	pUndo = NULL;
+//	delete pUndo;
+//	pUndo = NULL;
 	return bResult;
 }
 
