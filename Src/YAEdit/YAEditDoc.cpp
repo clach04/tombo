@@ -38,12 +38,19 @@ BOOL UndoInfo::CmdUndo(YAEditDoc *pDoc) {
 }
 
 BOOL UndoInfo::UpdateUndoRegion(const Region *pPrevRegion, LPCTSTR pPrev, const Region *pNewRegion, LPCTSTR pNew) {
-	rPrevRegion = *pPrevRegion;
 	if (!sPrevStr.Set(pPrev)) return FALSE;
-//	pPrevStr = pPrev;
 
+	if (sNewStr.Get() != NULL && rNewRegion.posEnd == pPrevRegion->posStart && bOpenRegion) {
+		rNewRegion.posEnd = pNewRegion->posEnd;
+		return sNewStr.StrCat(pNew);
+	}
+	rPrevRegion = *pPrevRegion;
 	rNewRegion = *pNewRegion;
 	return sNewStr.Set(pNew);
+}
+
+void UndoInfo::CloseUndoRegion() {
+	bOpenRegion = FALSE;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -148,6 +155,11 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString, BOOL bK
 
 	// preserve string and region after replaced.
 	if (!bKeepUndo) {
+		if (!pUndo->IsOpened()) {
+			delete pUndo;
+			pUndo = new UndoInfo();
+			if (pUndo == NULL) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return FALSE; }
+		}
 		if (!pUndo->UpdateUndoRegion(pDelRegion, pPrevText, &rNewRegion, pString)) {
 			return FALSE;
 		}
@@ -168,7 +180,6 @@ BOOL YAEditDoc::ReplaceString(const Region *pDelRegion, LPCTSTR pString, BOOL bK
 BOOL YAEditDoc::Undo()
 {
 	if (pUndo == NULL) return TRUE;
-
 	BOOL bResult = pUndo->CmdUndo(this);
 	return bResult;
 }
@@ -254,4 +265,10 @@ void YAEditDoc::ConvertBytesToCoordinate(DWORD nPos, Coordinate *pPos)
 	// if pos is grater than docment size, set EOL
 	pPos->row = n - 1;
 	pPos->col = p->pLine->nUsed;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void YAEditDoc::CloseUndoRegion() {
+	if (pUndo) pUndo->CloseUndoRegion(); 
 }

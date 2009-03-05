@@ -1,6 +1,8 @@
 #ifndef YAEDITDOC_H
 #define YAEDITDOC_H
 
+#include "TString.h"
+
 class YAEditImpl;
 class Region;
 class PhysicalLineManager;
@@ -67,6 +69,10 @@ public:
 	void ConvertBytesToCoordinate(DWORD nPos, Coordinate *pPos);
 
 	////////////////////////////////////////////////////
+	//
+	void CloseUndoRegion();
+
+	////////////////////////////////////////////////////
 	// only for testing
 #ifdef UNIT_TEST
 	UndoInfo *GetUndoInfo() { return pUndo; }
@@ -81,11 +87,9 @@ class UndoInfo {
 #ifdef UNIT_TEST
 public:
 #endif
-//	LPTSTR pPrevStr;
 	TString sPrevStr;
 	Region rPrevRegion;
 
-//	LPTSTR pNewStr;
 	TString sNewStr;
 	Region rNewRegion;
 
@@ -104,6 +108,9 @@ public:
 							const Region *pNewRegion, LPCTSTR pNewStr);
 
 	BOOL CmdUndo(YAEditDoc *pDoc);
+
+	void CloseUndoRegion();
+	BOOL IsOpened() { return bOpenRegion; }
 };
 
 #endif

@@ -26,6 +26,8 @@ static void UndoTest2();
 static void UndoTest3();
 static void UndoTest4();
 static void UndoTest5();
+static void UndoTest6();
+
 
 void YAEditDocTest(TestRunner *r) {
 	runner = r;
@@ -46,6 +48,7 @@ void YAEditDocTest(TestRunner *r) {
 	UndoTest3();
 	UndoTest4();
 	UndoTest5();
+	UndoTest6();
 }
 
 ////////////////////////////////////////////////
@@ -355,38 +358,6 @@ void UndoTest3()
 }
 
 void UndoTest4() {
-
-	YAEditDoc *pDoc = new YAEditDoc();
-	ASSERT(pDoc->Init(TEXT("-----"), NULL, NULL));
-
-	// -----
-	Region rReplace(2, 0, 2, 0);
-	ASSERT(pDoc->ReplaceString(&rReplace, TEXT("a")));
-	// --a---
-	Region rReplace2(3, 0, 3, 0);
-	ASSERT(pDoc->ReplaceString(&rReplace2, TEXT("b")));
-	// --ab---
-
-	DWORD nLen;
-	LPTSTR pResult;
-
-	pResult = pDoc->GetDocumentData(&nLen);
-	ASSERT(pResult != NULL);
-	ASSERT(_tcsncmp(pResult, TEXT("--ab---"), nLen) == 0);
-	ASSERT(nLen == 7);
-
-	// Undo!
-	ASSERT(pDoc->Undo());
-
-	// expect is -----
-	pResult = pDoc->GetDocumentData(&nLen);
-	ASSERT(pResult != NULL);
-	ASSERT(_tcsncmp(pResult, TEXT("-----"), nLen) == 0);
-	ASSERT(nLen == 5);
-
-}
-
-void UndoTest5() {
 	YAEditDoc *pDoc = new YAEditDoc();
 	ASSERT(pDoc->Init(TEXT("-----"), NULL, NULL));
 
@@ -430,4 +401,99 @@ void UndoTest5() {
 	ASSERT(pResult != NULL);
 	ASSERT(_tcsncmp(pResult, TEXT("--a---"), nLen) == 0);
 	ASSERT(nLen == 6);
+}
+
+void UndoTest5() {
+
+	YAEditDoc *pDoc = new YAEditDoc();
+	ASSERT(pDoc->Init(TEXT("-----"), NULL, NULL));
+
+	// -----
+	Region rReplace(2, 0, 2, 0);
+	ASSERT(pDoc->ReplaceString(&rReplace, TEXT("a")));
+	// --a---
+	Region rReplace2(3, 0, 3, 0);
+	ASSERT(pDoc->ReplaceString(&rReplace2, TEXT("b")));
+	// --ab---
+
+	DWORD nLen;
+	LPTSTR pResult;
+
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--ab---"), nLen) == 0);
+	ASSERT(nLen == 7);
+
+	// Undo!
+	ASSERT(pDoc->Undo());
+
+	// expect is -----
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("-----"), nLen) == 0);
+	ASSERT(nLen == 5);
+	// internal detail
+	UndoInfo *pui = pDoc->GetUndoInfo();
+	ASSERT(_tcscmp(pui->sPrevStr.Get(), TEXT("")) == 0);
+	ASSERT(_tcscmp(pui->sNewStr.Get(), TEXT("ab")) == 0);
+	Region rPrevExpect(2, 0, 2, 0);
+	ASSERT(pui->rPrevRegion == rPrevExpect);
+	Region rNewExpect(2, 0, 4, 0);
+	ASSERT(pui->rNewRegion == rNewExpect);
+
+	ASSERT(pDoc->Undo());
+
+	// Undo(Redo)
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--ab---"), nLen) == 0);
+	ASSERT(nLen == 7);
+	// expect is --ab---
+
+}
+
+// CloseUndoRegion test
+void UndoTest6() {
+
+	YAEditDoc *pDoc = new YAEditDoc();
+	ASSERT(pDoc->Init(TEXT("-----"), NULL, NULL));
+
+	// -----
+	Region rReplace(2, 0, 2, 0);
+	ASSERT(pDoc->ReplaceString(&rReplace, TEXT("a")));
+	// --a---
+
+	// Cursor moved so undo is applyed only to 'b'
+	pDoc->CloseUndoRegion();
+
+	Region rReplace2(3, 0, 3, 0);
+	ASSERT(pDoc->ReplaceString(&rReplace2, TEXT("b")));
+	// --ab---
+
+	DWORD nLen;
+	LPTSTR pResult;
+
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--ab---"), nLen) == 0);
+	ASSERT(nLen == 7);
+
+	// Undo!
+	ASSERT(pDoc->Undo());
+
+	// expect is -----
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--a---"), nLen) == 0);
+	ASSERT(nLen == 6);
+
+	ASSERT(pDoc->Undo());
+
+	// Undo(Redo)
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--ab---"), nLen) == 0);
+	ASSERT(nLen == 7);
+	// expect is --ab---
+
 }

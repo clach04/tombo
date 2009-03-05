@@ -573,8 +573,21 @@ void YAEditImpl::UpdateSelRegion()
 /////////////////////////////////////////////////////////////////////////////
 
 void YAEditImpl::CmdNOP() { /* NOP */ }
-void YAEditImpl::CmdMoveRight() { pView->ScrollCaret(); pView->MoveRight(); ClearRegion(); pView->ScrollCaret(); }
-void YAEditImpl::CmdMoveLeft()  { pView->ScrollCaret(); pView->MoveLeft();  ClearRegion(); pView->ScrollCaret(); }
+void YAEditImpl::CmdMoveRight() {
+	pView->ScrollCaret();
+	pView->MoveRight();
+	ClearRegion();
+	pView->ScrollCaret();
+	pDoc->CloseUndoRegion();
+}
+
+void YAEditImpl::CmdMoveLeft()  {
+	pView->ScrollCaret();
+	pView->MoveLeft();
+	ClearRegion();
+	pView->ScrollCaret();
+	pDoc->CloseUndoRegion();
+}
 
 void YAEditImpl::CmdMoveUp()
 {
@@ -582,11 +595,29 @@ void YAEditImpl::CmdMoveUp()
 	pView->MoveUp();
 	ClearRegion();
 	pView->ScrollCaret(); 
+	pDoc->CloseUndoRegion();
 }
 
-void YAEditImpl::CmdMoveEOL()   { pView->ScrollCaret(); pView->MoveEOL();   ClearRegion(); pView->ScrollCaret(); }
-void YAEditImpl::CmdMoveTOL()   { pView->ScrollCaret(); pView->MoveTOL();   ClearRegion(); }
-void YAEditImpl::CmdMoveDown()  { pView->ScrollCaret(); pView->MoveDown();  ClearRegion(); }
+void YAEditImpl::CmdMoveEOL()   {
+	pView->ScrollCaret();
+	pView->MoveEOL();
+	ClearRegion();
+	pView->ScrollCaret();
+	pDoc->CloseUndoRegion();
+}
+void YAEditImpl::CmdMoveTOL()   { 
+	pView->ScrollCaret();
+	pView->MoveTOL();
+	ClearRegion();
+	pDoc->CloseUndoRegion();
+}
+
+void YAEditImpl::CmdMoveDown()  { 
+	pView->ScrollCaret();
+	pView->MoveDown();
+	ClearRegion(); 
+	pDoc->CloseUndoRegion();
+}
 
 void YAEditImpl::CmdSelRight()	{ pView->MoveRight(); UpdateSelRegion(); }
 void YAEditImpl::CmdSelLeft()	{ pView->MoveLeft(); UpdateSelRegion(); }
@@ -607,6 +638,7 @@ void YAEditImpl::CmdSelTopOfLogicalLine()
 	rSelRegion = rNewRegion;
 	RequestRedrawRegion(&rSelRegion);
 	pView->SetCaretPosition(rSelRegion.posStart);
+	pDoc->CloseUndoRegion();
 }
 
 void YAEditImpl::CmdSelEndOfLogicalLine()
@@ -622,6 +654,8 @@ void YAEditImpl::CmdSelEndOfLogicalLine()
 	rSelRegion = rNewRegion;
 	RequestRedrawRegion(&rSelRegion);
 	pView->SetCaretPosition(rSelRegion.posEnd);
+	pDoc->CloseUndoRegion();
+
 }
 
 void YAEditImpl::CmdSelTopOfDoc()
@@ -634,6 +668,7 @@ void YAEditImpl::CmdSelTopOfDoc()
 	rSelRegion = rNewRegion;
 	RequestRedrawRegion(&rSelRegion);
 	pView->SetCaretPosition(rSelRegion.posStart);
+	pDoc->CloseUndoRegion();
 }
 
 void YAEditImpl::CmdSelEndOfDoc()
@@ -649,6 +684,7 @@ void YAEditImpl::CmdSelEndOfDoc()
 	rSelRegion = rNewRegion;
 	RequestRedrawRegion(&rSelRegion);
 	pView->SetCaretPosition(rSelRegion.posEnd);
+	pDoc->CloseUndoRegion();
 }
 
 void YAEditImpl::CmdReplaceString(LPCTSTR p)
@@ -661,6 +697,7 @@ void YAEditImpl::CmdCut()
 {
 	if (pDoc->IsReadOnly()) return;
 
+	pDoc->CloseUndoRegion();
 	if (IsRegionSelected()) {
 		if (!CopyToClipboard()) {
 			MessageBox(pView->hViewWnd, TEXT("Copy to clipboard failed."), TEXT("ERROR"), MB_ICONWARNING | MB_OK);
@@ -681,6 +718,7 @@ void YAEditImpl::CmdPaste()
 {
 	if (pDoc->IsReadOnly()) return;
 
+	pDoc->CloseUndoRegion();
 	if (!InsertFromClipboard()) {
 		MessageBox(pView->hViewWnd, TEXT("Paste from clipboard failed."), TEXT("ERROR"), MB_ICONWARNING | MB_OK);
 	} else {
@@ -692,6 +730,7 @@ void YAEditImpl::CmdBackSpace()
 {
 	if (pDoc->IsReadOnly()) return;
 
+	pDoc->CloseUndoRegion();
 	if (IsRegionSelected()) {
 		ReplaceText(SelectedRegion(), TEXT(""));
 	} else {
@@ -707,6 +746,7 @@ void YAEditImpl::CmdDeleteChar()
 {
 	if (pDoc->IsReadOnly()) return;
 
+	pDoc->CloseUndoRegion();
 	if (IsRegionSelected()) {
 		ReplaceText(SelectedRegion(), TEXT(""));
 	} else {
@@ -822,6 +862,8 @@ void YAEditImpl::OnLButtonDown(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	WORD nMouseDrgStartX, nMouseDrgStartY;	// LButton down point by WM_LBUTTONDOWN
 	nMouseDrgStartX = LOWORD(lParam);
 	nMouseDrgStartY = HIWORD(lParam);
+
+	pDoc->CloseUndoRegion();
 
 	// move caret
 	DWORD nNewRow = pView->DpLinePixelToLgLineNo(nMouseDrgStartY);
