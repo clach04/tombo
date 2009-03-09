@@ -730,7 +730,6 @@ void YAEditImpl::CmdBackSpace()
 {
 	if (pDoc->IsReadOnly()) return;
 
-	pDoc->CloseUndoRegion();
 	if (IsRegionSelected()) {
 		ReplaceText(SelectedRegion(), TEXT(""));
 	} else {
@@ -740,6 +739,7 @@ void YAEditImpl::CmdBackSpace()
 		r.posStart = pView->GetCaretPosition();
 		if (!r.IsEmptyRegion()) ReplaceText(r, TEXT(""));
 	}
+	pDoc->CloseUndoRegion();
 }
 
 void YAEditImpl::CmdDeleteChar()
