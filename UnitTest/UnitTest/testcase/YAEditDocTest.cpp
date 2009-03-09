@@ -27,6 +27,7 @@ static void UndoTest3();
 static void UndoTest4();
 static void UndoTest5();
 static void UndoTest6();
+static void UndoTest7();
 
 
 void YAEditDocTest(TestRunner *r) {
@@ -49,6 +50,7 @@ void YAEditDocTest(TestRunner *r) {
 	UndoTest4();
 	UndoTest5();
 	UndoTest6();
+	UndoTest7();
 }
 
 ////////////////////////////////////////////////
@@ -496,4 +498,41 @@ void UndoTest6() {
 	ASSERT(nLen == 7);
 	// expect is --ab---
 
+}
+
+// 'a', 'b', 'c', BS, 'D', Ctrl-Z, Ctl-Z, Ctl-Z
+void UndoTest7() {
+	YAEditDoc *pDoc = new YAEditDoc();
+	ASSERT(pDoc->Init(TEXT("-----"), NULL, NULL));
+	// -----
+	Region r1(2, 0, 2, 0);
+	ASSERT(pDoc->ReplaceString(&r1, TEXT("a")));
+
+	Region r2(3, 0, 3, 0);
+	ASSERT(pDoc->ReplaceString(&r2, TEXT("b")));
+
+	Region r3(4, 0, 4, 0);
+	ASSERT(pDoc->ReplaceString(&r3, TEXT("c")));
+//	--abc---
+
+	Region r4(4, 0, 5, 0);
+	ASSERT(pDoc->ReplaceString(&r4, TEXT("")));
+	pDoc->CloseUndoRegion();
+
+	Region r5(4, 0, 4, 0);
+	ASSERT(pDoc->ReplaceString(&r5, TEXT("d")));
+
+	ASSERT(pDoc->Undo());
+	ASSERT(pDoc->Undo());
+
+	DWORD nLen;
+	LPTSTR pResult;
+
+	pResult = pDoc->GetDocumentData(&nLen);
+	ASSERT(pResult != NULL);
+	ASSERT(_tcsncmp(pResult, TEXT("--abd---"), nLen) == 0);
+	ASSERT(nLen == 8);
+
+	ASSERT(pDoc->Undo());
+	ASSERT(0);
 }
