@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AA7FA4D1-39CD-42D3-BAA5-A4E590786134}</ProjectGuid>
+    <RootNamespace>UnitTest</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>E:\work2\SF\Tombo\Src\YAEdit;E:\work2\SF\Tombo\oniguruma;E:\work2\SF\Tombo\Src;E:\work2\SF\Tombo\Src\TomboLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;UNIT_TEST;PLATFORM_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TestRunner.cpp" />
+    <ClCompile Include="UnitTest.cpp" />
+    <ClCompile Include="testcase\MemoInfoTest.cpp" />
+    <ClCompile Include="testcase\RegexTest.cpp" />
+    <ClCompile Include="testcase\SharedStringTest.cpp" />
+    <ClCompile Include="testcase\TomboURITest.cpp" />
+    <ClCompile Include="testcase\UniConvTest.cpp" />
+    <ClCompile Include="testcase\URIScannerTest.cpp" />
+    <ClCompile Include="testcase\VarBufferTest.cpp" />
+    <ClCompile Include="testcase\YAEditDocTest.cpp" />
+    <ClCompile Include="..\..\Src\TomboLib\AutoPtr.cpp" />
+    <ClCompile Include="..\..\Src\TomboLib\File.cpp" />
+    <ClCompile Include="..\..\Src\YAEdit\MemManager.cpp" />
+    <ClCompile Include="..\..\Src\MemoInfo.cpp" />
+    <ClCompile Include="..\..\Src\YAEdit\PhysicalLineManager.cpp" />
+    <ClCompile Include="..\..\Src\YAEdit\StringSplitter.cpp" />
+    <ClCompile Include="..\..\Src\TomboURI.cpp" />
+    <ClCompile Include="..\..\Src\TomboLib\TString.cpp" />
+    <ClCompile Include="..\..\Src\TomboLib\Uniconv.cpp" />
+    <ClCompile Include="..\..\Src\URIScanner.cpp" />
+    <ClCompile Include="..\..\Src\regex\util.c" />
+    <ClCompile Include="..\..\Src\TomboLib\VarBuffer.cpp" />
+    <ClCompile Include="..\..\Src\YAEdit\YAEditDoc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Src\YAEdit\MemManager.h" />
+    <ClInclude Include="..\..\Src\YAEdit\PhysicalLineManager.h" />
+    <ClInclude Include="..\..\Src\YAEdit\StringSplitter.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TestRunner.h" />
+    <ClInclude Include="UnitTest.h" />
+    <ClInclude Include="..\..\Src\MemoInfo.h" />
+    <ClInclude Include="..\..\Src\RegexUtil.h" />
+    <ClInclude Include="..\..\Src\TomboURI.h" />
+    <ClInclude Include="..\..\Src\TomboLib\TString.h" />
+    <ClInclude Include="..\..\Src\URIScanner.h" />
+    <ClInclude Include="..\..\Src\TomboLib\VarBuffer.h" />
+    <ClInclude Include="..\..\Src\YAEdit\YAEditDoc.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UnitTest.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\oniguruma\win32\oniguruma.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

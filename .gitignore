@@ -11,3 +11,4 @@ UnitTest/release
 
 *.suo
 *.ncb
+*.vcxproj.user

@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ソース ファイル\testcase">
+      <UniqueIdentifier>{7ce0a08b-61d8-476f-8dbb-2be4e9be2275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\target">
+      <UniqueIdentifier>{090fb480-bd11-4189-a06f-b020e393d60a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\target">
+      <UniqueIdentifier>{731c3ecf-0cf1-4e08-b085-be5f58971893}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="TestRunner.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="UnitTest.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\MemoInfoTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\RegexTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\SharedStringTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\TomboURITest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\UniConvTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\URIScannerTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\VarBufferTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="testcase\YAEditDocTest.cpp">
+      <Filter>ソース ファイル\testcase</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\TomboLib\AutoPtr.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\TomboLib\File.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\YAEdit\MemManager.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\MemoInfo.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\YAEdit\PhysicalLineManager.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\YAEdit\StringSplitter.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\TomboURI.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\TomboLib\TString.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\TomboLib\Uniconv.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\URIScanner.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\regex\util.c">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\TomboLib\VarBuffer.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Src\YAEdit\YAEditDoc.cpp">
+      <Filter>ソース ファイル\target</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Src\YAEdit\MemManager.h">
+      <Filter>ソース ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\YAEdit\PhysicalLineManager.h">
+      <Filter>ソース ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\YAEdit\StringSplitter.h">
+      <Filter>ソース ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="TestRunner.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="UnitTest.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\MemoInfo.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\RegexUtil.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\TomboURI.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\TomboLib\TString.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\URIScanner.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\TomboLib\VarBuffer.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Src\YAEdit\YAEditDoc.h">
+      <Filter>ヘッダー ファイル\target</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="UnitTest.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\oniguruma\win32\oniguruma.lib" />
+  </ItemGroup>
+</Project>

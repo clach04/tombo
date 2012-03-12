@@ -1,0 +1,248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BD1B7E25-9555-4F73-B3F9-4AD2C559F235}</ProjectGuid>
+    <RootNamespace>Tombo</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../../../Tombo\oniguruma;../../../../Tombo\Src\TomboLib;../../../../Tombo\expat\include;../../../../Tombo\Win32\Tombo\res;../../../../Tombo\Src;../../../../Tombo\Src\YAEdit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;TOMBO;PLATFORM_WIN32;MBCS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>../../../../Tombo\oniguruma;../../../../Tombo\Src\TomboLib;../../../../Tombo\expat\include;../../../../Tombo\Win32\Tombo\res;../../../../Tombo\Src;../../../../Tombo\Src\YAEdit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;TOMBO;PLATFORM_WIN32;MBCS</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Src\AboutDialog.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\AutoPtr.cpp" />
+    <ClCompile Include="..\..\..\Src\GNUPG\blowfish.c" />
+    <ClCompile Include="..\..\..\Src\BookMark.cpp" />
+    <ClCompile Include="..\..\..\Src\BookMarkDlg.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\Clipboard.cpp" />
+    <ClCompile Include="..\..\..\Src\Crypt.cpp" />
+    <ClCompile Include="..\..\..\Src\CryptManager.cpp" />
+    <ClCompile Include="..\..\..\Src\regex\ctypeutil.c" />
+    <ClCompile Include="..\..\..\Src\DetailsViewWndProc.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\DialogTemplate.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\DirectoryScanner.cpp" />
+    <ClCompile Include="..\..\..\Src\DirList.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\File.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\FileInputStream.cpp" />
+    <ClCompile Include="..\..\..\Src\FileSelector.cpp" />
+    <ClCompile Include="..\..\..\Src\FilterAddDlg.cpp" />
+    <ClCompile Include="..\..\..\Src\FilterCtlDlg.cpp" />
+    <ClCompile Include="..\..\..\Src\FilterDefDlg.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\FontWidthCache.cpp" />
+    <ClCompile Include="..\..\..\Src\GrepDialog.cpp" />
+    <ClCompile Include="..\..\..\Src\HPCPlatform.cpp" />
+    <ClCompile Include="..\..\..\Src\LagendaPlatform.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\LineManager.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\LineWrapper.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\LineWrapperImpl.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\List.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\Logger.cpp" />
+    <ClCompile Include="..\..\..\Src\main.cpp" />
+    <ClCompile Include="..\..\..\Src\MainFrame.cpp" />
+    <ClCompile Include="..\..\..\Src\GNUPG\md5.c" />
+    <ClCompile Include="..\..\..\Src\YAEdit\MemManager.cpp" />
+    <ClCompile Include="..\..\..\Src\MemoDetailsView.cpp" />
+    <ClCompile Include="..\..\..\Src\MemoFolder.cpp" />
+    <ClCompile Include="..\..\..\Src\MemoInfo.cpp" />
+    <ClCompile Include="..\..\..\Src\MemoManager.cpp" />
+    <ClCompile Include="..\..\..\Src\MemoNote.cpp" />
+    <ClCompile Include="..\..\..\Src\MemoSelectView.cpp" />
+    <ClCompile Include="..\..\..\Src\Message.cpp" />
+    <ClCompile Include="..\..\..\Src\NewFolderDialog.cpp" />
+    <ClCompile Include="..\..\..\Src\PasswordDialog.cpp" />
+    <ClCompile Include="..\..\..\Src\PasswordManager.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\PhysicalLineManager.cpp" />
+    <ClCompile Include="..\..\..\Src\PlatformLayer.cpp" />
+    <ClCompile Include="..\..\..\Src\PocketPCPlatform.cpp" />
+    <ClCompile Include="..\..\..\Src\Property.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\PropertyPage.cpp" />
+    <ClCompile Include="..\..\..\Src\PsPCPlatform.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\Region.cpp" />
+    <ClCompile Include="..\..\..\Src\Repository.cpp" />
+    <ClCompile Include="..\..\..\Src\RepositoryImpl.cpp" />
+    <ClCompile Include="..\..\..\Src\SearchDlg.cpp" />
+    <ClCompile Include="..\..\..\Src\SearchEngine.cpp" />
+    <ClCompile Include="..\..\..\Src\SearchTree.cpp" />
+    <ClCompile Include="..\..\..\Src\SelectViewWndProc.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\SipControl.cpp" />
+    <ClCompile Include="..\..\..\Src\StatusBar.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\StringSplitter.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboPropertyTab.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboURI.cpp" />
+    <ClCompile Include="..\..\..\Src\TreeViewItem.cpp" />
+    <ClCompile Include="..\..\..\Src\TSParser.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\TString.cpp" />
+    <ClCompile Include="..\..\..\Src\TomboLib\Uniconv.cpp" />
+    <ClCompile Include="..\..\..\Src\URIScanner.cpp" />
+    <ClCompile Include="..\..\..\Src\regex\util.c" />
+    <ClCompile Include="..\..\..\Src\TomboLib\VarBuffer.cpp" />
+    <ClCompile Include="..\..\..\Src\VFManager.cpp" />
+    <ClCompile Include="..\..\..\Src\VFStream.cpp" />
+    <ClCompile Include="..\..\..\Src\Win32Platform.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\YAEdit.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\YAEditDoc.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEditor.cpp" />
+    <ClCompile Include="..\..\..\Src\YAEdit\YAEditView.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Src\AboutDialog.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\AutoPtr.h" />
+    <ClInclude Include="..\..\..\Src\GNUPG\bithelp.h" />
+    <ClInclude Include="..\..\..\Src\BookMark.h" />
+    <ClInclude Include="..\..\..\Src\BookMarkDlg.h" />
+    <ClInclude Include="..\..\..\Src\Chipher.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\Clipboard.h" />
+    <ClInclude Include="..\..\..\Src\Crypt.h" />
+    <ClInclude Include="..\..\..\Src\CryptManager.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\DialogTemplate.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\DirectoryScanner.h" />
+    <ClInclude Include="..\..\..\Src\DirList.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\File.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\FileInputStream.h" />
+    <ClInclude Include="..\..\..\Src\FileSelector.h" />
+    <ClInclude Include="..\..\..\Src\FilterAddDlg.h" />
+    <ClInclude Include="..\..\..\Src\FilterCtlDlg.h" />
+    <ClInclude Include="..\..\..\Src\FilterDefDlg.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\FontWidthCache.h" />
+    <ClInclude Include="..\..\..\Src\GrepDialog.h" />
+    <ClInclude Include="..\..\..\Src\HPCPlatform.h" />
+    <ClInclude Include="..\..\..\Src\LagendaPlatform.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\LineManager.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\LineWrapper.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\LineWrapperImpl.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\List.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\Logger.h" />
+    <ClInclude Include="..\..\..\Src\MainFrame.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\MemManager.h" />
+    <ClInclude Include="..\..\..\Src\MemoDetailsView.h" />
+    <ClInclude Include="..\..\..\Src\MemoFolder.h" />
+    <ClInclude Include="..\..\..\Src\MemoInfo.h" />
+    <ClInclude Include="..\..\..\Src\MemoManager.h" />
+    <ClInclude Include="..\..\..\Src\MemoNote.h" />
+    <ClInclude Include="..\..\..\Src\MemoSelectView.h" />
+    <ClInclude Include="..\..\..\Src\Message.h" />
+    <ClInclude Include="..\..\..\Src\NewFolderDialog.h" />
+    <ClInclude Include="..\..\..\Src\PasswordDialog.h" />
+    <ClInclude Include="..\..\..\Src\PasswordManager.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\PhysicalLineManager.h" />
+    <ClInclude Include="..\..\..\Src\PlatformLayer.h" />
+    <ClInclude Include="..\..\..\Src\PocketPCPlatform.h" />
+    <ClInclude Include="..\..\..\Src\Property.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\PropertyPage.h" />
+    <ClInclude Include="..\..\..\Src\PsPCPlatform.h" />
+    <ClInclude Include="..\..\..\Src\RegexUtil.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\Region.h" />
+    <ClInclude Include="..\..\..\Src\Repository.h" />
+    <ClInclude Include="..\..\..\Src\RepositoryImpl.h" />
+    <ClInclude Include="..\..\..\Src\SearchDlg.h" />
+    <ClInclude Include="..\..\..\Src\SearchEngine.h" />
+    <ClInclude Include="..\..\..\Src\SearchTree.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\SipControl.h" />
+    <ClInclude Include="..\..\..\Src\StatusBar.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\StringSplitter.h" />
+    <ClInclude Include="..\..\..\Src\Tombo.h" />
+    <ClInclude Include="..\..\..\Src\TomboPropertyTab.h" />
+    <ClInclude Include="..\..\..\Src\TomboURI.h" />
+    <ClInclude Include="..\..\..\Src\TreeViewItem.h" />
+    <ClInclude Include="..\..\..\Src\TSParser.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\TString.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\Uniconv.h" />
+    <ClInclude Include="..\..\..\Src\URIScanner.h" />
+    <ClInclude Include="..\..\..\Src\TomboLib\VarBuffer.h" />
+    <ClInclude Include="..\..\..\Src\VFManager.h" />
+    <ClInclude Include="..\..\..\Src\VFStream.h" />
+    <ClInclude Include="..\..\..\Src\Win32Platform.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\YAEdit.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\YAEditDoc.h" />
+    <ClInclude Include="..\..\..\Src\YAEditor.h" />
+    <ClInclude Include="..\..\..\Src\YAEdit\YAEditView.h" />
+    <ClInclude Include="..\..\..\Src\regex\config.h" />
+    <ClInclude Include="..\..\..\Src\regex\ctypeutil.h" />
+    <ClInclude Include="..\..\..\Src\regex\regex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\res\Tombo.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\expat\lib\Win32\libexpatw.lib" />
+    <Library Include="..\..\..\oniguruma\win32\oniguruma.lib" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,9 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tombo", "Tombo\Tombo.vcproj", "{BD1B7E25-9555-4F73-B3F9-4AD2C559F235}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tombo", "Tombo\Tombo.vcxproj", "{BD1B7E25-9555-4F73-B3F9-4AD2C559F235}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "..\..\UnitTest\UnitTest\UnitTest.vcproj", "{AA7FA4D1-39CD-42D3-BAA5-A4E590786134}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "..\..\UnitTest\UnitTest\UnitTest.vcxproj", "{AA7FA4D1-39CD-42D3-BAA5-A4E590786134}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
