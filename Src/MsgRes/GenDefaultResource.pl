@@ -43,8 +43,8 @@ open(OUT, ">$cpp") || die;
 open(SRC, $baseres) || die;
 while(<SRC>) {
 	chop;
-	split(/\t/);
-	$msgpair{$_[0]} = $_[1];
+	($key, $value) = split(/\t/);
+	$msgpair{$key} = $value;
 }
 close(SRC);
 

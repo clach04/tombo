@@ -19,18 +19,18 @@ open(RES, $ARGV[0]) || die;
 $line = 1;
 while(<RES>) {
 	chop;
-	split(/	/);
+	($key, $value) = split(/	/);
 
-	if ($listinfo{$_[0]} eq "u") {
+	if ($listinfo{$key} eq "u") {
 		# the ID is exists in list and occures first time.
-		$listinfo{$_[0]} = "e";
-	} elsif (defined($listinfo{$_[0]})) {
-		$listinfo{$_[0]} = "d";
+		$listinfo{$key} = "e";
+	} elsif (defined($listinfo{$key})) {
+		$listinfo{$key} = "d";
 	} else {
 		# unknown ID
-		$listinfo{$_[0]} = "x";
+		$listinfo{$key} = "x";
 	}
-	$msgline{$_[0]} = $_[1];
+	$msgline{$key} = $value;
 	$line++;
 }
 close(RES);
