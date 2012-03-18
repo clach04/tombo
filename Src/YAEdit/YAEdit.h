@@ -9,6 +9,7 @@ class YAEditView;
 class LineManager;
 class PhysicalLineManager;
 struct YAEContextMenu;
+struct YAEditViewColorDef;
 
 //////////////////////////////////////////////////
 // callback class
@@ -36,7 +37,7 @@ public:
 class YAEdit {
 public:
 
-	virtual BOOL Create(HINSTANCE hInst, HWND hWnd, DWORD nId, RECT &r, BOOL bWrap) = 0;
+	virtual BOOL Create(HINSTANCE hInst, HWND hWnd, DWORD nId, RECT &r, BOOL bWrap, YAEditViewColorDef c) = 0;
 	virtual void SetFocus() = 0;
 	virtual void SetFont(HFONT hFont) = 0;
 
@@ -82,7 +83,7 @@ public:
 	// factory method
 
 	// get YAEdit instance
-	static YAEdit *GetInstance(YAEditCallback *pCallback);
+	static YAEdit *GetInstance(YAEditCallback *pCallback, COLORREF cBk);
 
 	// get YAEditDoc instance
 	virtual YAEditDoc *CreateDocument(const char *pStr, YAEditCallback*pCb) = 0;
@@ -112,6 +113,7 @@ protected:
 	// window related members
 	HDC hCommonDC;
 	HINSTANCE hInstance;
+	HBRUSH hBkBrush;
 
 	///////////////////////////////////////
 	// VMC related members
@@ -166,10 +168,10 @@ public:
 
 	///////////////////////////////////////
 	// ctor & initialize
-	YAEditImpl(YAEditCallback *pCb);
+	YAEditImpl(YAEditCallback *pCb, COLORREF bkColor);
 	virtual ~YAEditImpl();
 
-	BOOL Create(HINSTANCE hInst, HWND hWnd, DWORD nId, RECT &r, BOOL bWrap);
+	BOOL Create(HINSTANCE hInst, HWND hWnd, DWORD nId, RECT &r, BOOL bWrap, YAEditViewColorDef c);
 	void SetFocus();
 
 	/////////////////////////////////
@@ -196,6 +198,8 @@ public:
 
 	void OnTimer(HWND hWnd, WPARAM wParam, LPARAM lParam);
 	void OnResize(HWND hWnd, WPARAM wParam, LPARAM lParam);
+
+	void OnEraseBkgnd(HWND hWnd, WPARAM wParam, LPARAM lParam);
 
 	/////////////////////////////////
 	// forcus window
@@ -294,6 +298,10 @@ public:
 	////////////////////////////////////////////////////
 	// font
 	void SetFont(HFONT hFont);
+
+	////////////////////////////////////////////////////
+	// color
+	void SetBackgroundColor(COLORREF cBk);
 
 	////////////////////////////////////////////////////
 	// data access from YAEditView

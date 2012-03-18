@@ -4,6 +4,15 @@
 class YAEditImpl;
 class YAEditDoc;
 
+struct YAEditViewColorDef {
+	COLORREF rgbEol;
+	COLORREF rgbLEol;
+	COLORREF rgbTab;
+	COLORREF rgbEof;
+	COLORREF rgbForeground;
+	COLORREF rgbBackground;
+};
+
 class YAEditView {
 	YAEditImpl *pCtrl;
 
@@ -49,6 +58,10 @@ protected:
 
 	RECT rClientRect;
 
+	///////////////////////////////////////
+	// Color
+	YAEditViewColorDef colorDef;
+
 public:
 	HWND hViewWnd;
 
@@ -61,7 +74,7 @@ public:
 	///////////////////////////////////////
 	// initializing
 
-	YAEditView(YAEditImpl *p) : pCtrl(p), pFontCache(NULL), hFont(NULL) {}
+	YAEditView(YAEditImpl *p, const YAEditViewColorDef& colorDef);
 	~YAEditView();
 
 	BOOL ResetPosition();

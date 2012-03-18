@@ -144,7 +144,7 @@ BOOL FolderTab::Apply(HWND hDlg)
 			return FALSE;
 		}
 	} else {
-		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY == 0) {
+		if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 			// ディレクトリではない
 			SetFocus(hTopPath);
 			SendMessage(hTopPath, EM_SETSEL, 0, -1);

@@ -77,9 +77,9 @@ BOOL YAEdit::RegisterClass(HINSTANCE hInst)
 // factory method
 /////////////////////////////////////////////////////////////////////////////
 
-YAEdit *YAEdit::GetInstance(YAEditCallback *pCallback)
+YAEdit *YAEdit::GetInstance(YAEditCallback *pCallback, COLORREF cBk)
 {
-	return new YAEditImpl(pCallback);
+	return new YAEditImpl(pCallback, cBk);
 }
 
 YAEditDoc *YAEditImpl::CreateDocument(const char *pStr, YAEditCallback* pCb)
@@ -97,11 +97,12 @@ YAEditDoc *YAEditImpl::CreateDocument(const char *pStr, YAEditCallback* pCb)
 // ctor & dtor
 /////////////////////////////////////////////////////////////////////////////
 
-YAEditImpl::YAEditImpl(YAEditCallback *pCB) : 
+YAEditImpl::YAEditImpl(YAEditCallback *pCB, COLORREF bkColor) : 
 	pWrapper(NULL), bScrollTimerOn(FALSE), pView(NULL), 
 	bMouseDown(FALSE), pLineMgr(NULL), pCallback(pCB), 
 	bInsertMode(FALSE)
 {
+	hBkBrush = CreateSolidBrush(bkColor);
 }
 
 YAEditImpl::~YAEditImpl()
@@ -110,6 +111,8 @@ YAEditImpl::~YAEditImpl()
 		if (pView->hViewWnd) DestroyWindow(pView->hViewWnd);
 	}
 	if (pLineMgr) delete pLineMgr;
+
+	DeleteObject(hBkBrush);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -186,6 +189,9 @@ LRESULT CALLBACK YAEditWndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM l
 //	case WM_IME_COMPOSITION:
 //		frm->OnIMEComposition(hWnd, wParam, lParam);
 //		return 0;
+	case WM_ERASEBKGND:
+		frm->OnEraseBkgnd(hWnd, wParam, lParam);
+		return 1;
 	}
 	return DefWindowProc(hWnd, nMessage, wParam, lParam);
 }
@@ -194,7 +200,7 @@ LRESULT CALLBACK YAEditWndProc(HWND hWnd, UINT nMessage, WPARAM wParam, LPARAM l
 // Create window
 /////////////////////////////////////////////////////////////////////////////
 
-BOOL YAEditImpl::Create(HINSTANCE hInst, HWND hParent, DWORD nId, RECT &r, BOOL bWrap)
+BOOL YAEditImpl::Create(HINSTANCE hInst, HWND hParent, DWORD nId, RECT &r, BOOL bWrap, YAEditViewColorDef cdef)
 {
 	hInstance = hInst;
 	pDoc = NULL;
@@ -202,7 +208,7 @@ BOOL YAEditImpl::Create(HINSTANCE hInst, HWND hParent, DWORD nId, RECT &r, BOOL 
 	pLineMgr = new LineManager();
 	if (!pLineMgr->Init(this)) return FALSE;
 
-	pView = new YAEditView(this);
+	pView = new YAEditView(this, cdef);
 
 	bWrapLine = bWrap;
 	if (!SetWrapper()) return FALSE;
@@ -367,6 +373,7 @@ void YAEditImpl::OnPaint(HWND hWnd, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		return;
 	}
+	SetBkColor(hDC, RGB(0, 0, 0));
 	pView->PaintRect(hDC, ps.rcPaint);
 	EndPaint(hWnd, &ps);
 }
@@ -547,6 +554,16 @@ void YAEditImpl::OnChar(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	}
 
 	ReplaceText(SelectedRegion(), kbuf);
+}
+
+
+void YAEditImpl::OnEraseBkgnd(HWND hWnd, WPARAM wParam, LPARAM lParam) {
+		HGDIOBJ hOld = SelectObject((HDC)wParam, hBkBrush);
+		RECT r;
+		GetClientRect(hWnd, &r);
+		PatBlt((HDC)wParam,
+			r.left, r.top, r.right, r.bottom, PATCOPY);
+		SelectObject((HDC)wParam, hOld);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1505,4 +1522,11 @@ void YAEditImpl::SetSelectRegion(DWORD nStartPos, DWORD nEndPos)
 	pView->SetCaretPosition(lgEndPos);
 	pView->ScrollCaret();
 
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void YAEditImpl::SetBackgroundColor(COLORREF bk) {
+	DeleteObject(hBkBrush);
+	hBkBrush = CreateSolidBrush(bk);
 }

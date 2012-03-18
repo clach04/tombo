@@ -41,8 +41,14 @@
 #define PROP_N_KEEP_LAST_OPEN			29
 #define PROP_N_USE_YAE					30
 #define PROP_N_DISABLE_YAE              31
+#define PROP_N_FGCOLOR					32
+#define PROP_N_BGCOLOR					33
+#define PROP_N_EOL_COLOR				34
+#define PROP_N_LEOL_COLOR				35
+#define PROP_N_TAB_COLOR				36
+#define PROP_N_EOF_COLOR				37
 
-#define NUM_PROPS_NUM 32
+#define NUM_PROPS_NUM 38
 
 #define PROP_S_TOPDIR					 0
 #define PROP_S_SELECTVIEW_FONTNAME		 1
@@ -219,6 +225,14 @@ public:
 	NUM_ACCESSOR(HideRebar, PROP_N_HIDEREBAR)	// hide rebar(toolbar)
 	void ToggleShowRebar() { nPropsNum[PROP_N_HIDEREBAR] = !nPropsNum[PROP_N_HIDEREBAR]; }
 #endif
+
+	// Color related props
+	NUM_ACCESSOR(FgColor, PROP_N_FGCOLOR)
+	NUM_ACCESSOR(BgColor, PROP_N_BGCOLOR)
+	NUM_ACCESSOR(EolColor, PROP_N_EOL_COLOR)
+	NUM_ACCESSOR(LEolColor, PROP_N_LEOL_COLOR)
+	NUM_ACCESSOR(TabColor, PROP_N_TAB_COLOR)
+	NUM_ACCESSOR(EofColor, PROP_N_EOF_COLOR)
 
 	// save restore main window size
 	BOOL SaveWinSize(UINT flags, UINT showCmd, LPRECT pWinRect, WORD nSelectViewWidth);

@@ -20,11 +20,6 @@
 #include "TomboLib/Clipboard.h"
 #include "TString.h"
 
-#define COLOR_EOL RGB(255, 128, 128)
-#define COLOR_LEOL RGB(255, 128, 128)
-#define COLOR_TAB RGB(255, 128, 128)
-#define COLOR_EOF RGB(0, 0, 255)
-
 #define CHAR_TYPE_NORMAL 0
 #define CHAR_TYPE_SPACE 1
 #define CHAR_TYPE_SPACE_ZENKAKU 2
@@ -33,6 +28,10 @@
 /////////////////////////////////////////////////////////////////////////////
 // initialize
 /////////////////////////////////////////////////////////////////////////////
+
+YAEditView::YAEditView(YAEditImpl *p, const YAEditViewColorDef& cdef) : pCtrl(p), pFontCache(NULL), hFont(NULL)  {
+	colorDef = cdef;
+}
 
 YAEditView::~YAEditView()
 {
@@ -103,7 +102,7 @@ static void DrawZenkakuSpace(HDC hDC, RECT *pRect, COLORREF color)
 
 static void DrawTab(HDC hDC, RECT *pRect, COLORREF color)
 {
-	COLORREF crDefault = SetTextColor(hDC, COLOR_TAB);
+	COLORREF crDefault = SetTextColor(hDC, color);
 	DrawText(hDC, TEXT(">"), 1, pRect, DT_TOP | DT_SINGLELINE);
 	SetTextColor(hDC, crDefault);
 }
@@ -134,7 +133,7 @@ static DWORD CheckCharType(LPCTSTR pLine, LPDWORD pNumChar)
 	return CHAR_TYPE_NORMAL;
 }
 
-static void DrawEOL(HDC hDC, LPRECT pRect, COLORREF color)
+static void DrawEOL(HDC hDC, LPRECT pRect, const YAEditViewColorDef& cdef)
 {
 	WORD nHalfX = (WORD)((pRect->right - pRect->left)/ 2);
 	WORD nHalfY = (WORD)((pRect->bottom - pRect->top) / 2);
@@ -145,8 +144,9 @@ static void DrawEOL(HDC hDC, LPRECT pRect, COLORREF color)
 	WORD rX = (nW - w) / 2;
 	WORD rY = (nH - w) / 2;
 
-	HPEN hPen = CreatePen(PS_SOLID, 0, color);
+	HPEN hPen = CreatePen(PS_SOLID, 0, cdef.rgbEol);
 	HGDIOBJ hOld = SelectObject(hDC, hPen);
+	SetBkColor(hDC, cdef.rgbBackground);
 
 	POINT pt[3];
 	pt[0].x = pRect->right - rX;	pt[0].y = pRect->top + rY;
@@ -156,14 +156,14 @@ static void DrawEOL(HDC hDC, LPRECT pRect, COLORREF color)
 
 	for (int x = 0; x <= 2; x++) {
 		for (int y = -x; y <= x; y++) {
-			SetPixel(hDC, pt[2].x + x, pt[2].y + y, color);
+			SetPixel(hDC, pt[2].x + x, pt[2].y + y, cdef.rgbEol);
 		}
 	}
 	SelectObject(hDC, hOld);
 	DeleteObject(hPen);
 }
 
-static void DrawLEOL(HDC hDC, LPRECT pRect, COLORREF color)
+static void DrawLEOL(HDC hDC, LPRECT pRect, const YAEditViewColorDef cdef)
 {
 	WORD nHalfX = (WORD)((pRect->right - pRect->left)/ 2);
 
@@ -171,7 +171,7 @@ static void DrawLEOL(HDC hDC, LPRECT pRect, COLORREF color)
 	WORD w = (nH * 7) / 10;
 	WORD rY = (nH - w) / 2;
 
-	HPEN hPen = CreatePen(PS_SOLID, 0, color);
+	HPEN hPen = CreatePen(PS_SOLID, 0, cdef.rgbLEol);
 	HGDIOBJ hOld = SelectObject(hDC, hPen);
 
 	POINT pt[2];
@@ -181,7 +181,7 @@ static void DrawLEOL(HDC hDC, LPRECT pRect, COLORREF color)
 
 	for (int y = -2; y <= 0; y++) {
 		for (int x = y; x <= -y; x++) {
-			SetPixel(hDC, pt[1].x + x, pt[1].y + y, color);
+			SetPixel(hDC, pt[1].x + x, pt[1].y + y, cdef.rgbLEol);
 		}
 	}
 	SelectObject(hDC, hOld);
@@ -193,7 +193,6 @@ void YAEditView::DrawEndLineMark(HDC hDC, DWORD wStartPos, DWORD nMaxLine, RECT 
 	DWORD nLineNo = pChunk->GetLineNo();
 
 	RECT r2;
-	COLORREF crDefault;
 	r2.left = (WORD)wStartPos;
 	r2.top = pRect->top;
 	r2.bottom = r2.top + nLineH;
@@ -201,23 +200,21 @@ void YAEditView::DrawEndLineMark(HDC hDC, DWORD wStartPos, DWORD nMaxLine, RECT 
 	if (nLineNo + 1 == nMaxLine) {
 		// EOF
 		r2.right = r2.left + 100;
-		crDefault = SetTextColor(hDC, COLOR_EOF);
+		SetTextColor(hDC, colorDef.rgbEof);
+		SetBkColor(hDC, colorDef.rgbBackground);
 		DrawText(hDC, TEXT("[EOF]"), 5, &r2, DT_TOP | DT_SINGLELINE);
 	} else {
 		// EOL
 		if (pChunk->IsContLine()) {
 			// Logical EOL
 			r2.right = r2.left + 5;
-			crDefault = SetTextColor(hDC, COLOR_LEOL);
-			DrawLEOL(hDC, &r2, COLOR_LEOL);
+			DrawLEOL(hDC, &r2, colorDef);
 		} else {
 			// Physical EOL
 			r2.right = r2.left + nAveCharWidth;
-			crDefault = SetTextColor(hDC, COLOR_EOL);
-			DrawEOL(hDC, &r2, COLOR_EOL);
+			DrawEOL(hDC, &r2, colorDef);
 		}
 	}
-	SetTextColor(hDC, crDefault);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -270,7 +267,7 @@ BOOL YAEditView::PaintLine(HDC hDC, LineChunk *pChunk, const LPRECT pRect, DWORD
 		switch(nSpecialChar) {
 		case CHAR_TYPE_SPACE:
 			if (bInvertText) {
-				HBRUSH hBrush = CreateSolidBrush(RGB(0,0,0));
+				HBRUSH hBrush = CreateSolidBrush(colorDef.rgbForeground);
 				HGDIOBJ hDefaultBrush = SelectObject(hDC, hBrush);
 				Rectangle(hDC, r.left, r.top, r.left + GetLineWidth(0, TEXT(" "), 1), r.bottom);
 				SelectObject(hDC, hDefaultBrush);
@@ -281,14 +278,14 @@ BOOL YAEditView::PaintLine(HDC hDC, LineChunk *pChunk, const LPRECT pRect, DWORD
 		case CHAR_TYPE_TAB:
 			nCharWidth = GetLineWidth(nOffset, TEXT("\t"), 1);
 			if (bInvertText) {
-				HBRUSH hBrush = CreateSolidBrush(RGB(0,0,0));
+				HBRUSH hBrush = CreateSolidBrush(colorDef.rgbForeground);
 				HGDIOBJ hDefaultBrush = SelectObject(hDC, hBrush);
 				Rectangle(hDC, r.left, r.top, r.left + nCharWidth, r.bottom);
 				SelectObject(hDC, hDefaultBrush);
 				DeleteObject(hBrush);
 			} else {
 				r.right = r.left + nCharWidth;
-				DrawTab(hDC, &r, RGB(0, 0, 255));
+				DrawTab(hDC, &r, colorDef.rgbTab);
 			}
 			break;
 
@@ -301,16 +298,14 @@ BOOL YAEditView::PaintLine(HDC hDC, LineChunk *pChunk, const LPRECT pRect, DWORD
 #endif
 		default:	// normal char
 			{
-				COLORREF fg, bg;
 				if (bInvertText) {
-					fg = SetTextColor(hDC, RGB(255,255,255));
-					bg = SetBkColor(hDC, RGB(0,0,0));
+					SetTextColor(hDC, colorDef.rgbBackground);
+					SetBkColor(hDC, colorDef.rgbForeground);
+				} else {
+					SetTextColor(hDC, colorDef.rgbForeground);
+					SetBkColor(hDC, colorDef.rgbBackground);
 				}
 				ExtTextOut(hDC, r.left, pRect->top, 0, NULL, pChunkData, nNumChar, NULL);
-				if (bInvertText) {
-					fg = SetTextColor(hDC, fg);
-					bg = SetBkColor(hDC, bg);
-				}
 				nCharWidth = GetLineWidth(nOffset, pChunkData, nNumChar);
 			}
 		}

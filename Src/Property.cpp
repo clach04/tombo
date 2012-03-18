@@ -139,6 +139,12 @@ struct PropListNum {
 	{ PROP_N_KEEP_LAST_OPEN,			TEXT("UseLastOpenNote"),			FALSE },
 	{ PROP_N_USE_YAE,					TEXT("UseYAE"),						FALSE },
 	{ PROP_N_DISABLE_YAE,				TEXT("DisableYAE"),					FALSE },
+	{ PROP_N_FGCOLOR,					TEXT("FgColor"),					RGB(0, 0, 0) },
+	{ PROP_N_BGCOLOR,					TEXT("BgColor"),					RGB(255, 255, 255) },
+	{ PROP_N_EOL_COLOR,					TEXT("EolColor"),					RGB(255, 128, 128) },
+	{ PROP_N_LEOL_COLOR,				TEXT("LEolColor"),					RGB(255, 128, 128) },
+	{ PROP_N_TAB_COLOR,					TEXT("TabColor"),					RGB(255, 128, 128) },
+	{ PROP_N_EOF_COLOR,					TEXT("EofColor"),					RGB(0, 0, 255) },
 	{ 0xFFFFFFFF,						NULL,								NULL},
 };
 
@@ -540,6 +546,7 @@ BOOL Property::LoadDefaultProperties()
 
 BOOL Property::Load()
 {
+	LoadDefaultProperties();
 	BOOL bResult = LoadProperties();
 
 	// Convert topdir value to repository value

@@ -114,8 +114,17 @@ YAEditor::~YAEditor()
 BOOL YAEditor::Create(LPCTSTR pName, RECT &r, HWND hParent, HINSTANCE hInst, HFONT hFont)
 {
 	pYAECallback = new YAEDetailsViewCallback(this, pManager);
-	pEdit = YAEdit::GetInstance(pYAECallback);
-	pEdit->Create(hInst, hParent, nID, r, g_Property.GetWrapText());
+
+	YAEditViewColorDef cdef;
+	cdef.rgbForeground = g_Property.GetFgColor();
+	cdef.rgbBackground = g_Property.GetBgColor();
+	cdef.rgbEol = g_Property.GetEolColor();
+	cdef.rgbLEol = g_Property.GetLEolColor();
+	cdef.rgbTab = g_Property.GetTabColor();
+	cdef.rgbEof = g_Property.GetEofColor();
+
+	pEdit = YAEdit::GetInstance(pYAECallback, cdef.rgbBackground);
+	pEdit->Create(hInst, hParent, nID, r, g_Property.GetWrapText(), cdef);
 	pEdit->SetFont(hFont);
 	return TRUE;
 }
