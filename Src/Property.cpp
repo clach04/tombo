@@ -3,6 +3,7 @@
 #include <tchar.h>
 #if defined(PLATFORM_WIN32)
 #include <stdio.h>
+#include <ShlObj.h>
 #endif
 #if defined(PLATFORM_BE500)
 #include <GetDisk.h>
@@ -189,6 +190,12 @@ Property::Property() : pCmdlineAssignedTopDir(NULL), pBookMark(NULL), pSearchHis
 {
 	bLoad = FALSE;
 	bNeedAsk = TRUE;
+
+	PropListNum *p = propListNum;
+	while(p->nPropId != 0xFFFFFFFF) {
+		nPropsNum[p->nPropId] = p->nDefault;
+		p++;
+	}
 
 	for (DWORD i = 0; i < NUM_PROPS_STR; i++) {
 		pPropsStr[i] = NULL;
@@ -548,7 +555,6 @@ BOOL Property::LoadDefaultProperties()
 
 BOOL Property::Load()
 {
-	LoadDefaultProperties();
 	BOOL bResult = LoadProperties();
 
 	// Convert topdir value to repository value
@@ -558,8 +564,6 @@ BOOL Property::Load()
 		nNumRepos = 2;
 
 		LocalFileRepository *pLocalImpl = new LocalFileRepository();
-//		if (!pLocalImpl->Init(TEXT("default"), , pTopDir, bKeepTitle, bKeepCaret, bSafeFileName)) {
-		// XXXX : 
 		if (!pLocalImpl->Init(TEXT("default"), MSG_MEMO, pTopDir, FALSE, FALSE, FALSE)) {
 			return FALSE;
 		}
@@ -581,12 +585,43 @@ BOOL Property::Load()
 	return TRUE;
 }
 
-BOOL Property::LoadProperties()
-{
+static BOOL GetPropPath(LPTSTR pPath) {
 	TCHAR pathbuf[MAX_PATH + 1];
 	TCHAR pathbuf2[MAX_PATH + 1];
 	GetModuleFileName(NULL, pathbuf, MAX_PATH);
 	GetFilePath(pathbuf2, pathbuf);
+	_tcscpy(pPath, pathbuf2);
+
+	// check can prop file write?
+	_tcscat(pathbuf2, PROP_TMP_FILE_NAME);
+	File f;
+	if (f.Open(pathbuf2, GENERIC_WRITE, FILE_SHARE_WRITE, CREATE_ALWAYS)) {
+		f.Close();
+		return TRUE;
+	}
+
+	// It seems be win7 and Tombo.exe's place is "Program Files". Use AppData folder.
+	TCHAR appDataPath[MAX_PATH + 1];
+	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appDataPath);
+	_tcscpy(pathbuf2, appDataPath);
+
+	_tcscat(appDataPath, TEXT("\\Tombo"));
+	DWORD attr = GetFileAttributes(appDataPath);
+	_tcscpy(pPath, appDataPath);
+	_tcscat(pPath, TEXT("\\"));
+	if (attr != -1 && (attr & FILE_ATTRIBUTE_DIRECTORY) != 0) return TRUE;
+
+	// create one
+	if (!CreateDirectory(appDataPath, NULL)) return FALSE;
+	// OK. use AppData/Tombo
+	return TRUE;
+}
+
+BOOL Property::LoadProperties()
+{
+	TCHAR pathbuf2[MAX_PATH + 1];
+	GetPropPath(pathbuf2);
+
 	TString sPropFile;
 	if (!sPropFile.Join(pathbuf2, PROP_FILE_NAME)) return FALSE;
 
@@ -902,11 +937,9 @@ BOOL Property::SaveToFile(File *pFile)
 
 BOOL Property::Save()
 {
-
-	TCHAR pathbuf[MAX_PATH + 1];
 	TCHAR pathbuf2[MAX_PATH + 1];
-	GetModuleFileName(NULL, pathbuf, MAX_PATH);
-	GetFilePath(pathbuf2, pathbuf);
+	if (!GetPropPath(pathbuf2)) return FALSE;
+
 	TString sPropFile, sPropFileTmp;
 	if (!sPropFile.Join(pathbuf2, PROP_FILE_NAME)) return FALSE;
 	if (!sPropFileTmp.Join(pathbuf2, PROP_TMP_FILE_NAME)) return FALSE;
