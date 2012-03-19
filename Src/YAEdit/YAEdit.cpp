@@ -1525,8 +1525,15 @@ void YAEditImpl::SetSelectRegion(DWORD nStartPos, DWORD nEndPos)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+// Color properies
 
 void YAEditImpl::SetBackgroundColor(COLORREF bk) {
 	DeleteObject(hBkBrush);
 	hBkBrush = CreateSolidBrush(bk);
+}
+
+void YAEditImpl::SetColorDef(const YAEditViewColorDef& cdef) {
+	DeleteObject(hBkBrush);
+	hBkBrush = CreateSolidBrush(cdef.rgbBackground);
+	pView->SetColorDef(cdef);
 }

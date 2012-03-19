@@ -6,6 +6,7 @@ class SearchEngineA;
 class TString;
 class TomboURI;
 class MemoManager;
+struct YAEditViewColorDef;
 
 ///////////////////////////////////////
 // Edit view abstraction
@@ -49,6 +50,8 @@ public:
 	virtual DWORD GetInitialPos() = 0;
 
 	virtual void SelectAll() = 0;
+
+	virtual void SetColorDef(const YAEditViewColorDef& cdef) = 0;
 
 	BOOL Search(BOOL bFirstSearch, BOOL bForward, BOOL bNFMsg, BOOL bSearchFromTop);
 
@@ -112,6 +115,8 @@ public:
 	BOOL IsReadOnly() { return bReadOnly; }
 
 	void SetModifyStatus();
+
+	void SetColorDef(const YAEditViewColorDef& cdef) {}
 
 	////////////////////////
 	// Message handler

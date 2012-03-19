@@ -49,7 +49,7 @@
 #if defined(PLATFORM_PKTPC) || defined(PLATFORM_WM5)
 #define PROPTAB_PAGES 10
 #else
-#define PROPTAB_PAGES 8
+#define PROPTAB_PAGES 9
 #endif
 
 //////////////////////////////////////////
@@ -292,6 +292,7 @@ DWORD Property::Popup(HINSTANCE hInst, HWND hWnd, const TomboURI *pCurrentSelect
 #if !defined(PLATFORM_PSPC)
 	ExtAppTab pgExtApp(this);
 #endif
+	ColorTab pgColor(this);
 
 	DWORD n = 0;
 
@@ -309,6 +310,7 @@ DWORD Property::Popup(HINSTANCE hInst, HWND hWnd, const TomboURI *pCurrentSelect
 	pages[n++] = &pgSip;
 #endif
 	pages[n++] = &pgCodepage;
+	pages[n++] = &pgColor;
 
 	PropertyPage pp;
 	if (pp.Popup(hInst, hWnd, pages, n, MSG_PROPTAB_TITLE, MAKEINTRESOURCE(IDI_TOMBO)) == IDOK) {

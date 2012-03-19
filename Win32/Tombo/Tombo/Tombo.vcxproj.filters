@@ -461,6 +461,9 @@
     <ClInclude Include="..\..\..\Src\regex\regex.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="..\res\resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\Tombo.rc">
@@ -470,5 +473,19 @@
   <ItemGroup>
     <Library Include="..\..\..\expat\lib\Win32\libexpatw.lib" />
     <Library Include="..\..\..\oniguruma\win32\oniguruma.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Src\image\memoimg.bmp">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="..\..\..\Src\image\toolbar.bmp">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="..\..\..\Src\image\draftimg.bmp">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="..\..\..\Src\image\Tombo.ICO">
+      <Filter>リソース ファイル</Filter>
+    </None>
   </ItemGroup>
 </Project>

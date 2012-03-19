@@ -234,6 +234,7 @@
     <ClInclude Include="..\..\..\Src\regex\config.h" />
     <ClInclude Include="..\..\..\Src\regex\ctypeutil.h" />
     <ClInclude Include="..\..\..\Src\regex\regex.h" />
+    <ClInclude Include="..\res\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\res\Tombo.rc" />
@@ -241,6 +242,12 @@
   <ItemGroup>
     <Library Include="..\..\..\expat\lib\Win32\libexpatw.lib" />
     <Library Include="..\..\..\oniguruma\win32\oniguruma.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Src\image\draftimg.bmp" />
+    <None Include="..\..\..\Src\image\memoimg.bmp" />
+    <None Include="..\..\..\Src\image\Tombo.ICO" />
+    <None Include="..\..\..\Src\image\toolbar.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

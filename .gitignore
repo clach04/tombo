@@ -14,3 +14,4 @@ UnitTest/release
 *.ncb
 *.vcxproj.user
 *.sdf
+*.aps

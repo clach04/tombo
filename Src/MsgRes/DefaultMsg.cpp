@@ -301,4 +301,11 @@ static LPCTSTR defaultMsg[] = {
 	TEXT("Set file encoding. Auto detection/conversion is not supported, so do not change if you hanve already some notes."),
 	TEXT("Undo"),
 	TEXT("File"),
+	TEXT("Color"),
+	TEXT("Foreground"),
+	TEXT("Background"),
+	TEXT("End of line"),
+	TEXT("End of line(folding)"),
+	TEXT("Tab"),
+	TEXT("End of file"),
 };

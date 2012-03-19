@@ -299,3 +299,10 @@ MSG_CODEPAGE_UTF8	UTF-8
 MSG_DLG_PROPTAB_CODEPAGE_NOTICE	Set file encoding. Auto detection/conversion is not supported, so do not change if you hanve already some notes.
 MSG_MENUITEM_UNDO	Undo
 MSG_MENUITEM_FILE	File
+MSG_PROPTAB_COLOR	Color
+MSG_DLG_COLORTAB_FOREGROUND	Foreground
+MSG_DLG_COLORTAB_BACKGROUND	Background
+MSG_DLG_COLORTAB_EOL	End of line
+MSG_DLG_COLORTAB_LEOL	End of line(wrap)
+MSG_DLG_COLORTAB_TAB	Tab
+MSG_DLG_COLORTAB_EOF	End of file

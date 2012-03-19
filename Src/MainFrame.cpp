@@ -1399,6 +1399,16 @@ void MainFrame::OnProperty()
 	// tabstop setting
 	pDetailsView->SetTabstop();
 
+	// color setting
+	YAEditViewColorDef cdef;
+	cdef.rgbForeground = g_Property.GetFgColor();
+	cdef.rgbBackground = g_Property.GetBgColor();
+	cdef.rgbEol = g_Property.GetEolColor();
+	cdef.rgbLEol = g_Property.GetLEolColor();
+	cdef.rgbTab = g_Property.GetTabColor();
+	cdef.rgbEof = g_Property.GetEofColor();
+	pDetailsView->SetColorDef(cdef);
+
 	// reload notes and folders
 	msView.DeleteAllItem();
 	msView.InitTree(pVFManager);

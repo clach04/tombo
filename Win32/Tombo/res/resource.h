@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Tombo.rc
 //
 #define IDS_PROPTAB_FOLDER              1
@@ -74,6 +74,7 @@
 #define IDD_PROPTAB_EXTAPP              148
 #define IDD_LANG_DLG                    149
 #define IDD_PROPTAB_CODEPAGE            150
+#define IDD_PROPTAB_COLOR               151
 #define IDC_PASS                        1000
 #define IDC_PROP_PASSWORD_DESC          1001
 #define IDC_PASS_TIMEOUT                1002
@@ -186,6 +187,25 @@
 #define IDC_PROPTAB_CODEPAGE_LABEL      1104
 #define IDC_PROPTAB_CODEPAGE_CODEPAGE   1105
 #define IDC_PROPTAB_CODEPAGE_NOTICE     1106
+#define IDC_PROPTAB_COLOR_FG            1107
+#define IDC_PROPTAB_COLOR_BG            1108
+#define IDC_PROPTAB_COLOR_EOL           1109
+#define IDC_PROPTAB_COLOR_LEOL          1110
+#define IDC_PROPTAB_COLOR_TAB           1111
+#define IDC_PROPTAB_COLOR_EOF           1112
+#define IDC_PROPTAB_COLOR_FG_C          1113
+#define IDC_PROPTAB_COLOR_BG_C          1114
+#define IDC_PROPTAB_COLOR_EOL_C         1115
+#define IDC_PROPTAB_COLOR_LEOL_C        1116
+#define IDC_PROPTAB_COLOR_TAB_C         1117
+#define IDC_PROPTAB_COLOR_EOF_C         1118
+#define IDC_PROPTAB_COLOR_BTN_FG        1120
+#define IDC_PROPTAB_COLOR_BTN_BG        1121
+#define IDC_PROPTAB_COLOR_BTN_EOL       1122
+#define IDC_PROPTAB_COLOR_BTN_LEOL      1123
+#define IDC_PROPTAB_COLOR_BTN_TAB       1124
+#define IDC_PROPTAB_COLOR_BTN_TAB2      1125
+#define IDC_PROPTAB_COLOR_BTN_EOF       1125
 #define IDM_EXIT                        40001
 #define IDM_NEWMEMO                     40002
 #define IDM_RETURNLIST                  40003
@@ -227,9 +247,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        151
+#define _APS_NEXT_RESOURCE_VALUE        152
 #define _APS_NEXT_COMMAND_VALUE         40039
-#define _APS_NEXT_CONTROL_VALUE         1107
+#define _APS_NEXT_CONTROL_VALUE         1121
 #define _APS_NEXT_SYMED_VALUE           116
 #endif
 #endif

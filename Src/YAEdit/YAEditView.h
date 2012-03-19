@@ -4,15 +4,6 @@
 class YAEditImpl;
 class YAEditDoc;
 
-struct YAEditViewColorDef {
-	COLORREF rgbEol;
-	COLORREF rgbLEol;
-	COLORREF rgbTab;
-	COLORREF rgbEof;
-	COLORREF rgbForeground;
-	COLORREF rgbBackground;
-};
-
 class YAEditView {
 	YAEditImpl *pCtrl;
 
@@ -169,6 +160,8 @@ public:
 
 	void ResetFontInfo();
 	void SetFont(HFONT hFont);
+
+	void SetColorDef(const YAEditViewColorDef& cdef);
 
 	///////////////////////////////////////
 	// scroll bar status

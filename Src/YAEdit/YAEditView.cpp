@@ -987,3 +987,7 @@ BOOL YAEditView::IsVertScrollbarDisplayed()
 	GetScrollInfo(hViewWnd, SB_VERT, &si);
 	return (si.nMin != si.nMax) && ((UINT)si.nMin <= si.nPage) && (si.nPage <= (UINT)si.nMax);
 }
+
+void YAEditView::SetColorDef(const YAEditViewColorDef& cdef) {
+	colorDef = cdef;
+}

@@ -57,6 +57,8 @@ public:
 
 	BOOL ReplaceText(LPCTSTR p);
 
+	void SetColorDef(const YAEditViewColorDef& c);
+
 	//////////////////////////
 	// commands
 	void CmdUndo();

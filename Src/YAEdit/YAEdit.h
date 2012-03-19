@@ -11,6 +11,15 @@ class PhysicalLineManager;
 struct YAEContextMenu;
 struct YAEditViewColorDef;
 
+struct YAEditViewColorDef {
+	COLORREF rgbEol;
+	COLORREF rgbLEol;
+	COLORREF rgbTab;
+	COLORREF rgbEof;
+	COLORREF rgbForeground;
+	COLORREF rgbBackground;
+};
+
 //////////////////////////////////////////////////
 // callback class
 //////////////////////////////////////////////////
@@ -74,6 +83,11 @@ public:
 
 	virtual void CmdSelAll() = 0;
 	virtual void CmdToggleWrapMode(BOOL bFold) = 0;
+
+
+	///////////////////////////////////////
+	// color
+	virtual void SetColorDef(const YAEditViewColorDef& cdef) = 0;
 
 	///////////////////////////////////////
 	// register window class
@@ -302,6 +316,7 @@ public:
 	////////////////////////////////////////////////////
 	// color
 	void SetBackgroundColor(COLORREF cBk);
+	void SetColorDef(const YAEditViewColorDef& cdef);
 
 	////////////////////////////////////////////////////
 	// data access from YAEditView

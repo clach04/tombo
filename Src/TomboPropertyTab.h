@@ -167,4 +167,24 @@ public:
 };
 #endif
 
+// ChooseColor dialog
+class ColorTab : public TomboPropertyTab {
+protected:
+	static LRESULT APIENTRY CustomPageProc(HWND hDlg, UINT nMessage, WPARAM wParam, LPARAM lParam);
+
+	void Choose(HWND hDlg, DWORD nCtlId, HBRUSH* pBrush, COLORREF *pColor);
+
+public:
+	COLORREF cFg, cBg, cEol, cLEol, cTab, cEof;
+	HBRUSH hFgBrush, hBgBrush, hEolBrush, hLEolBrush, hTabBrush, hEofBrush;
+
+	ColorTab(Property *p) :
+	  TomboPropertyTab(p, IDD_PROPTAB_COLOR, (DLGPROC)CustomPageProc, MSG_PROPTAB_COLOR) {}
+	~ColorTab();
+
+	void Init(HWND hDlg);
+	BOOL Apply(HWND hDlg);
+	BOOL OnCommand(HWND hDlg, WPARAM wParam, LPARAM lParam);
+};
+
 #endif

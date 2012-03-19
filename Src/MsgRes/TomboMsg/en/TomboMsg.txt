@@ -299,3 +299,10 @@ UTF-8
 Set file encoding. Auto detection/conversion is not supported, so do not change if you hanve already some notes.
 Undo
 File
+Color
+Foreground
+Background
+End of line
+End of line(folding)
+Tab
+End of file

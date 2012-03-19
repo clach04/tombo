@@ -940,6 +940,124 @@ void ExtAppTab::Choose2(HWND hDlg)
 #endif
 
 //////////////////////////////////////////
+// Color tab
+//////////////////////////////////////////
+
+LRESULT APIENTRY ColorTab::CustomPageProc(HWND hDlg, UINT nMessage, WPARAM wParam, LPARAM lParam) {
+	if (DefaultPageProc(hDlg, nMessage, wParam, lParam)) return TRUE;
+
+	ColorTab *pPage = (ColorTab*)GetWindowLong(hDlg, DWL_USER);
+	if (pPage == NULL) return FALSE;
+
+	if (nMessage == WM_CTLCOLORSTATIC) {
+		HDC hDC = (HDC)wParam;
+		HWND hCtl = (HWND)lParam;
+		if (hCtl == GetDlgItem(hDlg, IDC_PROPTAB_COLOR_BG_C)) {
+			return (LRESULT)pPage->hBgBrush;
+		} else if (hCtl == GetDlgItem(hDlg, IDC_PROPTAB_COLOR_FG_C)) {
+			return (LRESULT)pPage->hFgBrush;
+		} else if (hCtl == GetDlgItem(hDlg, IDC_PROPTAB_COLOR_EOL_C)) {
+			return (LRESULT)pPage->hEolBrush;
+		} else if (hCtl == GetDlgItem(hDlg, IDC_PROPTAB_COLOR_LEOL_C)) {
+			return (LRESULT)pPage->hLEolBrush;
+		} else if (hCtl == GetDlgItem(hDlg, IDC_PROPTAB_COLOR_TAB_C)) {
+			return (LRESULT)pPage->hTabBrush;
+		} else if (hCtl == GetDlgItem(hDlg, IDC_PROPTAB_COLOR_EOF_C)) {
+			return (LRESULT)pPage->hEofBrush;
+		} else {
+			return 0;
+		}
+	}
+	return 0;
+}
+
+ColorTab::~ColorTab() {
+	DeleteObject(hFgBrush);
+	DeleteObject(hBgBrush);
+	DeleteObject(hEolBrush);
+	DeleteObject(hLEolBrush);
+	DeleteObject(hTabBrush);
+	DeleteObject(hEofBrush);
+}
+
+static DlgMsgRes aColor[] = {
+	{ IDC_PROPTAB_COLOR_FG,   MSG_ID_DLG_COLORTAB_FOREGROUND },
+	{ IDC_PROPTAB_COLOR_BG,   MSG_ID_DLG_COLORTAB_BACKGROUND },
+	{ IDC_PROPTAB_COLOR_EOL,  MSG_ID_DLG_COLORTAB_EOL },
+	{ IDC_PROPTAB_COLOR_LEOL, MSG_ID_DLG_COLORTAB_LEOL },
+	{ IDC_PROPTAB_COLOR_TAB,  MSG_ID_DLG_COLORTAB_TAB },
+	{ IDC_PROPTAB_COLOR_EOF,  MSG_ID_DLG_COLORTAB_EOF },
+};
+
+void ColorTab::Init(HWND hDlg) {
+	OverrideDlgMsg(hDlg, -1, aColor, sizeof(aColor)/sizeof(DlgMsgRes));
+	hFgBrush = CreateSolidBrush(cFg = g_Property.GetFgColor());
+	hBgBrush = CreateSolidBrush(cBg = g_Property.GetBgColor());
+	hEolBrush = CreateSolidBrush(cEol = g_Property.GetEolColor());
+	hLEolBrush = CreateSolidBrush(cLEol = g_Property.GetLEolColor());
+	hTabBrush = CreateSolidBrush(cTab = g_Property.GetTabColor());
+	hEofBrush = CreateSolidBrush(cEof = g_Property.GetEofColor());
+}
+
+BOOL ColorTab::OnCommand(HWND hDlg, WPARAM wParam, LPARAM lParam) {
+	switch(LOWORD(wParam)) {
+	case IDC_PROPTAB_COLOR_BTN_FG:
+		Choose(hDlg, IDC_PROPTAB_COLOR_FG_C, &hFgBrush, &cFg);
+		break;
+	case IDC_PROPTAB_COLOR_BTN_BG:
+		Choose(hDlg, IDC_PROPTAB_COLOR_BG_C, &hBgBrush, &cBg);
+		break;
+	case IDC_PROPTAB_COLOR_BTN_EOL:
+		Choose(hDlg, IDC_PROPTAB_COLOR_EOL_C, &hEolBrush, &cEol);
+		break;
+	case IDC_PROPTAB_COLOR_BTN_LEOL:
+		Choose(hDlg, IDC_PROPTAB_COLOR_LEOL_C, &hLEolBrush, &cLEol);
+		break;
+	case IDC_PROPTAB_COLOR_BTN_TAB:
+		Choose(hDlg, IDC_PROPTAB_COLOR_TAB_C, &hTabBrush, &cTab);
+		break;
+	case IDC_PROPTAB_COLOR_BTN_EOF:
+		Choose(hDlg, IDC_PROPTAB_COLOR_EOF_C, &hEofBrush, &cEof);
+		break;
+	}
+	return TRUE;
+}
+
+void ColorTab::Choose(HWND hDlg, DWORD nCtlId, HBRUSH* pBrush, COLORREF *pColor) {
+	static COLORREF cr[16];
+
+	CHOOSECOLOR cc;
+	cc.lStructSize = sizeof(cc);
+	cc.hwndOwner = hDlg;
+	cc.lpCustColors = cr;
+	cc.rgbResult = *pColor;
+	cc.Flags = CC_RGBINIT;
+	cc.lpfnHook = NULL;
+	cc.lpTemplateName = NULL;
+
+	if (ChooseColor(&cc) != 0) {
+		DeleteObject(*pBrush);
+		*pColor = cc.rgbResult;
+		*pBrush = CreateSolidBrush(*pColor);
+		HWND hWnd = GetDlgItem(hDlg, nCtlId);
+		RECT r;
+		GetClientRect(hWnd, &r);
+		InvalidateRect(hWnd, &r, TRUE);
+		UpdateWindow(hWnd);
+	}
+}
+
+BOOL ColorTab::Apply(HWND hDlg) {
+	g_Property.SetFgColor(cFg);
+	g_Property.SetBgColor(cBg);
+	g_Property.SetEolColor(cEol);
+	g_Property.SetLEolColor(cLEol);
+	g_Property.SetTabColor(cTab);
+	g_Property.SetEofColor(cEof);
+	return TRUE;
+}
+
+//////////////////////////////////////////
 // helper functions
 //////////////////////////////////////////
 

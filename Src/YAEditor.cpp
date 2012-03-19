@@ -307,3 +307,7 @@ BOOL YAEditor::Show(int nCmdShow)
 {
 	return pEdit->Show(nCmdShow);
 }
+
+void YAEditor::SetColorDef(const YAEditViewColorDef& cdef) {
+	pEdit->SetColorDef(cdef);
+}
