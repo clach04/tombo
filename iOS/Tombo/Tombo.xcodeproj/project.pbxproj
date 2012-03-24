@@ -1,0 +1,464 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
+		92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
+		92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3330151E277D00AD06EC /* CoreGraphics.framework */; };
+		92DE3337151E277D00AD06EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3335151E277D00AD06EC /* InfoPlist.strings */; };
+		92DE3339151E277D00AD06EC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE3338151E277D00AD06EC /* main.m */; };
+		92DE333D151E277D00AD06EC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE333C151E277D00AD06EC /* AppDelegate.m */; };
+		92DE3340151E277D00AD06EC /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92DE333E151E277D00AD06EC /* MainStoryboard_iPhone.storyboard */; };
+		92DE3343151E277D00AD06EC /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3341151E277D00AD06EC /* MainStoryboard_iPad.storyboard */; };
+		92DE3346151E277D00AD06EC /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE3345151E277D00AD06EC /* MasterViewController.m */; };
+		92DE3349151E277D00AD06EC /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE3348151E277D00AD06EC /* DetailViewController.m */; };
+		92DE3351151E277E00AD06EC /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3350151E277E00AD06EC /* SenTestingKit.framework */; };
+		92DE3352151E277E00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
+		92DE3353151E277E00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
+		92DE335B151E277E00AD06EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3359151E277E00AD06EC /* InfoPlist.strings */; };
+		92DE335E151E277E00AD06EC /* TomboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE335D151E277E00AD06EC /* TomboTests.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		92DE3354151E277E00AD06EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 92DE331F151E277D00AD06EC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 92DE3327151E277D00AD06EC;
+			remoteInfo = Tombo;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		92DE3328151E277D00AD06EC /* Tombo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tombo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		92DE332C151E277D00AD06EC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		92DE332E151E277D00AD06EC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		92DE3330151E277D00AD06EC /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		92DE3334151E277D00AD06EC /* Tombo-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tombo-Info.plist"; sourceTree = "<group>"; };
+		92DE3336151E277D00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		92DE3338151E277D00AD06EC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		92DE333A151E277D00AD06EC /* Tombo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tombo-Prefix.pch"; sourceTree = "<group>"; };
+		92DE333B151E277D00AD06EC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		92DE333C151E277D00AD06EC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		92DE333F151E277D00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		92DE3342151E277D00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		92DE3344151E277D00AD06EC /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
+		92DE3345151E277D00AD06EC /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
+		92DE3347151E277D00AD06EC /* DetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
+		92DE3348151E277D00AD06EC /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
+		92DE334F151E277E00AD06EC /* TomboTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TomboTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		92DE3350151E277E00AD06EC /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		92DE3358151E277E00AD06EC /* TomboTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TomboTests-Info.plist"; sourceTree = "<group>"; };
+		92DE335A151E277E00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		92DE335C151E277E00AD06EC /* TomboTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TomboTests.h; sourceTree = "<group>"; };
+		92DE335D151E277E00AD06EC /* TomboTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TomboTests.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		92DE3325151E277D00AD06EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */,
+				92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */,
+				92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92DE334B151E277E00AD06EC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DE3351151E277E00AD06EC /* SenTestingKit.framework in Frameworks */,
+				92DE3352151E277E00AD06EC /* UIKit.framework in Frameworks */,
+				92DE3353151E277E00AD06EC /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		92DE331D151E277D00AD06EC = {
+			isa = PBXGroup;
+			children = (
+				92DE3332151E277D00AD06EC /* Tombo */,
+				92DE3356151E277E00AD06EC /* TomboTests */,
+				92DE332B151E277D00AD06EC /* Frameworks */,
+				92DE3329151E277D00AD06EC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		92DE3329151E277D00AD06EC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				92DE3328151E277D00AD06EC /* Tombo.app */,
+				92DE334F151E277E00AD06EC /* TomboTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		92DE332B151E277D00AD06EC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				92DE332C151E277D00AD06EC /* UIKit.framework */,
+				92DE332E151E277D00AD06EC /* Foundation.framework */,
+				92DE3330151E277D00AD06EC /* CoreGraphics.framework */,
+				92DE3350151E277E00AD06EC /* SenTestingKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		92DE3332151E277D00AD06EC /* Tombo */ = {
+			isa = PBXGroup;
+			children = (
+				92DE333B151E277D00AD06EC /* AppDelegate.h */,
+				92DE333C151E277D00AD06EC /* AppDelegate.m */,
+				92DE333E151E277D00AD06EC /* MainStoryboard_iPhone.storyboard */,
+				92DE3341151E277D00AD06EC /* MainStoryboard_iPad.storyboard */,
+				92DE3344151E277D00AD06EC /* MasterViewController.h */,
+				92DE3345151E277D00AD06EC /* MasterViewController.m */,
+				92DE3347151E277D00AD06EC /* DetailViewController.h */,
+				92DE3348151E277D00AD06EC /* DetailViewController.m */,
+				92DE3333151E277D00AD06EC /* Supporting Files */,
+			);
+			path = Tombo;
+			sourceTree = "<group>";
+		};
+		92DE3333151E277D00AD06EC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				92DE3334151E277D00AD06EC /* Tombo-Info.plist */,
+				92DE3335151E277D00AD06EC /* InfoPlist.strings */,
+				92DE3338151E277D00AD06EC /* main.m */,
+				92DE333A151E277D00AD06EC /* Tombo-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		92DE3356151E277E00AD06EC /* TomboTests */ = {
+			isa = PBXGroup;
+			children = (
+				92DE335C151E277E00AD06EC /* TomboTests.h */,
+				92DE335D151E277E00AD06EC /* TomboTests.m */,
+				92DE3357151E277E00AD06EC /* Supporting Files */,
+			);
+			path = TomboTests;
+			sourceTree = "<group>";
+		};
+		92DE3357151E277E00AD06EC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				92DE3358151E277E00AD06EC /* TomboTests-Info.plist */,
+				92DE3359151E277E00AD06EC /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		92DE3327151E277D00AD06EC /* Tombo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92DE3361151E277E00AD06EC /* Build configuration list for PBXNativeTarget "Tombo" */;
+			buildPhases = (
+				92DE3324151E277D00AD06EC /* Sources */,
+				92DE3325151E277D00AD06EC /* Frameworks */,
+				92DE3326151E277D00AD06EC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Tombo;
+			productName = Tombo;
+			productReference = 92DE3328151E277D00AD06EC /* Tombo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		92DE334E151E277E00AD06EC /* TomboTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92DE3364151E277E00AD06EC /* Build configuration list for PBXNativeTarget "TomboTests" */;
+			buildPhases = (
+				92DE334A151E277E00AD06EC /* Sources */,
+				92DE334B151E277E00AD06EC /* Frameworks */,
+				92DE334C151E277E00AD06EC /* Resources */,
+				92DE334D151E277E00AD06EC /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92DE3355151E277E00AD06EC /* PBXTargetDependency */,
+			);
+			name = TomboTests;
+			productName = TomboTests;
+			productReference = 92DE334F151E277E00AD06EC /* TomboTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		92DE331F151E277D00AD06EC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 92DE3322151E277D00AD06EC /* Build configuration list for PBXProject "Tombo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 92DE331D151E277D00AD06EC;
+			productRefGroup = 92DE3329151E277D00AD06EC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				92DE3327151E277D00AD06EC /* Tombo */,
+				92DE334E151E277E00AD06EC /* TomboTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		92DE3326151E277D00AD06EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DE3337151E277D00AD06EC /* InfoPlist.strings in Resources */,
+				92DE3340151E277D00AD06EC /* MainStoryboard_iPhone.storyboard in Resources */,
+				92DE3343151E277D00AD06EC /* MainStoryboard_iPad.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92DE334C151E277E00AD06EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DE335B151E277E00AD06EC /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		92DE334D151E277E00AD06EC /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		92DE3324151E277D00AD06EC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DE3339151E277D00AD06EC /* main.m in Sources */,
+				92DE333D151E277D00AD06EC /* AppDelegate.m in Sources */,
+				92DE3346151E277D00AD06EC /* MasterViewController.m in Sources */,
+				92DE3349151E277D00AD06EC /* DetailViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		92DE334A151E277E00AD06EC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92DE335E151E277E00AD06EC /* TomboTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		92DE3355151E277E00AD06EC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 92DE3327151E277D00AD06EC /* Tombo */;
+			targetProxy = 92DE3354151E277E00AD06EC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		92DE3335151E277D00AD06EC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				92DE3336151E277D00AD06EC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		92DE333E151E277D00AD06EC /* MainStoryboard_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				92DE333F151E277D00AD06EC /* en */,
+			);
+			name = MainStoryboard_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		92DE3341151E277D00AD06EC /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				92DE3342151E277D00AD06EC /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+		92DE3359151E277E00AD06EC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				92DE335A151E277E00AD06EC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		92DE335F151E277E00AD06EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		92DE3360151E277E00AD06EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		92DE3362151E277E00AD06EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tombo/Tombo-Prefix.pch";
+				INFOPLIST_FILE = "Tombo/Tombo-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		92DE3363151E277E00AD06EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tombo/Tombo-Prefix.pch";
+				INFOPLIST_FILE = "Tombo/Tombo-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		92DE3365151E277E00AD06EC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Tombo.app/Tombo";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tombo/Tombo-Prefix.pch";
+				INFOPLIST_FILE = "TomboTests/TomboTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		92DE3366151E277E00AD06EC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Tombo.app/Tombo";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Tombo/Tombo-Prefix.pch";
+				INFOPLIST_FILE = "TomboTests/TomboTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		92DE3322151E277D00AD06EC /* Build configuration list for PBXProject "Tombo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DE335F151E277E00AD06EC /* Debug */,
+				92DE3360151E277E00AD06EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92DE3361151E277E00AD06EC /* Build configuration list for PBXNativeTarget "Tombo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DE3362151E277E00AD06EC /* Debug */,
+				92DE3363151E277E00AD06EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		92DE3364151E277E00AD06EC /* Build configuration list for PBXNativeTarget "TomboTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92DE3365151E277E00AD06EC /* Debug */,
+				92DE3366151E277E00AD06EC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 92DE331F151E277D00AD06EC /* Project object */;
+}
