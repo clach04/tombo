@@ -1,17 +1,11 @@
-//
-//  MasterViewController.m
-//  Tombo
-//
-//  Created by 平見 知久 on 12/03/25.
-//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
-//
-
 #import "MasterViewController.h"
-
 #import "DetailViewController.h"
+
+#import "Storage.h"
 
 @interface MasterViewController () {
     NSMutableArray *_objects;
+    Storage *storage;
 }
 @end
 
@@ -37,12 +31,21 @@
     UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
     self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
+    
+    if (!storage) {
+        storage = [Storage init];
+    }
+    // Load initial items.
+    for (NSString *file in [storage listItems]) {
+        [self insertItem: file];
+    }
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
     // Release any retained subviews of the main view.
+    storage = nil;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -62,6 +65,16 @@
     [_objects insertObject:[NSDate date] atIndex:0];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
     [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+- (void)insertItem:(NSString *)item {
+    if (!_objects) {
+        _objects = [[NSMutableArray alloc] init];
+    }
+    [_objects insertObject:item atIndex:0];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
+                          withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 #pragma mark - Table View
@@ -117,6 +130,7 @@
 }
 */
 
+// set item (for iPad)
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
@@ -125,6 +139,7 @@
     }
 }
 
+// set item (for iPhone)
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {

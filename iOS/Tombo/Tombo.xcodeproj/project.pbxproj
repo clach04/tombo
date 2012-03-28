@@ -22,6 +22,7 @@
 		92DE3353151E277E00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE335B151E277E00AD06EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3359151E277E00AD06EC /* InfoPlist.strings */; };
 		92DE335E151E277E00AD06EC /* TomboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE335D151E277E00AD06EC /* TomboTests.m */; };
+		92DE33861522998700AD06EC /* Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE33851522998700AD06EC /* Storage.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,8 @@
 		92DE335A151E277E00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		92DE335C151E277E00AD06EC /* TomboTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TomboTests.h; sourceTree = "<group>"; };
 		92DE335D151E277E00AD06EC /* TomboTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TomboTests.m; sourceTree = "<group>"; };
+		92DE33841522998700AD06EC /* Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Storage.h; sourceTree = "<group>"; };
+		92DE33851522998700AD06EC /* Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Storage.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +128,8 @@
 				92DE3347151E277D00AD06EC /* DetailViewController.h */,
 				92DE3348151E277D00AD06EC /* DetailViewController.m */,
 				92DE3333151E277D00AD06EC /* Supporting Files */,
+				92DE33841522998700AD06EC /* Storage.h */,
+				92DE33851522998700AD06EC /* Storage.m */,
 			);
 			path = Tombo;
 			sourceTree = "<group>";
@@ -270,6 +275,7 @@
 				92DE333D151E277D00AD06EC /* AppDelegate.m in Sources */,
 				92DE3346151E277D00AD06EC /* MasterViewController.m in Sources */,
 				92DE3349151E277D00AD06EC /* DetailViewController.m in Sources */,
+				92DE33861522998700AD06EC /* Storage.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -449,6 +455,7 @@
 				92DE3363151E277E00AD06EC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		92DE3364151E277E00AD06EC /* Build configuration list for PBXNativeTarget "TomboTests" */ = {
 			isa = XCConfigurationList;
@@ -457,6 +464,7 @@
 				92DE3366151E277E00AD06EC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

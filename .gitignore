@@ -7,3 +7,6 @@ Release
 *.vcxproj.user
 *.sdf
 *.aps
+
+.DS_Store
+iOS/Tombo/Tombo.xcodeproj/project.xcworkspace/xcuserdata/
