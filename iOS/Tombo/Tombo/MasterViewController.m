@@ -2,6 +2,8 @@
 #import "DetailViewController.h"
 
 #import "Storage.h"
+#import "CustomSegue.h"
+#import "FileItem.h"
 
 @interface MasterViewController () {
     NSMutableArray *_objects;
@@ -130,7 +132,8 @@
 }
 */
 
-// set item (for iPad)
+// Select Row(iPhone/iPad)
+// set item for iPad
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
@@ -144,8 +147,13 @@
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        NSDate *object = [_objects objectAtIndex:indexPath.row];
-        [[segue destinationViewController] setDetailItem:object];
+        FileItem *item = [_objects objectAtIndex:indexPath.row];
+        if (item.isDirectory) {
+            CustomSegue *customSegue = (CustomSegue*)segue;
+            customSegue.isStop = YES;
+        } else {
+            [[segue destinationViewController] setDetailItem:item];
+        }
     }
 }
 

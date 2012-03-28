@@ -23,6 +23,8 @@
 		92DE335B151E277E00AD06EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3359151E277E00AD06EC /* InfoPlist.strings */; };
 		92DE335E151E277E00AD06EC /* TomboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE335D151E277E00AD06EC /* TomboTests.m */; };
 		92DE33861522998700AD06EC /* Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE33851522998700AD06EC /* Storage.m */; };
+		92DE338D1522F61200AD06EC /* CustomSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE338C1522F61200AD06EC /* CustomSegue.m */; };
+		92DE33901522FFEC00AD06EC /* FileItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE338F1522FFEB00AD06EC /* FileItem.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +62,10 @@
 		92DE335D151E277E00AD06EC /* TomboTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TomboTests.m; sourceTree = "<group>"; };
 		92DE33841522998700AD06EC /* Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Storage.h; sourceTree = "<group>"; };
 		92DE33851522998700AD06EC /* Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Storage.m; sourceTree = "<group>"; };
+		92DE338B1522F61200AD06EC /* CustomSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomSegue.h; sourceTree = "<group>"; };
+		92DE338C1522F61200AD06EC /* CustomSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomSegue.m; sourceTree = "<group>"; };
+		92DE338E1522FFEB00AD06EC /* FileItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileItem.h; sourceTree = "<group>"; };
+		92DE338F1522FFEB00AD06EC /* FileItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileItem.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +136,10 @@
 				92DE3333151E277D00AD06EC /* Supporting Files */,
 				92DE33841522998700AD06EC /* Storage.h */,
 				92DE33851522998700AD06EC /* Storage.m */,
+				92DE338E1522FFEB00AD06EC /* FileItem.h */,
+				92DE338F1522FFEB00AD06EC /* FileItem.m */,
+				92DE338B1522F61200AD06EC /* CustomSegue.h */,
+				92DE338C1522F61200AD06EC /* CustomSegue.m */,
 			);
 			path = Tombo;
 			sourceTree = "<group>";
@@ -276,6 +286,8 @@
 				92DE3346151E277D00AD06EC /* MasterViewController.m in Sources */,
 				92DE3349151E277D00AD06EC /* DetailViewController.m in Sources */,
 				92DE33861522998700AD06EC /* Storage.m in Sources */,
+				92DE338D1522F61200AD06EC /* CustomSegue.m in Sources */,
+				92DE33901522FFEC00AD06EC /* FileItem.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

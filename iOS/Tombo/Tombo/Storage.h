@@ -6,7 +6,9 @@
 
 @interface Storage : NSObject
 
+@property NSString *documentRoot;
 @property NSString *currentDirectory;
+@property NSFileManager *fileManager;
 
 + (id)init;
 
