@@ -95,8 +95,13 @@
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell"];
 
-    NSDate *object = [_objects objectAtIndex:indexPath.row];
-    cell.textLabel.text = [object description];
+    FileItem *fItem = [_objects objectAtIndex:indexPath.row];
+    cell.textLabel.text = [fItem name];
+    if (fItem.isDirectory) {
+        cell.imageView.image = [UIImage imageNamed:@"Folder-32"];
+    } else {
+        cell.imageView.image = [UIImage imageNamed:@"TextDocument-32"];
+    }
     return cell;
 }
 
