@@ -5,6 +5,7 @@
 @synthesize name;
 @synthesize path;
 @synthesize isDirectory;
+@synthesize isUp;
 
 -(NSString*)description {
     return name;
@@ -14,6 +15,7 @@
     FileItem *fileItem = [FileItem alloc];
     fileItem.name = name;
     fileItem.isDirectory = NO;
+    fileItem.isUp = NO;
     return fileItem;
 }
 

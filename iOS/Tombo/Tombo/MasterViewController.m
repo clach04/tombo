@@ -8,6 +8,10 @@
 @interface MasterViewController () {
     NSMutableArray *_objects;
     Storage *storage;
+    
+    UIImage *imgFolder;
+    UIImage *imgDocument;
+    UIImage *imgUp;
 }
 @end
 
@@ -34,13 +38,13 @@
     self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     
+    imgFolder = nil;
+    imgDocument = nil;
     if (!storage) {
         storage = [Storage init];
     }
     // Load initial items.
-    for (NSString *file in [storage listItems]) {
-        [self insertItem: file];
-    }
+    [self insertItems];
 }
 
 - (void)viewDidUnload
@@ -61,15 +65,36 @@
 
 - (void)insertNewObject:(id)sender
 {
-    if (!_objects) {
-        _objects = [[NSMutableArray alloc] init];
-    }
-    [_objects insertObject:[NSDate date] atIndex:0];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+    FileItem *item = [FileItem allocWithName: [[NSDate date] description]];
+    [self insertItem: item];
 }
 
-- (void)insertItem:(NSString *)item {
+#pragma mark - Item operations
+
+- (void)insertItems {
+    for (FileItem *file in [storage listItems]) {
+        [self insertItem: file];
+    }    
+    if (!storage.isTopDir) {
+        FileItem *up = [FileItem allocWithName:@"UP"];
+        up.isUp = YES;
+        [self insertItem: up];
+    }
+}
+
+- (void)removeAllItems {
+    NSUInteger n = [_objects count];
+    
+    NSMutableArray *rmItems = [[NSMutableArray alloc] initWithCapacity:n];
+    for (int i = 0; i < n; i++) {
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+        [rmItems addObject: indexPath];
+    }
+    [_objects removeAllObjects];
+    [self.tableView deleteRowsAtIndexPaths: rmItems withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+- (void)insertItem:(FileItem *)item {
     if (!_objects) {
         _objects = [[NSMutableArray alloc] init];
     }
@@ -97,10 +122,22 @@
 
     FileItem *fItem = [_objects objectAtIndex:indexPath.row];
     cell.textLabel.text = [fItem name];
-    if (fItem.isDirectory) {
-        cell.imageView.image = [UIImage imageNamed:@"Folder-32"];
+    if (fItem.isUp) {
+        if (!imgUp) {
+            imgUp = [UIImage imageNamed:@"sub_blue_up-32"];
+        }
+        cell.imageView.image = imgUp;
+    } else if (fItem.isDirectory) {
+        if (!imgFolder) {
+            imgFolder = [UIImage imageNamed:@"Folder-32"];
+
+        }
+        cell.imageView.image = imgFolder;
     } else {
-        cell.imageView.image = [UIImage imageNamed:@"TextDocument-32"];
+        if (!imgDocument) {
+            imgDocument = [UIImage imageNamed:@"TextDocument-32"];
+        }
+        cell.imageView.image = imgDocument;
     }
     return cell;
 }
@@ -142,8 +179,21 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        NSDate *object = [_objects objectAtIndex:indexPath.row];
-        self.detailViewController.detailItem = object;
+        FileItem *item = [_objects objectAtIndex:indexPath.row];
+        if (item.isUp) {
+            // switch view items
+            [self removeAllItems];
+            [storage updir];
+            [self insertItems];
+        } else if (item.isDirectory) {
+            // switch view items
+            [self removeAllItems];
+            [storage chdir: item.name];
+            [self insertItems];
+            
+        } else {
+            [self.detailViewController setDetailItem:item];
+        }
     }
 }
 
@@ -151,11 +201,25 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
+        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];         
         FileItem *item = [_objects objectAtIndex:indexPath.row];
-        if (item.isDirectory) {
+        if (item.isUp) {
             CustomSegue *customSegue = (CustomSegue*)segue;
             customSegue.isStop = YES;
+
+            // switch view items
+            [self removeAllItems];
+            [storage updir];
+            [self insertItems];
+        } else if (item.isDirectory) {
+            CustomSegue *customSegue = (CustomSegue*)segue;
+            customSegue.isStop = YES;
+            
+            // switch view items
+            [self removeAllItems];
+            [storage chdir: item.name];
+            [self insertItems];
+            
         } else {
             [[segue destinationViewController] setDetailItem:item];
         }

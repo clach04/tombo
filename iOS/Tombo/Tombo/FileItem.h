@@ -7,6 +7,7 @@
 @property NSString *name;
 @property NSString *path;
 @property BOOL isDirectory;
+@property BOOL isUp;
 
 -(NSString*)description;
 

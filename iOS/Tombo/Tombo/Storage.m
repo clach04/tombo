@@ -19,9 +19,6 @@
     return storage;
 }
 
-/*
- * Enumerate current directory and return array of FileItem.
- */
 -(NSArray*)listItems {
     NSError *error = nil;
     NSString *currentPath = [documentRoot stringByAppendingString: currentDirectory];
@@ -44,4 +41,21 @@
     return result;
 }
 
+-(void)chdir:(NSString *)subdir {
+    NSString *newCurrent = [currentDirectory stringByAppendingPathComponent:subdir];
+    self.currentDirectory = newCurrent;
+}
+
+-(void)updir {
+    NSString *parent = [currentDirectory stringByDeletingLastPathComponent];
+    if ([parent isEqualToString:@"/"]) {
+        self.currentDirectory = parent;
+    } else {
+        self.currentDirectory = [parent stringByAppendingString:@"/"];        
+    }
+}
+
+-(BOOL)isTopDir {
+    return [currentDirectory isEqualToString:@"/"];
+}
 @end

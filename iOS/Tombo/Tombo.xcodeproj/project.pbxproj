@@ -29,6 +29,8 @@
 		92DE33A015231CFC00AD06EC /* Folder-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE339C15231CFC00AD06EC /* Folder-48.png */; };
 		92DE33A115231CFC00AD06EC /* TextDocument-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE339D15231CFC00AD06EC /* TextDocument-32.png */; };
 		92DE33A215231CFC00AD06EC /* TextDocument-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE339E15231CFC00AD06EC /* TextDocument-48.png */; };
+		92DE33B11524478E00AD06EC /* sub_blue_up-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE33AF1524478E00AD06EC /* sub_blue_up-32.png */; };
+		92DE33B21524478E00AD06EC /* sub_blue_up-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE33B01524478E00AD06EC /* sub_blue_up-48.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +76,8 @@
 		92DE339C15231CFC00AD06EC /* Folder-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Folder-48.png"; sourceTree = "<group>"; };
 		92DE339D15231CFC00AD06EC /* TextDocument-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "TextDocument-32.png"; sourceTree = "<group>"; };
 		92DE339E15231CFC00AD06EC /* TextDocument-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "TextDocument-48.png"; sourceTree = "<group>"; };
+		92DE33AF1524478E00AD06EC /* sub_blue_up-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sub_blue_up-32.png"; sourceTree = "<group>"; };
+		92DE33B01524478E00AD06EC /* sub_blue_up-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "sub_blue_up-48.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +194,8 @@
 				92DE339C15231CFC00AD06EC /* Folder-48.png */,
 				92DE339D15231CFC00AD06EC /* TextDocument-32.png */,
 				92DE339E15231CFC00AD06EC /* TextDocument-48.png */,
+				92DE33AF1524478E00AD06EC /* sub_blue_up-32.png */,
+				92DE33B01524478E00AD06EC /* sub_blue_up-48.png */,
 			);
 			name = images;
 			sourceTree = "<group>";
@@ -271,6 +277,8 @@
 				92DE33A015231CFC00AD06EC /* Folder-48.png in Resources */,
 				92DE33A115231CFC00AD06EC /* TextDocument-32.png in Resources */,
 				92DE33A215231CFC00AD06EC /* TextDocument-48.png in Resources */,
+				92DE33B11524478E00AD06EC /* sub_blue_up-32.png in Resources */,
+				92DE33B21524478E00AD06EC /* sub_blue_up-48.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

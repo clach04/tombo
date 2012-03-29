@@ -12,6 +12,20 @@
 
 + (id)init;
 
+/*
+ * Enumerate current directory and return array of FileItem.
+ */
 -(NSArray*)listItems;
 
+/*
+ * Change directory.
+ */
+-(void)chdir:(NSString *)subdir;
+
+-(void)updir;
+
+/*
+ * Is current directory Top?
+ */
+-(BOOL)isTopDir;
 @end
