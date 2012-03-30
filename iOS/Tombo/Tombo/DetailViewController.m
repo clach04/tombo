@@ -29,9 +29,8 @@
 
 - (void)configureView
 {
-    if (!self.detailItem) return;
     NSString *noteData;
-    if (self.detailItem.path) {
+    if (self.detailItem && self.detailItem.path) {
         NSError *error;
         noteData = [NSString stringWithContentsOfFile:self.detailItem.path 
                                              encoding:NSUTF8StringEncoding

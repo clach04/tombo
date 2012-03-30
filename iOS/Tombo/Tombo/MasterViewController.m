@@ -34,7 +34,9 @@
 	// Do any additional setup after loading the view, typically from a nib.
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
 
-    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
+    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd 
+                                                                               target:self
+                                                                               action:@selector(openNewNote:)];
     self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     
@@ -63,10 +65,16 @@
     }
 }
 
-- (void)insertNewObject:(id)sender
+- (void)openNewNote:(id)sender
 {
-    FileItem *item = [FileItem allocWithName: [[NSDate date] description]];
-    [self insertItem: item];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        // iPhone : Transit to detail view.
+        [self performSegueWithIdentifier:@"newNote" sender:self];
+    } else {
+        // iPad : Clear detail view.
+        [self.detailViewController setDetailItem:nil];
+        
+    }
 }
 
 #pragma mark - Item operations
