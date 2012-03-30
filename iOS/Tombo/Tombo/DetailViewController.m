@@ -46,6 +46,17 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    NSNotificationCenter *notify = [NSNotificationCenter defaultCenter];
+    [notify addObserver:self 
+               selector:@selector(keyboardDidShow:) 
+                   name:UIKeyboardDidShowNotification 
+                 object:nil];
+    
+    [notify addObserver:self
+               selector:@selector(keyboardDidHide:)
+                   name:UIKeyboardDidHideNotification
+                 object:nil];
+    
     [self configureView];
 }
 
@@ -63,6 +74,26 @@
     } else {
         return YES;
     }
+}
+
+#pragma mark - Notification handler
+
+- (void)keyboardDidShow:(NSNotification*)notification {
+    NSDictionary *info = [notification userInfo];
+    
+    CGRect rect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGRect frame = self.detailText.frame;
+    frame.size.height -= rect.size.height;
+    self.detailText.frame = frame;
+}
+
+- (void)keyboardDidHide:(NSNotification*)notification {
+    NSDictionary *info = [notification userInfo];
+    
+    CGRect rect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect frame = self.detailText.frame;
+    frame.size.height += rect.size.height;
+    self.detailText.frame = frame;
 }
 
 #pragma mark - Split view
