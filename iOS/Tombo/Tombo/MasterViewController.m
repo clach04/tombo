@@ -174,26 +174,31 @@
 }
 */
 
+- (void)transitDetailView:(NSIndexPath *)indexPath controller:(DetailViewController*)controller {
+    FileItem *item = [_objects objectAtIndex:indexPath.row];
+    if (item.isUp) {
+        // switch view items
+        [self removeAllItems];
+        [storage updir];
+        [self insertItems];
+    } else if (item.isDirectory) {
+        // switch view items
+        [self removeAllItems];
+        [storage chdir: item.name];
+        [self insertItems];
+        
+    } else {
+        [controller setDetailItem:item];
+    }
+    
+}
+
 // Select Row(iPhone/iPad)
 // set item for iPad
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        FileItem *item = [_objects objectAtIndex:indexPath.row];
-        if (item.isUp) {
-            // switch view items
-            [self removeAllItems];
-            [storage updir];
-            [self insertItems];
-        } else if (item.isDirectory) {
-            // switch view items
-            [self removeAllItems];
-            [storage chdir: item.name];
-            [self insertItems];
-            
-        } else {
-            [self.detailViewController setDetailItem:item];
-        }
+        [self transitDetailView:indexPath controller:self.detailViewController];
     }
 }
 
@@ -203,26 +208,11 @@
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];         
         FileItem *item = [_objects objectAtIndex:indexPath.row];
-        if (item.isUp) {
+        if (item.isUp || item.isDirectory) {
             CustomSegue *customSegue = (CustomSegue*)segue;
-            customSegue.isStop = YES;
-
-            // switch view items
-            [self removeAllItems];
-            [storage updir];
-            [self insertItems];
-        } else if (item.isDirectory) {
-            CustomSegue *customSegue = (CustomSegue*)segue;
-            customSegue.isStop = YES;
-            
-            // switch view items
-            [self removeAllItems];
-            [storage chdir: item.name];
-            [self insertItems];
-            
-        } else {
-            [[segue destinationViewController] setDetailItem:item];
+            customSegue.isStop = YES;            
         }
+        [self transitDetailView:indexPath controller:[segue destinationViewController]];
     }
 }
 
