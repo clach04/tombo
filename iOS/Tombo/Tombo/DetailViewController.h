@@ -2,7 +2,7 @@
 #import "FileItem.h"
 #import "Storage.h"
 
-@interface DetailViewController : UIViewController <UISplitViewControllerDelegate>
+@interface DetailViewController : UIViewController <UISplitViewControllerDelegate,UITextViewDelegate>
 
 @property (strong, nonatomic) FileItem *detailItem;
 @property (strong, nonatomic) Storage *storage;

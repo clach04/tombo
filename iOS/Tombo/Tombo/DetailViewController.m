@@ -1,7 +1,9 @@
 #import "DetailViewController.h"
 #import "MasterViewController.h"
 
-@interface DetailViewController ()
+@interface DetailViewController () {
+    BOOL isModify;
+}
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 - (void)configureView;
 @end
@@ -59,7 +61,9 @@
                    name:UIKeyboardDidHideNotification
                  object:nil];
 
+    self.detailText.delegate = self;
     [self configureView];
+    isModify = NO;
 }
 
 - (void)viewDidUnload
@@ -72,21 +76,22 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     // Leaving detail view
-    NSString *note = self.detailText.text;
-    
-    FileItem *newPath = [storage save:note item: self.detailItem];
-    
-    // To notify master view, retract reference from navigation controller.
-    MasterViewController *master = [self.navigationController.viewControllers objectAtIndex:0];
-    
-    if (self.detailItem.name) {
-        // item exists
-        if (self.detailItem != newPath) {
-            [master itemChanged: self.detailItem to:newPath];
+    if (isModify) {
+        NSString *note = self.detailText.text;    
+        FileItem *newPath = [storage save:note item: self.detailItem];
+        
+        // To notify master view, retract reference from navigation controller.
+        MasterViewController *master = [self.navigationController.viewControllers objectAtIndex:0];
+        
+        if (self.detailItem.name) {
+            // item exists
+            if (self.detailItem != newPath) {
+                [master itemChanged: self.detailItem to:newPath];
+            }
+        } else {
+            // new item
+            [master itemAdded: newPath];
         }
-    } else {
-        // new item
-        [master itemAdded: newPath];
     }
     
     [super viewWillDisappear: animated];
@@ -99,6 +104,10 @@
     } else {
         return YES;
     }
+}
+
+- (void)textViewDidChange:(UITextView *)textView {
+    isModify = YES;
 }
 
 #pragma mark - Notification handler
