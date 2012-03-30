@@ -29,11 +29,18 @@
 
 - (void)configureView
 {
-    // Update the user interface for the detail item.
-
-    if (self.detailItem) {
-        self.detailText.text = [self.detailItem description];
+    if (!self.detailItem) return;
+    NSString *noteData;
+    if (self.detailItem.path) {
+        NSError *error;
+        noteData = [NSString stringWithContentsOfFile:self.detailItem.path 
+                                             encoding:NSUTF8StringEncoding
+                                                error:&error];
+        if (error) return;
+    } else {
+        noteData = @"";
     }
+    self.detailText.text = noteData;
 }
 
 - (void)viewDidLoad

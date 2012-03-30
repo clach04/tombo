@@ -43,7 +43,7 @@
 
 -(void)chdir:(NSString *)subdir {
     NSString *newCurrent = [currentDirectory stringByAppendingPathComponent:subdir];
-    self.currentDirectory = newCurrent;
+    self.currentDirectory = [newCurrent stringByAppendingString:@"/"];
 }
 
 -(void)updir {
