@@ -58,4 +58,37 @@
 -(BOOL)isTopDir {
     return [currentDirectory isEqualToString:@"/"];
 }
+
+// save note
+-(void)save:(NSString *)note item:(FileItem *)item {
+    // Decide new title.
+    NSRange r;
+    r.location = 0;
+    r.length = 0;
+    NSRange titleRange = [note lineRangeForRange:r];
+    NSString *title = [note substringWithRange:titleRange];
+    if ([title characterAtIndex:(title.length - 1)] == '\n') {
+        title = [title substringToIndex:(title.length - 1)];
+    }
+    if (title.length == 0) {
+        title = @"New document";
+    }
+    
+    // If title is changed, rename one.
+    NSString *path;
+    if (![title isEqualToString: item.name]) {
+        // Title is changed. Rename one.
+        NSString *toPath = [[item.path stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@.%@", title, [item.path pathExtension]];
+        NSError *error = nil;
+        path = toPath;
+        [fileManager moveItemAtPath:item.path toPath:toPath error:&error];
+    } else {
+        path = item.path;
+    }
+    
+    // Save note.
+    NSError *error = nil;
+    [note writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];    
+}
+
 @end

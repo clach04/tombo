@@ -40,6 +40,8 @@
     self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     
+    self.navigationController.delegate = self;
+    
     imgFolder = nil;
     imgDocument = nil;
     if (!storage) {
@@ -197,6 +199,7 @@
         
     } else {
         [controller setDetailItem:item];
+        [controller setStorage: storage];
     }
     
 }
@@ -224,4 +227,19 @@
     }
 }
 
+#pragma mark UINavigationControllerDelegate
+
+/*
+ * Called when view is changed
+ */
+- (void)navigationController:(UINavigationController *)navigationController
+      willShowViewController:(UIViewController *)viewController 
+                    animated:(BOOL)animated {
+    
+    // I want to catch when returning from detail view to master view.
+    // At current time, this means switch to master view.
+    // But if there are another subviews, it should to be add another condition.
+    if (![viewController isKindOfClass:[MasterViewController class]]) return;
+    
+}
 @end

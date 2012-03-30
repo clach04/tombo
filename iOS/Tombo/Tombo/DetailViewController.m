@@ -8,6 +8,7 @@
 @implementation DetailViewController
 
 @synthesize detailItem = _detailItem;
+@synthesize storage;
 @synthesize detailText = _detailText;
 @synthesize masterPopoverController = _masterPopoverController;
 
@@ -65,6 +66,14 @@
     [self setDetailText:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    // Leaving detail view
+    NSString *note = self.detailText.text;
+    [storage save:note item: self.detailItem];
+    
+    [super viewWillDisappear: animated];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

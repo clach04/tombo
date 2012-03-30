@@ -3,6 +3,7 @@
  Abstraction of file and directory.
  */
 #import <Foundation/Foundation.h>
+#import "FileItem.h"
 
 @interface Storage : NSObject
 
@@ -28,4 +29,6 @@
  * Is current directory Top?
  */
 -(BOOL)isTopDir;
+
+-(void)save:(NSString *)note item:(FileItem *)item;
 @end
