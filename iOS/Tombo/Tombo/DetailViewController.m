@@ -1,4 +1,5 @@
 #import "DetailViewController.h"
+#import "MasterViewController.h"
 
 @interface DetailViewController ()
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
@@ -57,21 +58,36 @@
                selector:@selector(keyboardDidHide:)
                    name:UIKeyboardDidHideNotification
                  object:nil];
-    
+
     [self configureView];
 }
 
 - (void)viewDidUnload
 {
     [self setDetailText:nil];
+    self.detailItem = nil;
+    self.storage = nil;
     [super viewDidUnload];
-    // Release any retained subviews of the main view.
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     // Leaving detail view
     NSString *note = self.detailText.text;
-    [storage save:note item: self.detailItem];
+    
+    FileItem *newPath = [storage save:note item: self.detailItem];
+    
+    // To notify master view, retract reference from navigation controller.
+    MasterViewController *master = [self.navigationController.viewControllers objectAtIndex:0];
+    
+    if (self.detailItem.name) {
+        // item exists
+        if (self.detailItem != newPath) {
+            [master itemChanged: self.detailItem to:newPath];
+        }
+    } else {
+        // new item
+        [master itemAdded: newPath];
+    }
     
     [super viewWillDisappear: animated];
 }

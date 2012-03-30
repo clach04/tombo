@@ -39,9 +39,7 @@
                                                                                action:@selector(openNewNote:)];
     self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
-    
-    self.navigationController.delegate = self;
-    
+
     imgFolder = nil;
     imgDocument = nil;
     if (!storage) {
@@ -114,6 +112,19 @@
                           withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
+- (void) deleteItem:(FileItem *)item {
+    NSUInteger i = 0;
+    for (FileItem *f in _objects) {
+        if ([f.name isEqualToString: item.name]) {
+            [_objects removeObjectAtIndex:i];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] 
+                                  withRowAnimation:UITableViewRowAnimationAutomatic];
+            break;
+        }
+        i++;
+    }
+}
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -224,22 +235,22 @@
             customSegue.isStop = YES;            
         }
         [self transitDetailView:indexPath controller:[segue destinationViewController]];
+    } else if ([[segue identifier] isEqualToString:@"newNote"]) {
+        // When open new document, detailItem is newItem.
+        DetailViewController *detail = [segue destinationViewController];        
+        detail.detailItem = [storage newItem];
+        detail.storage = storage;
     }
 }
 
-#pragma mark UINavigationControllerDelegate
+- (void)itemChanged:(FileItem *)from to:(FileItem *)to {
+    // Remove old item and insert new item
+    [self deleteItem: from];
+    [self insertItem: to];
+}
 
-/*
- * Called when view is changed
- */
-- (void)navigationController:(UINavigationController *)navigationController
-      willShowViewController:(UIViewController *)viewController 
-                    animated:(BOOL)animated {
-    
-    // I want to catch when returning from detail view to master view.
-    // At current time, this means switch to master view.
-    // But if there are another subviews, it should to be add another condition.
-    if (![viewController isKindOfClass:[MasterViewController class]]) return;
-    
+- (void)itemAdded:(FileItem *)item {
+    // Simply insert a item.
+    [self insertItem: item];
 }
 @end

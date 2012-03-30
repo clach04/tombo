@@ -60,7 +60,9 @@
 }
 
 // save note
--(void)save:(NSString *)note item:(FileItem *)item {
+-(FileItem *)save:(NSString *)note item:(FileItem *)item {
+    FileItem *result = [FileItem alloc];
+    
     // Decide new title.
     NSRange r;
     r.location = 0;
@@ -75,20 +77,32 @@
     }
     
     // If title is changed, rename one.
-    NSString *path;
-    if (![title isEqualToString: item.name]) {
+    if (!item.name) {
+        // New item.
+        result.name = title;
+        result.path = [[item.path stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@.%@", title, [item.path pathExtension]];
+    } else if (![title isEqualToString: item.name]) {
         // Title is changed. Rename one.
         NSString *toPath = [[item.path stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@.%@", title, [item.path pathExtension]];
         NSError *error = nil;
-        path = toPath;
         [fileManager moveItemAtPath:item.path toPath:toPath error:&error];
+        result.name = title;
+        result.path = toPath;
     } else {
-        path = item.path;
+        result = item;
     }
     
     // Save note.
     NSError *error = nil;
-    [note writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:&error];    
+    [note writeToFile:result.path atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    
+    return result;
+}
+
+- (FileItem *)newItem {
+    FileItem *p = [FileItem allocWithName: nil];
+    p.path = [documentRoot stringByAppendingString:@"/_dummy.txt"];
+    return p;
 }
 
 @end

@@ -30,5 +30,14 @@
  */
 -(BOOL)isTopDir;
 
--(void)save:(NSString *)note item:(FileItem *)item;
+
+-(FileItem*)newItem;
+
+/*
+ * Save note to file.
+ * 
+ * Returns new FileItem. This may be path/name is changed if note's title is changed.
+ * If path is not changed, returns item itself.
+ */
+-(FileItem *)save:(NSString *)note item:(FileItem *)item;
 @end
