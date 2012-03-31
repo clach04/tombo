@@ -115,17 +115,28 @@
 - (void)keyboardDidShow:(NSNotification*)notification {
     NSDictionary *info = [notification userInfo];
     
-    CGRect rect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGRect beginRect = [self.detailText convertRect:[[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue] fromView:nil];
+    CGRect rect = [self.detailText convertRect:[[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
     CGRect frame = self.detailText.frame;
-    frame.size.height -= rect.size.height;
+    
+    if (beginRect.size.height == rect.size.height) {
+        // slide in
+        frame.size.height -= rect.size.height;
+    } else {
+        // keyboard change
+        frame.size.height -= (rect.size.height - beginRect.size.height);
+    }
     self.detailText.frame = frame;
+
 }
 
 - (void)keyboardDidHide:(NSNotification*)notification {
+
     NSDictionary *info = [notification userInfo];
     
-    CGRect rect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect rect = [self.detailText convertRect:[[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
     CGRect frame = self.detailText.frame;
+
     frame.size.height += rect.size.height;
     self.detailText.frame = frame;
 }
