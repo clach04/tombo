@@ -61,6 +61,8 @@
 
 // save note
 -(FileItem *)save:(NSString *)note item:(FileItem *)item {
+    if (!item) return nil;
+    
     FileItem *result = [FileItem alloc];
     
     // Decide new title.

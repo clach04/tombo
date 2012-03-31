@@ -45,6 +45,9 @@
     if (!storage) {
         storage = [Storage init];
     }
+    self.detailViewController.storage = storage;
+    self.detailViewController.detailItem = [storage newItem];
+    
     // Load initial items.
     [self insertItems];
 }

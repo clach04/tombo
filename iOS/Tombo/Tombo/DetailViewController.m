@@ -20,6 +20,10 @@
 - (void)setDetailItem:(id)newDetailItem
 {
     if (_detailItem != newDetailItem) {
+        // save current note
+        [self save];
+        
+        // set item
         _detailItem = newDetailItem;
         
         // Update the view.
@@ -76,24 +80,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     // Leaving detail view
-    if (isModify) {
-        NSString *note = self.detailText.text;    
-        FileItem *newPath = [storage save:note item: self.detailItem];
-        
-        // To notify master view, retract reference from navigation controller.
-        MasterViewController *master = [self.navigationController.viewControllers objectAtIndex:0];
-        
-        if (self.detailItem.name) {
-            // item exists
-            if (self.detailItem != newPath) {
-                [master itemChanged: self.detailItem to:newPath];
-            }
-        } else {
-            // new item
-            [master itemAdded: newPath];
-        }
-    }
-    
+    [self save];
     [super viewWillDisappear: animated];
 }
 
@@ -108,6 +95,35 @@
 
 - (void)textViewDidChange:(UITextView *)textView {
     isModify = YES;
+}
+
+- (void)save {
+    if (!isModify) return;
+    
+    NSString *note = self.detailText.text;    
+    FileItem *newPath = [storage save:note item: self.detailItem];
+    isModify = NO;
+    
+    MasterViewController *master;
+    
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UINavigationController *v = [self.splitViewController.viewControllers objectAtIndex:0];
+        NSArray *a = v.viewControllers;
+        master = [a objectAtIndex:0];
+    } else {
+        // To notify master view, retract reference from navigation controller.
+        master = [self.navigationController.viewControllers objectAtIndex:0];
+    }
+    
+    if (self.detailItem.name) {
+        // item exists
+        if (self.detailItem != newPath) {
+            [master itemChanged: self.detailItem to:newPath];
+        }
+    } else {
+        // new item
+        [master itemAdded: newPath];
+    }
 }
 
 #pragma mark - Notification handler
