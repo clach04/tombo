@@ -62,9 +62,7 @@
 // save note
 -(FileItem *)save:(NSString *)note item:(FileItem *)item {
     if (!item) return nil;
-    
-    FileItem *result = [FileItem alloc];
-    
+
     // Decide new title.
     NSRange r;
     r.location = 0;
@@ -77,27 +75,64 @@
     if (title.length == 0) {
         title = @"New document";
     }
-    
+
     // If title is changed, rename one.
-    if (!item.name) {
-        // New item.
-        result.name = title;
-        result.path = [[item.path stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@.%@", title, [item.path pathExtension]];
-    } else if (![title isEqualToString: item.name]) {
-        // Title is changed. Rename one.
-        NSString *toPath = [[item.path stringByDeletingLastPathComponent] stringByAppendingFormat:@"/%@.%@", title, [item.path pathExtension]];
-        NSError *error = nil;
-        [fileManager moveItemAtPath:item.path toPath:toPath error:&error];
-        result.name = title;
-        result.path = toPath;
+    FileItem *result;    
+    if (!item.name || ![title isEqualToString: item.name]) {        
+        result = [self decideFileName:title path:item.path];
+        
+        if (item.name) {
+            // If it is not new item, needs rename.
+            NSError *error = nil;
+            [fileManager moveItemAtPath:item.path toPath:result.path error:&error];
+        }
     } else {
         result = item;
     }
-    
+
     // Save note.
     NSError *error = nil;
     [note writeToFile:result.path atomically:YES encoding:NSUTF8StringEncoding error:&error];
     
+    return result;
+}
+
+- (FileItem *)decideFileName:(NSString *)titleCand path:(NSString *)origPath {
+    FileItem *result = [FileItem alloc];
+
+    NSString *ext = [origPath pathExtension];
+    
+    NSMutableString *path = [NSMutableString stringWithCapacity:256];
+    [path appendString:[origPath stringByDeletingLastPathComponent]];
+    [path appendString:@"/"];
+    [path appendString:titleCand];
+    NSUInteger n = [path length];
+    [path appendString:@"."];
+    [path appendString:ext];
+    NSUInteger u = [path length];
+    
+    if ([fileManager fileExistsAtPath:path]) {
+        NSUInteger cnt = 1;
+        while(YES) {
+            NSRange r;
+            r.location = n;
+            r.length = u - n;
+            [path deleteCharactersInRange:r];
+            [path appendFormat:@"(%d)", cnt];
+            [path appendString:@"."];
+            [path appendString:ext];
+            u = [path length];
+            
+            if (![fileManager fileExistsAtPath:path]) break;
+            cnt++;
+        }
+        
+        result.name = [[path lastPathComponent] stringByDeletingPathExtension];
+    } else {
+        result.name = titleCand;
+    }
+    result.path = path;            
+
     return result;
 }
 
