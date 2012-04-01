@@ -96,6 +96,17 @@
     
     return result;
 }
+// Remove characters which can't use file name from given string.
+- (NSString *)removeInvalidFilenameChars:(NSString *)src {
+    NSString *result = src;
+    // chars are same as Tombo for Windows.
+    NSArray *chars = [[NSArray alloc] initWithObjects:@"\\", @"/", @":", @",", @";", @"*", @"?", @"<", @">", @"\"", @"\t", nil];
+    
+    for (NSString *t in chars) {
+        result = [result stringByReplacingOccurrencesOfString:t withString:@""];
+    }
+    return result;
+}
 
 - (FileItem *)decideFileName:(NSString *)titleCand path:(NSString *)origPath {
     FileItem *result = [FileItem alloc];
@@ -105,7 +116,7 @@
     NSMutableString *path = [NSMutableString stringWithCapacity:256];
     [path appendString:[origPath stringByDeletingLastPathComponent]];
     [path appendString:@"/"];
-    [path appendString:titleCand];
+    [path appendString:[self removeInvalidFilenameChars:titleCand]];
     NSUInteger n = [path length];
     [path appendString:@"."];
     [path appendString:ext];
