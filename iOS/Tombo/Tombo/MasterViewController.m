@@ -2,9 +2,32 @@
 #import "EditViewController.h"
 #import "DetailViewController.h"
 #import "EditCancelAlert.h"
+#import "NewFolderAlert.h"
 
 #import "Storage.h"
 #import "FileItem.h"
+
+@interface BackgroundView : UIView {
+}
+@end
+
+@implementation BackgroundView
+- (id)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor clearColor];
+    }
+    return self;
+}
+
+- (void)drawRect:(CGRect)rect {
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:5.0];
+    [path moveToPoint:CGPointMake(0, self.bounds.size.height/2.0)];
+    [path addLineToPoint:CGPointMake(self.bounds.size.width, self.bounds.size.height/2.0)];
+    [[UIColor whiteColor] set];
+    [path fill];
+}
+@end
 
 @interface MasterViewController () <UIAlertViewDelegate, UITableViewDelegate, UISplitViewControllerDelegate> {
     NSMutableArray *_objects;
@@ -36,6 +59,13 @@
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     self.detailViewController.master = self;
     self.splitViewController.delegate = self;
+    
+    UIBarButtonItem *newFolderBtn = [[UIBarButtonItem alloc] initWithTitle:@"New Folder"
+                                                                     style:UIBarButtonItemStyleBordered
+                                                                    target:self
+                                                                    action:@selector(createNewFolder:)];
+    [self setToolbarItems:[NSArray arrayWithObjects:newFolderBtn, nil] animated:YES];
+    [self.navigationController setToolbarHidden:NO];
     
     imgFolder = nil;
     imgDocument = nil;
@@ -74,6 +104,20 @@
     }
 }
 
+- (void)createNewFolder:(id)sender {
+    NewFolderAlert *alert = [[NewFolderAlert alloc] initWithTitle:@"Folder name:" 
+                                                    message:@"\n"
+                                                   delegate:self
+                                          cancelButtonTitle:@"Cancel"
+                                          otherButtonTitles:@"Done", nil];
+    BackgroundView *back = [[BackgroundView alloc] initWithFrame:CGRectMake(20.0, 43.0, 245.0, 25.0)];
+    [alert addSubview:back];
+    UITextField *textField = [[UITextField alloc] initWithFrame:CGRectMake(20.0, 45.0, 245.0, 25.0)];
+    [alert addSubview:textField];
+    
+    [alert show];
+//    [textField becomeFirstResponder];
+}
 #pragma mark - Item operations
 
 - (void)insertItems {
@@ -283,6 +327,16 @@
     if ([alertView isKindOfClass:[EditCancelAlert class]]) {
         if (buttonIndex == 0) {
             [self dismissModalViewControllerAnimated:YES];        
+        }
+    } else if ([alertView isKindOfClass:[NewFolderAlert class]]) {
+        if (buttonIndex == 1) {
+            //
+            UITextField *field = [alertView.subviews lastObject];
+            NSString *folderName = [field.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            if (folderName.length > 0) {
+                FileItem *item = [storage newFolder:folderName];
+                [self insertItem:item];
+            }
         }
     }
 }

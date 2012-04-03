@@ -42,4 +42,7 @@
 -(FileItem *)save:(NSString *)note item:(FileItem *)item;
 
 - (void)deleteItem:(FileItem*)item;
+
+- (FileItem *)newFolder:(NSString *)folder;
+
 @end

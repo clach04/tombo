@@ -157,4 +157,18 @@
     [fileManager removeItemAtPath:item.path error:nil];
 }
 
+- (FileItem *)newFolder:(NSString *)folder {
+    NSMutableString *path = [[NSMutableString alloc]initWithCapacity:256];
+    [path appendString:documentRoot];
+    [path appendString:currentDirectory];
+    [path appendString:folder];
+    NSError *error = nil;
+    [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
+    
+    FileItem *item = [FileItem allocWithName:folder];
+    item.path = path;
+    item.isDirectory = YES;
+    return item;
+}
+
 @end
