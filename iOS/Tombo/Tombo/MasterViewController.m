@@ -6,7 +6,7 @@
 #import "Storage.h"
 #import "FileItem.h"
 
-@interface MasterViewController () <UIAlertViewDelegate, UITableViewDelegate> {
+@interface MasterViewController () <UIAlertViewDelegate, UITableViewDelegate, UISplitViewControllerDelegate> {
     NSMutableArray *_objects;
     Storage *storage;
     
@@ -35,6 +35,7 @@
 	// Do any additional setup after loading the view, typically from a nib.
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     self.detailViewController.master = self;
+    self.splitViewController.delegate = self;
     
     imgFolder = nil;
     imgDocument = nil;
@@ -58,6 +59,7 @@
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
         return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
     } else {
+        
         return YES;
     }
 }
@@ -120,6 +122,11 @@
         i++;
     }
 }
+
+- (BOOL)splitViewController:(UISplitViewController *)svc shouldHideViewController:(UIViewController *)vc inOrientation:(UIInterfaceOrientation)orientation {
+    return NO;
+}
+
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -161,14 +168,20 @@
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
+    FileItem *item = [_objects objectAtIndex:indexPath.row];
+    if (item.isUp) return NO;
     return YES;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
+        FileItem *item = [_objects objectAtIndex:indexPath.row];
+        [storage deleteItem:item];
+        
         [_objects removeObjectAtIndex:indexPath.row];
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] 
+                         withRowAnimation:UITableViewRowAnimationFade];
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
     }

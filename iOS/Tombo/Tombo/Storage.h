@@ -40,4 +40,6 @@
  * If path is not changed, returns item itself.
  */
 -(FileItem *)save:(NSString *)note item:(FileItem *)item;
+
+- (void)deleteItem:(FileItem*)item;
 @end

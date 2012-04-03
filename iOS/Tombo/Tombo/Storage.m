@@ -153,4 +153,8 @@
     return p;
 }
 
+- (void)deleteItem:(FileItem*)item {
+    [fileManager removeItemAtPath:item.path error:nil];
+}
+
 @end
