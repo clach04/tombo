@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9228CF2815298F7200E20355 /* EditCancelAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9228CF2715298F7200E20355 /* EditCancelAlert.m */; };
+		922F592A15295FAA009B1E32 /* EditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 922F592915295FAA009B1E32 /* EditViewController.m */; };
+		9243C7B51529D8610092B506 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7B41529D8610092B506 /* DetailViewController.m */; };
 		92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3330151E277D00AD06EC /* CoreGraphics.framework */; };
@@ -16,14 +19,12 @@
 		92DE3340151E277D00AD06EC /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92DE333E151E277D00AD06EC /* MainStoryboard_iPhone.storyboard */; };
 		92DE3343151E277D00AD06EC /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3341151E277D00AD06EC /* MainStoryboard_iPad.storyboard */; };
 		92DE3346151E277D00AD06EC /* MasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE3345151E277D00AD06EC /* MasterViewController.m */; };
-		92DE3349151E277D00AD06EC /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE3348151E277D00AD06EC /* DetailViewController.m */; };
 		92DE3351151E277E00AD06EC /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3350151E277E00AD06EC /* SenTestingKit.framework */; };
 		92DE3352151E277E00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE3353151E277E00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE335B151E277E00AD06EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3359151E277E00AD06EC /* InfoPlist.strings */; };
 		92DE335E151E277E00AD06EC /* TomboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE335D151E277E00AD06EC /* TomboTests.m */; };
 		92DE33861522998700AD06EC /* Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE33851522998700AD06EC /* Storage.m */; };
-		92DE338D1522F61200AD06EC /* CustomSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE338C1522F61200AD06EC /* CustomSegue.m */; };
 		92DE33901522FFEC00AD06EC /* FileItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE338F1522FFEB00AD06EC /* FileItem.m */; };
 		92DE339F15231CFC00AD06EC /* Folder-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE339B15231CFC00AD06EC /* Folder-32.png */; };
 		92DE33A015231CFC00AD06EC /* Folder-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE339C15231CFC00AD06EC /* Folder-48.png */; };
@@ -44,6 +45,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9228CF2615298F7200E20355 /* EditCancelAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditCancelAlert.h; sourceTree = "<group>"; };
+		9228CF2715298F7200E20355 /* EditCancelAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditCancelAlert.m; sourceTree = "<group>"; };
+		922F592815295FAA009B1E32 /* EditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditViewController.h; sourceTree = "<group>"; };
+		922F592915295FAA009B1E32 /* EditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditViewController.m; sourceTree = "<group>"; };
+		9243C7B31529D8610092B506 /* DetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
+		9243C7B41529D8610092B506 /* DetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		92DE3328151E277D00AD06EC /* Tombo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tombo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DE332C151E277D00AD06EC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		92DE332E151E277D00AD06EC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -58,8 +65,6 @@
 		92DE3342151E277D00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		92DE3344151E277D00AD06EC /* MasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MasterViewController.h; sourceTree = "<group>"; };
 		92DE3345151E277D00AD06EC /* MasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MasterViewController.m; sourceTree = "<group>"; };
-		92DE3347151E277D00AD06EC /* DetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
-		92DE3348151E277D00AD06EC /* DetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		92DE334F151E277E00AD06EC /* TomboTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TomboTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DE3350151E277E00AD06EC /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		92DE3358151E277E00AD06EC /* TomboTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TomboTests-Info.plist"; sourceTree = "<group>"; };
@@ -68,8 +73,6 @@
 		92DE335D151E277E00AD06EC /* TomboTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TomboTests.m; sourceTree = "<group>"; };
 		92DE33841522998700AD06EC /* Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Storage.h; sourceTree = "<group>"; };
 		92DE33851522998700AD06EC /* Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Storage.m; sourceTree = "<group>"; };
-		92DE338B1522F61200AD06EC /* CustomSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomSegue.h; sourceTree = "<group>"; };
-		92DE338C1522F61200AD06EC /* CustomSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomSegue.m; sourceTree = "<group>"; };
 		92DE338E1522FFEB00AD06EC /* FileItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileItem.h; sourceTree = "<group>"; };
 		92DE338F1522FFEB00AD06EC /* FileItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileItem.m; sourceTree = "<group>"; };
 		92DE339B15231CFC00AD06EC /* Folder-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Folder-32.png"; sourceTree = "<group>"; };
@@ -144,15 +147,17 @@
 				92DE3341151E277D00AD06EC /* MainStoryboard_iPad.storyboard */,
 				92DE3344151E277D00AD06EC /* MasterViewController.h */,
 				92DE3345151E277D00AD06EC /* MasterViewController.m */,
-				92DE3347151E277D00AD06EC /* DetailViewController.h */,
-				92DE3348151E277D00AD06EC /* DetailViewController.m */,
+				922F592815295FAA009B1E32 /* EditViewController.h */,
+				922F592915295FAA009B1E32 /* EditViewController.m */,
+				9228CF2615298F7200E20355 /* EditCancelAlert.h */,
+				9228CF2715298F7200E20355 /* EditCancelAlert.m */,
 				92DE3333151E277D00AD06EC /* Supporting Files */,
 				92DE33841522998700AD06EC /* Storage.h */,
 				92DE33851522998700AD06EC /* Storage.m */,
 				92DE338E1522FFEB00AD06EC /* FileItem.h */,
 				92DE338F1522FFEB00AD06EC /* FileItem.m */,
-				92DE338B1522F61200AD06EC /* CustomSegue.h */,
-				92DE338C1522F61200AD06EC /* CustomSegue.m */,
+				9243C7B31529D8610092B506 /* DetailViewController.h */,
+				9243C7B41529D8610092B506 /* DetailViewController.m */,
 			);
 			path = Tombo;
 			sourceTree = "<group>";
@@ -316,10 +321,11 @@
 				92DE3339151E277D00AD06EC /* main.m in Sources */,
 				92DE333D151E277D00AD06EC /* AppDelegate.m in Sources */,
 				92DE3346151E277D00AD06EC /* MasterViewController.m in Sources */,
-				92DE3349151E277D00AD06EC /* DetailViewController.m in Sources */,
 				92DE33861522998700AD06EC /* Storage.m in Sources */,
-				92DE338D1522F61200AD06EC /* CustomSegue.m in Sources */,
 				92DE33901522FFEC00AD06EC /* FileItem.m in Sources */,
+				922F592A15295FAA009B1E32 /* EditViewController.m in Sources */,
+				9228CF2815298F7200E20355 /* EditCancelAlert.m in Sources */,
+				9243C7B51529D8610092B506 /* DetailViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

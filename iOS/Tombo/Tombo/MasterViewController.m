@@ -1,11 +1,12 @@
 #import "MasterViewController.h"
+#import "EditViewController.h"
 #import "DetailViewController.h"
+#import "EditCancelAlert.h"
 
 #import "Storage.h"
-#import "CustomSegue.h"
 #import "FileItem.h"
 
-@interface MasterViewController () {
+@interface MasterViewController () <UIAlertViewDelegate, UITableViewDelegate> {
     NSMutableArray *_objects;
     Storage *storage;
     
@@ -32,21 +33,14 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-//    self.navigationItem.leftBarButtonItem = self.editButtonItem;
-
-    UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd 
-                                                                               target:self
-                                                                               action:@selector(openNewNote:)];
-    self.navigationItem.rightBarButtonItem = addButton;
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
-
+    self.detailViewController.master = self;
+    
     imgFolder = nil;
     imgDocument = nil;
     if (!storage) {
         storage = [Storage init];
     }
-    self.detailViewController.storage = storage;
-    self.detailViewController.detailItem = [storage newItem];
     
     // Load initial items.
     [self insertItems];
@@ -75,8 +69,6 @@
         [self performSegueWithIdentifier:@"newNote" sender:self];
     } else {
         // iPad : Clear detail view.
-        [self.detailViewController setDetailItem:nil];
-        
     }
 }
 
@@ -198,62 +190,87 @@
 }
 */
 
-- (void)transitDetailView:(NSIndexPath *)indexPath controller:(DetailViewController*)controller {
+// Select Row(iPhone/iPad)
+// set item for iPad
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+//    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+//        [self transitDetailView:indexPath controller:self.detailViewController];
+//    }
     FileItem *item = [_objects objectAtIndex:indexPath.row];
     if (item.isUp) {
         // switch view items
         [self removeAllItems];
         [storage updir];
-        [self insertItems];
+        [self insertItems];        
     } else if (item.isDirectory) {
-        // switch view items
         [self removeAllItems];
         [storage chdir: item.name];
-        [self insertItems];
-        
+        [self insertItems];        
     } else {
-        [controller setDetailItem:item];
-        [controller setStorage: storage];
-    }
-    
-}
-
-// Select Row(iPhone/iPad)
-// set item for iPad
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        [self transitDetailView:indexPath controller:self.detailViewController];
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.detailViewController.item = item;
+        } else {
+            [self performSegueWithIdentifier:@"editNote" sender:self];
+        }
     }
 }
 
 // set item (for iPhone)
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];         
+    if ([[segue identifier] isEqualToString:@"newNote"]) {
+        EditViewController *edit = (EditViewController*)[[[segue destinationViewController] viewControllers] objectAtIndex:0];
+        edit.detailItem = [storage newItem];
+        edit.delegate = self;
+    } else if ([[segue identifier] isEqualToString:@"editNote"]) {
+        // This path is used only iPhone
+        EditViewController *edit = (EditViewController*)[[[segue destinationViewController] viewControllers] objectAtIndex:0];
+        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
         FileItem *item = [_objects objectAtIndex:indexPath.row];
-        if (item.isUp || item.isDirectory) {
-            CustomSegue *customSegue = (CustomSegue*)segue;
-            customSegue.isStop = YES;            
-        }
-        [self transitDetailView:indexPath controller:[segue destinationViewController]];
-    } else if ([[segue identifier] isEqualToString:@"newNote"]) {
-        // When open new document, detailItem is newItem.
-        DetailViewController *detail = [segue destinationViewController];        
-        detail.detailItem = [storage newItem];
-        detail.storage = storage;
+        edit.detailItem = item;
+        edit.delegate = self;
     }
 }
 
-- (void)itemChanged:(FileItem *)from to:(FileItem *)to {
-    // Remove old item and insert new item
-    [self deleteItem: from];
-    [self insertItem: to];
+#pragma mark - EditViewControllerDelegate
+
+- (void)editViewControllerDidFinish:(EditViewController *)controller {
+    if (controller.isModify) {
+        // save note
+        if (![controller.detailItem isNewItem]) {
+            [self deleteItem:controller.detailItem];
+        }
+        NSString *note = controller.detailText.text;
+        FileItem *item = [storage save:note item:controller.detailItem];
+        controller.isModify = NO;
+        
+        self.detailViewController.item = item;
+
+        [self insertItem:item];
+    }
+    [self dismissModalViewControllerAnimated:YES];
 }
 
-- (void)itemAdded:(FileItem *)item {
-    // Simply insert a item.
-    [self insertItem: item];
+- (void)editViewControllerDidCancel:(EditViewController *)controller {
+    if (controller.isModify) {
+        UIAlertView *alert = [[EditCancelAlert alloc] initWithTitle:@"Confirm" 
+                                                        message:@"Note is modified. Are you sure to discard changes?" delegate:self 
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:@"Cancel", nil];
+        [alert show];
+    } else {
+        [self dismissModalViewControllerAnimated:YES];                
+    }
+}
+
+#pragma mark - AlertViewDelegate
+
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if ([alertView isKindOfClass:[EditCancelAlert class]]) {
+        if (buttonIndex == 0) {
+            [self dismissModalViewControllerAnimated:YES];        
+        }
+    }
 }
 @end

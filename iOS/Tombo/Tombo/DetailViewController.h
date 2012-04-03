@@ -1,12 +1,17 @@
 #import <UIKit/UIKit.h>
 #import "FileItem.h"
-#import "Storage.h"
 
-@interface DetailViewController : UIViewController <UISplitViewControllerDelegate,UITextViewDelegate>
+@class MasterViewController;
+/*
+ * Right pane of split view.
+ * Used on iPad only.
+ */
 
-@property (strong, nonatomic) FileItem *detailItem;
-@property (strong, nonatomic) Storage *storage;
+@interface DetailViewController : UIViewController
 
-@property (weak, nonatomic) IBOutlet UITextView *detailText;
+@property (strong, nonatomic) FileItem *item;
+@property (weak, nonatomic) MasterViewController *master;
+
+@property (weak, nonatomic) IBOutlet UITextView *text;
 
 @end

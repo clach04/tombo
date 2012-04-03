@@ -19,4 +19,7 @@
     return fileItem;
 }
 
+- (BOOL)isNewItem {
+    return self.name == nil;
+}
 @end

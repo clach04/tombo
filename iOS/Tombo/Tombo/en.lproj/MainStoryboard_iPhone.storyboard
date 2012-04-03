@@ -49,9 +49,6 @@
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </view>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <connections>
-                                    <segue destination="21" kind="custom" identifier="showDetail" customClass="CustomSegue" id="jZb-fq-zAk"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <sections/>
@@ -60,24 +57,30 @@
                             <outlet property="delegate" destination="12" id="15"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Master" id="36"/>
+                    <navigationItem key="navigationItem" title="Master" id="36">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="agb-4g-a59">
+                            <connections>
+                                <segue destination="7bR-lH-lJ9" kind="modal" identifier="newNote" id="HlC-by-ur5"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
-                        <segue destination="21" kind="push" identifier="newNote" id="0ct-gM-2FR"/>
+                        <segue destination="7bR-lH-lJ9" kind="modal" identifier="editNote" id="aht-5S-Kxw"/>
                     </connections>
                 </tableViewController>
             </objects>
             <point key="canvasLocation" x="459" y="64"/>
         </scene>
-        <!--Detail View Controller - Detail-->
-        <scene sceneID="24">
+        <!--Edit View Controller-->
+        <scene sceneID="bJI-fW-9UV">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="23" sceneMemberID="firstResponder"/>
-                <viewController storyboardIdentifier="" title="Detail" id="21" customClass="DetailViewController" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="22">
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dlo-yF-tdt" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <viewController id="Rsp-rs-tJf" customClass="EditViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ZAM-9z-zxC">
                         <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="dcM-3R-DB6">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="Xrk-0H-B8o">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -87,19 +90,50 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Detail" id="26"/>
+                    <navigationItem key="navigationItem" id="euJ-qc-bbH">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="kPQ-0x-DwA">
+                            <connections>
+                                <action selector="cancel:" destination="Rsp-rs-tJf" id="JJ8-d2-ftv"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="5xl-w3-ddR">
+                            <connections>
+                                <action selector="done:" destination="Rsp-rs-tJf" id="R7k-Mi-Ig3"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
-                        <outlet property="detailText" destination="dcM-3R-DB6" id="xjt-Km-MjC"/>
+                        <outlet property="detailText" destination="Xrk-0H-B8o" id="hTl-cP-FEX"/>
                     </connections>
                 </viewController>
             </objects>
-            <point key="canvasLocation" x="902" y="64"/>
+            <point key="canvasLocation" x="1350" y="64"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="a6N-vh-sA4">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="aKO-h7-hUd" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <navigationController id="7bR-lH-lJ9" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="cJU-5A-2mE">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="Rsp-rs-tJf" kind="relationship" relationship="rootViewController" id="1U0-Gk-BfO"/>
+                    </connections>
+                </navigationController>
+            </objects>
+            <point key="canvasLocation" x="891" y="64"/>
         </scene>
     </scenes>
     <classes>
-        <class className="DetailViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/DetailViewController.h"/>
+        <class className="EditViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/EditViewController.h"/>
             <relationships>
+                <relationship kind="action" name="cancel:"/>
+                <relationship kind="action" name="done:"/>
                 <relationship kind="outlet" name="detailText" candidateClass="UITextView"/>
             </relationships>
         </class>
@@ -113,6 +147,6 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="0ct-gM-2FR"/>
+        <segue reference="aht-5S-Kxw"/>
     </inferredMetricsTieBreakers>
 </document>

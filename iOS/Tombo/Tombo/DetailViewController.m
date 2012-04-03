@@ -1,176 +1,67 @@
 #import "DetailViewController.h"
+#import "EditViewController.h"
 #import "MasterViewController.h"
 
-@interface DetailViewController () {
-    BOOL isModify;
-}
-@property (strong, nonatomic) UIPopoverController *masterPopoverController;
-- (void)configureView;
+@interface DetailViewController ()
+
 @end
 
 @implementation DetailViewController
+@synthesize text = _text;
+@synthesize item = _item;
+@synthesize master = _master;
 
-@synthesize detailItem = _detailItem;
-@synthesize storage;
-@synthesize detailText = _detailText;
-@synthesize masterPopoverController = _masterPopoverController;
-
-#pragma mark - Managing the detail item
-
-- (void)setDetailItem:(id)newDetailItem
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-    if (_detailItem != newDetailItem) {
-        // save current note
-        [self save];
-        
-        // set item
-        _detailItem = newDetailItem;
-        
-        // Update the view.
-        [self configureView];
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
     }
-
-    if (self.masterPopoverController != nil) {
-        [self.masterPopoverController dismissPopoverAnimated:YES];
-    }        
-}
-
-- (void)configureView
-{
-    NSString *noteData;
-    if (self.detailItem && self.detailItem.path) {
-        NSError *error;
-        noteData = [NSString stringWithContentsOfFile:self.detailItem.path 
-                                             encoding:NSUTF8StringEncoding
-                                                error:&error];
-        if (error) return;
-    } else {
-        noteData = @"";
-    }
-    self.detailText.text = noteData;
+    return self;
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-    NSNotificationCenter *notify = [NSNotificationCenter defaultCenter];
-    [notify addObserver:self 
-               selector:@selector(keyboardDidShow:) 
-                   name:UIKeyboardDidShowNotification 
-                 object:nil];
-    
-    [notify addObserver:self
-               selector:@selector(keyboardDidHide:)
-                   name:UIKeyboardDidHideNotification
-                 object:nil];
-
-    self.detailText.delegate = self;
-    [self configureView];
-    isModify = NO;
+	// Do any additional setup after loading the view.
 }
 
 - (void)viewDidUnload
 {
-    [self setDetailText:nil];
-    self.detailItem = nil;
-    self.storage = nil;
+    [self setText:nil];
     [super viewDidUnload];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    // Leaving detail view
-    [self save];
-    [super viewWillDisappear: animated];
+    // Release any retained subviews of the main view.
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
-        return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-    } else {
-        return YES;
+	return YES;
+}
+
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([[segue identifier] isEqualToString:@"editNote"]) {
+        EditViewController *edit = (EditViewController*)[[[segue destinationViewController] viewControllers] objectAtIndex:0];
+        edit.detailItem = self.item;
+        edit.delegate = self.master;
+
     }
 }
 
-- (void)textViewDidChange:(UITextView *)textView {
-    isModify = YES;
-}
-
-- (void)save {
-    if (!isModify) return;
-    
-    NSString *note = self.detailText.text;    
-    FileItem *newPath = [storage save:note item: self.detailItem];
-    isModify = NO;
-    
-    MasterViewController *master;
-    
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        UINavigationController *v = [self.splitViewController.viewControllers objectAtIndex:0];
-        NSArray *a = v.viewControllers;
-        master = [a objectAtIndex:0];
+- (void)setItem:(FileItem *)item {
+    if (self.item == item) return;
+    if (item.isNewItem) {
+        self.text.text = @"";
     } else {
-        // To notify master view, retract reference from navigation controller.
-        master = [self.navigationController.viewControllers objectAtIndex:0];
-    }
-    
-    if (self.detailItem.name) {
-        // item exists
-        if (self.detailItem != newPath) {
-            [master itemChanged: self.detailItem to:newPath];
+        NSError *error;
+        NSString *note = [NSString stringWithContentsOfFile:item.path
+                                                   encoding:NSUTF8StringEncoding
+                                                      error:&error];
+        if (error) {
+            self.text.text = @"";
+        } else {
+            self.text.text = note;
         }
-    } else {
-        // new item
-        [master itemAdded: newPath];
     }
+    _item = item;
 }
-
-#pragma mark - Notification handler
-
-- (void)keyboardDidShow:(NSNotification*)notification {
-    NSDictionary *info = [notification userInfo];
-    
-    CGRect beginRect = [self.detailText convertRect:[[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue] fromView:nil];
-    CGRect rect = [self.detailText convertRect:[[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
-    CGRect frame = self.detailText.frame;
-    
-    if (beginRect.size.height == rect.size.height) {
-        // slide in
-        frame.size.height -= rect.size.height;
-    } else {
-        // keyboard change
-        frame.size.height -= (rect.size.height - beginRect.size.height);
-    }
-    self.detailText.frame = frame;
-
-}
-
-- (void)keyboardDidHide:(NSNotification*)notification {
-
-    NSDictionary *info = [notification userInfo];
-    
-    CGRect rect = [self.detailText convertRect:[[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue] fromView:nil];
-    CGRect frame = self.detailText.frame;
-
-    frame.size.height += rect.size.height;
-    self.detailText.frame = frame;
-}
-
-#pragma mark - Split view
-
-- (void)splitViewController:(UISplitViewController *)splitController willHideViewController:(UIViewController *)viewController withBarButtonItem:(UIBarButtonItem *)barButtonItem forPopoverController:(UIPopoverController *)popoverController
-{
-    barButtonItem.title = NSLocalizedString(@"Master", @"Master");
-    [self.navigationItem setLeftBarButtonItem:barButtonItem animated:YES];
-    self.masterPopoverController = popoverController;
-}
-
-- (void)splitViewController:(UISplitViewController *)splitController willShowViewController:(UIViewController *)viewController invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem
-{
-    // Called when the view is shown again in the split view, invalidating the button and popover controller.
-    [self.navigationItem setLeftBarButtonItem:nil animated:YES];
-    self.masterPopoverController = nil;
-}
-
 @end

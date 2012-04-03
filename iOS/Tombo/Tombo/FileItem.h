@@ -13,4 +13,6 @@
 
 +(id)allocWithName:(NSString *)name;
 
+- (BOOL)isNewItem;
+
 @end
