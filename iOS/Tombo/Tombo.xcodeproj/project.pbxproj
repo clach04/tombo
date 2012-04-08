@@ -11,6 +11,7 @@
 		922F592A15295FAA009B1E32 /* EditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 922F592915295FAA009B1E32 /* EditViewController.m */; };
 		9243C7B51529D8610092B506 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7B41529D8610092B506 /* DetailViewController.m */; };
 		9243C7BC152AC7430092B506 /* NewFolderAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7BB152AC7430092B506 /* NewFolderAlert.m */; };
+		9243C7ED1531ADA80092B506 /* CryptCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7EC1531ADA80092B506 /* CryptCore.m */; };
 		92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3330151E277D00AD06EC /* CoreGraphics.framework */; };
@@ -54,6 +55,8 @@
 		9243C7B41529D8610092B506 /* DetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		9243C7BA152AC7430092B506 /* NewFolderAlert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewFolderAlert.h; sourceTree = "<group>"; };
 		9243C7BB152AC7430092B506 /* NewFolderAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewFolderAlert.m; sourceTree = "<group>"; };
+		9243C7EB1531ADA80092B506 /* CryptCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptCore.h; sourceTree = "<group>"; };
+		9243C7EC1531ADA80092B506 /* CryptCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptCore.m; sourceTree = "<group>"; };
 		92DE3328151E277D00AD06EC /* Tombo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tombo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DE332C151E277D00AD06EC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		92DE332E151E277D00AD06EC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -157,6 +160,8 @@
 				92DE3333151E277D00AD06EC /* Supporting Files */,
 				92DE33841522998700AD06EC /* Storage.h */,
 				92DE33851522998700AD06EC /* Storage.m */,
+				9243C7EB1531ADA80092B506 /* CryptCore.h */,
+				9243C7EC1531ADA80092B506 /* CryptCore.m */,
 				92DE338E1522FFEB00AD06EC /* FileItem.h */,
 				92DE338F1522FFEB00AD06EC /* FileItem.m */,
 				9243C7B31529D8610092B506 /* DetailViewController.h */,
@@ -332,6 +337,7 @@
 				9228CF2815298F7200E20355 /* EditCancelAlert.m in Sources */,
 				9243C7B51529D8610092B506 /* DetailViewController.m in Sources */,
 				9243C7BC152AC7430092B506 /* NewFolderAlert.m in Sources */,
+				9243C7ED1531ADA80092B506 /* CryptCore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
