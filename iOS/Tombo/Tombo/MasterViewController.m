@@ -267,6 +267,8 @@
     } else {
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
             self.detailViewController.item = item;
+        } else {
+            [self performSegueWithIdentifier:@"showNote" sender:self];
         }
     }
 }
