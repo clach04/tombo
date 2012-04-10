@@ -157,7 +157,7 @@
                     </connections>
                 </viewController>
             </objects>
-            <point key="canvasLocation" x="1994" y="490"/>
+            <point key="canvasLocation" x="3354" y="-494"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="50">
@@ -190,7 +190,7 @@
                     </connections>
                 </navigationController>
             </objects>
-            <point key="canvasLocation" x="1025" y="-494"/>
+            <point key="canvasLocation" x="2029" y="-494"/>
         </scene>
     </scenes>
     <classes>
@@ -218,6 +218,6 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="Kjf-1o-2Ik"/>
+        <segue reference="pK5-mO-z6F"/>
     </inferredMetricsTieBreakers>
 </document>

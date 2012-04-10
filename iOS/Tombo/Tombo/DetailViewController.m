@@ -24,11 +24,18 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    
+    NSString *note = [Storage load:self.item.path];
+    if (note == nil) {
+        self.text.text = @"";
+    } else {
+        self.text.text = note;
+    }
 }
 
 - (void)viewDidUnload
 {
+    [self setText:nil];
     [self setText:nil];
     [super viewDidUnload];
     // Release any retained subviews of the main view.
@@ -53,11 +60,14 @@
     if (item.isNewItem) {
         self.text.text = @"";
     } else {
-        NSString *note = [Storage load:item.path];
-        if (note == nil) {
-            self.text.text = @"";
-        } else {
-            self.text.text = note;
+        // On iPhone and call by segue, self.text is nil because view is not loaded yet.
+        if (self.text) {
+            NSString *note = [Storage load:item.path];
+            if (note == nil) {
+                self.text.text = @"";
+            } else {
+                self.text.text = note;
+            }
         }
     }
     _item = item;

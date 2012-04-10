@@ -267,8 +267,6 @@
     } else {
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
             self.detailViewController.item = item;
-        } else {
-            [self performSegueWithIdentifier:@"editNote" sender:self];
         }
     }
 }
@@ -287,6 +285,13 @@
         FileItem *item = [_objects objectAtIndex:indexPath.row];
         edit.detailItem = item;
         edit.delegate = self;
+    } else if ([[segue identifier] isEqualToString:@"showNote"]) {
+        DetailViewController *detail = [segue destinationViewController];
+        self.detailViewController = detail;
+        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
+        FileItem *item = [_objects objectAtIndex:indexPath.row];
+        detail.item = item;
+        detail.master = self;
     }
 }
 
