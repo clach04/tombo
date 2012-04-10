@@ -1,6 +1,7 @@
 #import "DetailViewController.h"
 #import "EditViewController.h"
 #import "MasterViewController.h"
+#import "Storage.h"
 
 @interface DetailViewController ()
 
@@ -52,11 +53,8 @@
     if (item.isNewItem) {
         self.text.text = @"";
     } else {
-        NSError *error;
-        NSString *note = [NSString stringWithContentsOfFile:item.path
-                                                   encoding:NSUTF8StringEncoding
-                                                      error:&error];
-        if (error) {
+        NSString *note = [Storage load:item.path];
+        if (note == nil) {
             self.text.text = @"";
         } else {
             self.text.text = note;

@@ -45,4 +45,9 @@
 
 - (FileItem *)newFolder:(NSString *)folder;
 
+/*
+ * Load note.
+ */
++(NSString *)load:(NSString *)path;
+
 @end

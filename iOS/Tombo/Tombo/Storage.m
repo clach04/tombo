@@ -58,6 +58,17 @@
 -(BOOL)isTopDir {
     return [currentDirectory isEqualToString:@"/"];
 }
+- (void)saveDataWithBOM:(NSString *)note file:(NSString *)path {
+    const char *noteBytes = [note cStringUsingEncoding:NSUTF8StringEncoding];    
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:strlen(noteBytes) + 3];
+    char *buf = (char *)[data mutableBytes];
+    strcpy(buf + 3, noteBytes);
+    *(char*)(buf + 0) = 0xEF;
+    *(char*)(buf + 1) = 0xBB;
+    *(char*)(buf + 2) = 0xBF;
+    
+    [data writeToFile:path atomically:YES];
+}
 
 // save note
 -(FileItem *)save:(NSString *)note item:(FileItem *)item {
@@ -91,8 +102,9 @@
     }
 
     // Save note.
-    NSError *error = nil;
-    [note writeToFile:result.path atomically:YES encoding:NSUTF8StringEncoding error:&error];
+//    NSError *error = nil;
+//    [note writeToFile:result.path atomically:YES encoding:NSUTF8StringEncoding error:&error];
+    [self saveDataWithBOM:note file:result.path];
     
     return result;
 }
@@ -169,6 +181,37 @@
     item.path = path;
     item.isDirectory = YES;
     return item;
+}
+
++(NSString *)load:(NSString *)path {
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    const char *header = [data bytes];
+    if ([data length] > 3 && 
+        *header == 0xEF && *(header + 1) == 0xBB && *(header + 2) == 0xBF) {
+        // BOM exists. UTF-8.
+        NSString *note = [[NSString alloc] initWithBytes:[data bytes] + 3
+                                                  length:[data length] - 3
+                                                encoding:NSUTF8StringEncoding];
+        return note;
+    }
+
+    NSString *note;
+    
+    if ([[[NSLocale currentLocale] localeIdentifier] isEqualToString:@"ja_JP"]) {
+        note = [[NSString alloc] initWithBytes:[data bytes]
+                                        length:[data length]
+                                      encoding:NSShiftJISStringEncoding];
+        if (note) return note;
+    }
+
+    // UTF-8
+    note = [[NSString alloc] initWithBytes:[data bytes] 
+                                    length:[data length] 
+                                  encoding:NSUTF8StringEncoding];
+    if (note) return note;
+
+    // encode UTF-8 fail.
+    return @"";
 }
 
 @end
