@@ -12,6 +12,7 @@
 		9243C7B51529D8610092B506 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7B41529D8610092B506 /* DetailViewController.m */; };
 		9243C7BC152AC7430092B506 /* NewFolderAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7BB152AC7430092B506 /* NewFolderAlert.m */; };
 		9243C7ED1531ADA80092B506 /* CryptCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7EC1531ADA80092B506 /* CryptCore.m */; };
+		9243C7F81532435C0092B506 /* CryptTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7F71532435B0092B506 /* CryptTest.m */; };
 		92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3330151E277D00AD06EC /* CoreGraphics.framework */; };
@@ -25,7 +26,6 @@
 		92DE3352151E277E00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE3353151E277E00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE335B151E277E00AD06EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DE3359151E277E00AD06EC /* InfoPlist.strings */; };
-		92DE335E151E277E00AD06EC /* TomboTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE335D151E277E00AD06EC /* TomboTests.m */; };
 		92DE33861522998700AD06EC /* Storage.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE33851522998700AD06EC /* Storage.m */; };
 		92DE33901522FFEC00AD06EC /* FileItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 92DE338F1522FFEB00AD06EC /* FileItem.m */; };
 		92DE339F15231CFC00AD06EC /* Folder-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 92DE339B15231CFC00AD06EC /* Folder-32.png */; };
@@ -57,6 +57,8 @@
 		9243C7BB152AC7430092B506 /* NewFolderAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewFolderAlert.m; sourceTree = "<group>"; };
 		9243C7EB1531ADA80092B506 /* CryptCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptCore.h; sourceTree = "<group>"; };
 		9243C7EC1531ADA80092B506 /* CryptCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptCore.m; sourceTree = "<group>"; };
+		9243C7F61532435B0092B506 /* CryptTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptTest.h; sourceTree = "<group>"; };
+		9243C7F71532435B0092B506 /* CryptTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptTest.m; sourceTree = "<group>"; };
 		92DE3328151E277D00AD06EC /* Tombo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tombo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DE332C151E277D00AD06EC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		92DE332E151E277D00AD06EC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -75,8 +77,6 @@
 		92DE3350151E277E00AD06EC /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		92DE3358151E277E00AD06EC /* TomboTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TomboTests-Info.plist"; sourceTree = "<group>"; };
 		92DE335A151E277E00AD06EC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		92DE335C151E277E00AD06EC /* TomboTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TomboTests.h; sourceTree = "<group>"; };
-		92DE335D151E277E00AD06EC /* TomboTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TomboTests.m; sourceTree = "<group>"; };
 		92DE33841522998700AD06EC /* Storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Storage.h; sourceTree = "<group>"; };
 		92DE33851522998700AD06EC /* Storage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Storage.m; sourceTree = "<group>"; };
 		92DE338E1522FFEB00AD06EC /* FileItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileItem.h; sourceTree = "<group>"; };
@@ -186,8 +186,8 @@
 		92DE3356151E277E00AD06EC /* TomboTests */ = {
 			isa = PBXGroup;
 			children = (
-				92DE335C151E277E00AD06EC /* TomboTests.h */,
-				92DE335D151E277E00AD06EC /* TomboTests.m */,
+				9243C7F61532435B0092B506 /* CryptTest.h */,
+				9243C7F71532435B0092B506 /* CryptTest.m */,
 				92DE3357151E277E00AD06EC /* Supporting Files */,
 			);
 			path = TomboTests;
@@ -345,7 +345,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92DE335E151E277E00AD06EC /* TomboTests.m in Sources */,
+				9243C7F81532435C0092B506 /* CryptTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
