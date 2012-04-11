@@ -1,6 +1,5 @@
 #import "EditViewController.h"
 #import "MasterViewController.h"
-#import "Storage.h"
 
 @interface EditViewController () {
 }
@@ -36,9 +35,7 @@
 - (void)configureView {
     NSString *noteData;
     if (self.detailItem && self.detailItem.path) {
-        NSError *error;
-        noteData = [Storage load:self.detailItem.path];
-        if (error) return;
+        noteData = self.detailItem.body;
     } else {
         noteData = @"";
     }

@@ -13,6 +13,10 @@
 		9243C7BC152AC7430092B506 /* NewFolderAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7BB152AC7430092B506 /* NewFolderAlert.m */; };
 		9243C7ED1531ADA80092B506 /* CryptCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7EC1531ADA80092B506 /* CryptCore.m */; };
 		9243C7F81532435C0092B506 /* CryptTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C7F71532435B0092B506 /* CryptTest.m */; };
+		9243C820153443B90092B506 /* PasswordManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C81F153443B90092B506 /* PasswordManager.m */; };
+		9243C825153487640092B506 /* key-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 9243C823153487640092B506 /* key-32.png */; };
+		9243C826153487640092B506 /* key-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 9243C824153487640092B506 /* key-48.png */; };
+		9243C83115352EB20092B506 /* SinglePasswordDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C83015352EB20092B506 /* SinglePasswordDialog.m */; };
 		92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3330151E277D00AD06EC /* CoreGraphics.framework */; };
@@ -59,6 +63,12 @@
 		9243C7EC1531ADA80092B506 /* CryptCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptCore.m; sourceTree = "<group>"; };
 		9243C7F61532435B0092B506 /* CryptTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CryptTest.h; sourceTree = "<group>"; };
 		9243C7F71532435B0092B506 /* CryptTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CryptTest.m; sourceTree = "<group>"; };
+		9243C81E153443B90092B506 /* PasswordManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PasswordManager.h; sourceTree = "<group>"; };
+		9243C81F153443B90092B506 /* PasswordManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PasswordManager.m; sourceTree = "<group>"; };
+		9243C823153487640092B506 /* key-32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "key-32.png"; sourceTree = "<group>"; };
+		9243C824153487640092B506 /* key-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "key-48.png"; sourceTree = "<group>"; };
+		9243C82F15352EB20092B506 /* SinglePasswordDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePasswordDialog.h; sourceTree = "<group>"; };
+		9243C83015352EB20092B506 /* SinglePasswordDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SinglePasswordDialog.m; sourceTree = "<group>"; };
 		92DE3328151E277D00AD06EC /* Tombo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tombo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DE332C151E277D00AD06EC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		92DE332E151E277D00AD06EC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -113,6 +123,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9243C822153464310092B506 /* AlertView */ = {
+			isa = PBXGroup;
+			children = (
+				9228CF2615298F7200E20355 /* EditCancelAlert.h */,
+				9228CF2715298F7200E20355 /* EditCancelAlert.m */,
+				9243C7BA152AC7430092B506 /* NewFolderAlert.h */,
+				9243C7BB152AC7430092B506 /* NewFolderAlert.m */,
+				9243C82F15352EB20092B506 /* SinglePasswordDialog.h */,
+				9243C83015352EB20092B506 /* SinglePasswordDialog.m */,
+			);
+			name = AlertView;
+			sourceTree = "<group>";
+		};
 		92DE331D151E277D00AD06EC = {
 			isa = PBXGroup;
 			children = (
@@ -146,6 +169,7 @@
 		92DE3332151E277D00AD06EC /* Tombo */ = {
 			isa = PBXGroup;
 			children = (
+				9243C822153464310092B506 /* AlertView */,
 				92DE339915231CD100AD06EC /* images */,
 				92DE333B151E277D00AD06EC /* AppDelegate.h */,
 				92DE333C151E277D00AD06EC /* AppDelegate.m */,
@@ -153,10 +177,10 @@
 				92DE3341151E277D00AD06EC /* MainStoryboard_iPad.storyboard */,
 				92DE3344151E277D00AD06EC /* MasterViewController.h */,
 				92DE3345151E277D00AD06EC /* MasterViewController.m */,
+				9243C7B31529D8610092B506 /* DetailViewController.h */,
+				9243C7B41529D8610092B506 /* DetailViewController.m */,
 				922F592815295FAA009B1E32 /* EditViewController.h */,
 				922F592915295FAA009B1E32 /* EditViewController.m */,
-				9228CF2615298F7200E20355 /* EditCancelAlert.h */,
-				9228CF2715298F7200E20355 /* EditCancelAlert.m */,
 				92DE3333151E277D00AD06EC /* Supporting Files */,
 				92DE33841522998700AD06EC /* Storage.h */,
 				92DE33851522998700AD06EC /* Storage.m */,
@@ -164,10 +188,8 @@
 				9243C7EC1531ADA80092B506 /* CryptCore.m */,
 				92DE338E1522FFEB00AD06EC /* FileItem.h */,
 				92DE338F1522FFEB00AD06EC /* FileItem.m */,
-				9243C7B31529D8610092B506 /* DetailViewController.h */,
-				9243C7B41529D8610092B506 /* DetailViewController.m */,
-				9243C7BA152AC7430092B506 /* NewFolderAlert.h */,
-				9243C7BB152AC7430092B506 /* NewFolderAlert.m */,
+				9243C81E153443B90092B506 /* PasswordManager.h */,
+				9243C81F153443B90092B506 /* PasswordManager.m */,
 			);
 			path = Tombo;
 			sourceTree = "<group>";
@@ -205,6 +227,8 @@
 		92DE339915231CD100AD06EC /* images */ = {
 			isa = PBXGroup;
 			children = (
+				9243C823153487640092B506 /* key-32.png */,
+				9243C824153487640092B506 /* key-48.png */,
 				92DE339B15231CFC00AD06EC /* Folder-32.png */,
 				92DE339C15231CFC00AD06EC /* Folder-48.png */,
 				92DE339D15231CFC00AD06EC /* TextDocument-32.png */,
@@ -294,6 +318,8 @@
 				92DE33A215231CFC00AD06EC /* TextDocument-48.png in Resources */,
 				92DE33B11524478E00AD06EC /* sub_blue_up-32.png in Resources */,
 				92DE33B21524478E00AD06EC /* sub_blue_up-48.png in Resources */,
+				9243C825153487640092B506 /* key-32.png in Resources */,
+				9243C826153487640092B506 /* key-48.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +364,8 @@
 				9243C7B51529D8610092B506 /* DetailViewController.m in Sources */,
 				9243C7BC152AC7430092B506 /* NewFolderAlert.m in Sources */,
 				9243C7ED1531ADA80092B506 /* CryptCore.m in Sources */,
+				9243C820153443B90092B506 /* PasswordManager.m in Sources */,
+				9243C83115352EB20092B506 /* SinglePasswordDialog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

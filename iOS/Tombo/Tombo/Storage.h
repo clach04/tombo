@@ -39,7 +39,8 @@
  * Returns new FileItem. This may be path/name is changed if note's title is changed.
  * If path is not changed, returns item itself.
  */
--(FileItem *)save:(NSString *)note item:(FileItem *)item;
+-(FileItem *)savePlain:(NSString *)note item:(FileItem *)item;
+-(FileItem *)saveCrypt:(NSString *)note item:(FileItem *)item password:(NSString *)password;
 
 - (void)deleteItem:(FileItem*)item;
 
@@ -48,6 +49,10 @@
 /*
  * Load note.
  */
-+(NSString *)load:(NSString *)path;
++ (NSString *)load:(NSString *)path;
++ (NSString *)loadCryptFile:(NSString *)path password:(NSString *)password;
+
+- (FileItem *)encrypt:(NSString *)key item:(FileItem*)item;
+- (FileItem *)decrypt:(NSString *)key item:(FileItem*)item;
 
 @end

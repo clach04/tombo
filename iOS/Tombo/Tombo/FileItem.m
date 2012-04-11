@@ -6,6 +6,8 @@
 @synthesize path;
 @synthesize isDirectory;
 @synthesize isUp;
+@synthesize isCrypt;
+@synthesize body;
 
 -(NSString*)description {
     return name;
@@ -16,6 +18,8 @@
     fileItem.name = name;
     fileItem.isDirectory = NO;
     fileItem.isUp = NO;
+    fileItem.isCrypt = NO;
+    fileItem.body = nil;
     return fileItem;
 }
 

@@ -6,6 +6,7 @@
 
 #import "Storage.h"
 #import "FileItem.h"
+#import "PasswordManager.h"
 
 @interface BackgroundView : UIView {
 }
@@ -32,10 +33,12 @@
 @interface MasterViewController () <UIAlertViewDelegate, UITableViewDelegate, UISplitViewControllerDelegate> {
     NSMutableArray *_objects;
     Storage *storage;
+    PasswordManager *passwordManager;
     
     UIImage *imgFolder;
     UIImage *imgDocument;
     UIImage *imgUp;
+    UIImage *imgKey;
 }
 @end
 
@@ -59,6 +62,8 @@
     self.detailViewController = (DetailViewController *)[[self.splitViewController.viewControllers lastObject] topViewController];
     self.detailViewController.master = self;
     self.splitViewController.delegate = self;
+    
+    passwordManager = [[PasswordManager alloc] init];
     
     UIBarButtonItem *newFolderBtn = [[UIBarButtonItem alloc] initWithTitle:@"New Folder"
                                                                      style:UIBarButtonItemStyleBordered
@@ -194,6 +199,11 @@
             imgUp = [UIImage imageNamed:@"sub_blue_up-32"];
         }
         cell.imageView.image = imgUp;
+    } else if (fItem.isCrypt) {
+        if (!imgKey) {
+            imgKey = [UIImage imageNamed:@"key-32"];
+        }
+        cell.imageView.image = imgKey;
     } else if (fItem.isDirectory) {
         if (!imgFolder) {
             imgFolder = [UIImage imageNamed:@"Folder-32"];
@@ -247,13 +257,18 @@
 }
 */
 
+- (void)transitToDetailView:(FileItem *)item {
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        self.detailViewController.item = item;
+    } else {
+        [self performSegueWithIdentifier:@"showNote" sender:self];
+    }
+}
+
 // Select Row(iPhone/iPad)
 // set item for iPad
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-//        [self transitDetailView:indexPath controller:self.detailViewController];
-//    }
     FileItem *item = [_objects objectAtIndex:indexPath.row];
     if (item.isUp) {
         // switch view items
@@ -265,10 +280,25 @@
         [storage chdir: item.name];
         [self insertItems];        
     } else {
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            self.detailViewController.item = item;
+        if (item.isCrypt) {
+            if ([passwordManager preparePassword]) {
+                // Check to success decrypt and transit.
+                NSString *note = [Storage loadCryptFile:item.path password:passwordManager.password];
+                if (note) {
+                    [self transitToDetailView:item];
+                } else {
+                    UIAlertView *decryptFail = [[UIAlertView alloc] initWithTitle:@"Error"
+                                                                          message:@"Decryption failed." 
+                                                                         delegate:nil 
+                                                                cancelButtonTitle:@"OK" 
+                                                                otherButtonTitles:nil];
+                    [decryptFail show];
+                    // Invalid password so clear it.
+                    passwordManager.password = nil;
+                }
+            }
         } else {
-            [self performSegueWithIdentifier:@"showNote" sender:self];
+            [self transitToDetailView:item];
         }
     }
 }
@@ -293,7 +323,10 @@
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
         FileItem *item = [_objects objectAtIndex:indexPath.row];
         detail.item = item;
+        detail.storage = storage;
+        detail.passwordManager = passwordManager;
         detail.master = self;
+        detail.delegate = self;
     }
 }
 
@@ -306,7 +339,17 @@
             [self deleteItem:controller.detailItem];
         }
         NSString *note = controller.detailText.text;
-        FileItem *item = [storage save:note item:controller.detailItem];
+        FileItem *item;
+        if (controller.detailItem.isCrypt) {
+            if ([passwordManager preparePasswordConfirm]) {
+                item = [storage saveCrypt:note item:controller.detailItem password:passwordManager.password];
+            } else {
+                // Don't dismiss view.
+                return;
+            }
+        } else {
+            item = [storage savePlain:note item:controller.detailItem];
+        }
         controller.isModify = NO;
         
         self.detailViewController.item = item;
@@ -326,6 +369,13 @@
     } else {
         [self dismissModalViewControllerAnimated:YES];                
     }
+}
+
+#pragma mark - DetailViewDelegate
+
+-(void)detailViewFileItemChanged:(FileItem*)oldItem to:(FileItem *)newItem {
+    [self deleteItem:oldItem];
+    [self insertItem:newItem];
 }
 
 #pragma mark - AlertViewDelegate

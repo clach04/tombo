@@ -6,8 +6,11 @@
 
 @property NSString *name;
 @property NSString *path;
+
+@property NSString *body;
 @property BOOL isDirectory;
 @property BOOL isUp;
+@property BOOL isCrypt;
 
 -(NSString*)description;
 

@@ -1,9 +1,9 @@
 #import <UIKit/UIKit.h>
 #import "FileItem.h"
 #import "EditViewController.h"
-@class DetailViewController;
+#import "DetailViewController.h"
 
-@interface MasterViewController : UITableViewController <EditViewControllerDelegate>
+@interface MasterViewController : UITableViewController <EditViewControllerDelegate, DetailViewControllerDelegate>
 
 @property (weak, nonatomic) DetailViewController *detailViewController;
 @end
