@@ -6,9 +6,9 @@
 
 @synthesize password=_password;
 
-- (id)initWithDefault {
-    return [self initWithTitle:@"Password" message:@"Please input password" delegate:self
-             cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
+- (id)initWithTitle:(NSString *)title message:(NSString *)message {
+    return [self initWithTitle:title message:message
+                      delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
 }
 
 - (NSString *)showAndWait {
