@@ -28,12 +28,12 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     finished = YES;
+    UITextField *field = [self textFieldAtIndex:0];
     if (buttonIndex == 0) {
         // Cancel
         self.password = nil;
     } else if (buttonIndex == 1) {
         // OK
-        UITextField *field = [self textFieldAtIndex:0];
         NSString *pw = [field.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (pw.length == 0) {
             self.password = nil;
@@ -41,6 +41,7 @@
             self.password = pw;
         }
     }
+    [field resignFirstResponder];
 }
 
 @end
