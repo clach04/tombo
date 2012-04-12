@@ -46,6 +46,7 @@
             [mismatch show];
             return NO;
         }
+        self.password = pass1;
     }
 
     [self resetTimer];

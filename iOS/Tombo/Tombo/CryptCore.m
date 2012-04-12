@@ -225,7 +225,7 @@
 
 + (NSData *)encrypt:(NSString *)key data:(NSData *)plain error:(NSError **)error {
     const char *plainByte = (const char *)[plain bytes];
-    NSUInteger n = strlen(plainByte);
+    NSUInteger n = [plain length];
     NSUInteger nBlocks = (n + 7) / 8;
     
     NSUInteger dataLen = 32 + nBlocks * 8;
