@@ -170,4 +170,8 @@
     [self dismissModalViewControllerAnimated:YES];
 }
 
+/* If this is no method, master view is not visible when startup. Mistery. */
+- (void)splitViewController:(UISplitViewController *)svc willHideViewController:(UIViewController *)aViewController withBarButtonItem:(UIBarButtonItem *)barButtonItem forPopoverController:(UIPopoverController *)pc {
+    
+}
 @end

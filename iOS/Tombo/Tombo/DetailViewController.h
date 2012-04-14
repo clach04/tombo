@@ -13,7 +13,7 @@
  * Used on iPad only.
  */
 
-@interface DetailViewController : UIViewController <MoveViewControllerDelegate>
+@interface DetailViewController : UIViewController <MoveViewControllerDelegate, UISplitViewControllerDelegate>
 
 @property (weak, nonatomic) FileItem *item;
 @property (weak, nonatomic) Storage *storage;
