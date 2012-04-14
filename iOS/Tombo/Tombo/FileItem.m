@@ -26,4 +26,24 @@
 - (BOOL)isNewItem {
     return self.name == nil;
 }
+
+- (NSComparisonResult)compare:(FileItem*)other {
+    if (self.isUp) return NSOrderedAscending;
+    if (other.isUp) return NSOrderedDescending;
+    
+    if (self.isDirectory) {
+        if (other.isDirectory) {
+            return [self.name compare:other.name];
+        } else {
+            return NSOrderedAscending;
+        }
+    } else {
+        if (other.isDirectory) {
+            return NSOrderedDescending;
+        } else {
+            return [self.name compare:other.name];            
+        }
+    }
+}
+
 @end

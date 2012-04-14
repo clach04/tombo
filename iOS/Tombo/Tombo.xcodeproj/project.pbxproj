@@ -17,6 +17,7 @@
 		9243C825153487640092B506 /* key-32.png in Resources */ = {isa = PBXBuildFile; fileRef = 9243C823153487640092B506 /* key-32.png */; };
 		9243C826153487640092B506 /* key-48.png in Resources */ = {isa = PBXBuildFile; fileRef = 9243C824153487640092B506 /* key-48.png */; };
 		9243C83115352EB20092B506 /* SinglePasswordDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9243C83015352EB20092B506 /* SinglePasswordDialog.m */; };
+		9244E4D115397C300028FD10 /* FileItemTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9244E4D015397C300028FD10 /* FileItemTest.m */; };
 		92DE332D151E277D00AD06EC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332C151E277D00AD06EC /* UIKit.framework */; };
 		92DE332F151E277D00AD06EC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE332E151E277D00AD06EC /* Foundation.framework */; };
 		92DE3331151E277D00AD06EC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92DE3330151E277D00AD06EC /* CoreGraphics.framework */; };
@@ -69,6 +70,8 @@
 		9243C824153487640092B506 /* key-48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "key-48.png"; sourceTree = "<group>"; };
 		9243C82F15352EB20092B506 /* SinglePasswordDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePasswordDialog.h; sourceTree = "<group>"; };
 		9243C83015352EB20092B506 /* SinglePasswordDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SinglePasswordDialog.m; sourceTree = "<group>"; };
+		9244E4CF15397C300028FD10 /* FileItemTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileItemTest.h; sourceTree = "<group>"; };
+		9244E4D015397C300028FD10 /* FileItemTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileItemTest.m; sourceTree = "<group>"; };
 		92DE3328151E277D00AD06EC /* Tombo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tombo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		92DE332C151E277D00AD06EC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		92DE332E151E277D00AD06EC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -210,6 +213,8 @@
 			children = (
 				9243C7F61532435B0092B506 /* CryptTest.h */,
 				9243C7F71532435B0092B506 /* CryptTest.m */,
+				9244E4CF15397C300028FD10 /* FileItemTest.h */,
+				9244E4D015397C300028FD10 /* FileItemTest.m */,
 				92DE3357151E277E00AD06EC /* Supporting Files */,
 			);
 			path = TomboTests;
@@ -374,6 +379,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9243C7F81532435C0092B506 /* CryptTest.m in Sources */,
+				9244E4D115397C300028FD10 /* FileItemTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

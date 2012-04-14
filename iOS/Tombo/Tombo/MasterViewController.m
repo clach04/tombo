@@ -124,8 +124,20 @@
     if (!_objects) {
         _objects = [[NSMutableArray alloc] init];
     }
-    [_objects insertObject:item atIndex:0];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+    NSUInteger n = [_objects count];
+    NSUInteger i;
+    for (i = 0; i < n; i++) {
+        if (item.isUp) break;
+        
+        FileItem *cur = [_objects objectAtIndex:i];
+        NSComparisonResult r = [item compare:cur];
+        if (r == NSOrderedAscending || r == NSOrderedSame) {
+            break;
+        }
+    }
+    
+    [_objects insertObject:item atIndex:i];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
     [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:indexPath]
                           withRowAnimation:UITableViewRowAnimationAutomatic];
 }

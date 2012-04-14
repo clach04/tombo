@@ -18,4 +18,6 @@
 
 - (BOOL)isNewItem;
 
+- (NSComparisonResult)compare:(FileItem*)other;
+
 @end
