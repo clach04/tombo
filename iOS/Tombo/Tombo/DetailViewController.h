@@ -1,5 +1,6 @@
 #import <UIKit/UIKit.h>
 #import "FileItem.h"
+#import "MoveViewController.h"
 
 @class MasterViewController;
 @class Storage;
@@ -12,7 +13,7 @@
  * Used on iPad only.
  */
 
-@interface DetailViewController : UIViewController
+@interface DetailViewController : UIViewController <MoveViewControllerDelegate>
 
 @property (weak, nonatomic) FileItem *item;
 @property (weak, nonatomic) Storage *storage;
@@ -29,4 +30,5 @@
  */
 @protocol DetailViewControllerDelegate <NSObject>
 -(void)detailViewFileItemChanged:(FileItem*)oldItem to:(FileItem *)newItem;
+-(void)detailViewFileItemRemoved:(FileItem *)item;
 @end

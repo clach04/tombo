@@ -57,7 +57,7 @@
                             <outlet property="delegate" destination="12" id="15"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Master" id="36">
+                    <navigationItem key="navigationItem" title="List" id="36">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="agb-4g-a59">
                             <connections>
                                 <segue destination="7bR-lH-lJ9" kind="modal" identifier="newNote" id="HlC-by-ur5"/>
@@ -100,6 +100,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="text" destination="crV-57-ylY" id="HD7-qX-vzI"/>
+                        <segue destination="DVv-Iu-8Nq" kind="modal" identifier="moveNote" id="6ne-sM-16G"/>
                     </connections>
                 </viewController>
             </objects>
@@ -143,6 +144,42 @@
             </objects>
             <point key="canvasLocation" x="2021" y="64"/>
         </scene>
+        <!--Move View Controller - Choose folder-->
+        <scene sceneID="ysG-MP-3Qv">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qw3-8U-E3I" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tableViewController id="q5O-eT-KLN" customClass="MoveViewController" sceneMemberID="viewController">
+                    <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="VmW-Ud-l7o">
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Cell" id="ppG-Cp-Oqy">
+                                <rect key="frame" x="0.0" y="22" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                </view>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="q5O-eT-KLN" id="P2n-gA-Cze"/>
+                            <outlet property="delegate" destination="q5O-eT-KLN" id="aDr-BS-3AP"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Choose folder" id="4oC-95-7Hy">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="rQF-JB-drS">
+                            <connections>
+                                <action selector="cancel:" destination="q5O-eT-KLN" id="SMm-ve-0ho"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                </tableViewController>
+            </objects>
+            <point key="canvasLocation" x="2084" y="-535"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="a6N-vh-sA4">
             <objects>
@@ -160,6 +197,24 @@
                 </navigationController>
             </objects>
             <point key="canvasLocation" x="1561" y="64"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="N6v-4j-05b">
+            <objects>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vkq-xN-tWC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <navigationController id="DVv-Iu-8Nq" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="9hi-CP-Uox">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="q5O-eT-KLN" kind="relationship" relationship="rootViewController" id="Evc-s3-ika"/>
+                    </connections>
+                </navigationController>
+            </objects>
+            <point key="canvasLocation" x="1558" y="-535"/>
         </scene>
     </scenes>
     <classes>
@@ -179,6 +234,12 @@
         </class>
         <class className="MasterViewController" superclassName="UITableViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/MasterViewController.h"/>
+        </class>
+        <class className="MoveViewController" superclassName="UITableViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/MoveViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="cancel:"/>
+            </relationships>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

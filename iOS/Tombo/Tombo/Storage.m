@@ -50,6 +50,36 @@
     return result;
 }
 
+- (NSArray *)listFolders {
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:10];
+    
+    [result addObject:@"/"];
+    [self listFoldersRec:result path:@"/"];
+    NSComparator compr = ^(id a, id b) {
+        NSString *strA = (NSString *)a;
+        NSString *strB = (NSString *)b;
+        return [strA compare:strB];
+    };
+    return [result sortedArrayUsingComparator:compr];
+}
+
+- (void)listFoldersRec:(NSMutableArray *)result path:(NSString *)path {
+    NSError *error = nil;
+    NSString *partPath = [documentRoot stringByAppendingString:path];
+    NSArray *files = [fileManager contentsOfDirectoryAtPath:partPath
+                                                      error:&error];
+    
+    for (NSString *f in files) {
+        BOOL bDir = NO;
+        NSString *p = [partPath stringByAppendingString:f];
+        [fileManager fileExistsAtPath:p isDirectory:&bDir];
+        if (!bDir) continue;
+        NSString *pFolder = [path stringByAppendingString:f];
+        [result addObject:pFolder];
+        [self listFoldersRec:result path:[pFolder stringByAppendingString:@"/"]];
+    }
+}
+
 -(void)chdir:(NSString *)subdir {
     NSString *newCurrent = [currentDirectory stringByAppendingPathComponent:subdir];
     self.currentDirectory = [newCurrent stringByAppendingString:@"/"];
@@ -295,7 +325,6 @@
 }
 
 - (FileItem *)decrypt:(NSString *)key item:(FileItem*)item {
-    // TODO: implement
     NSData *encData = [NSData dataWithContentsOfFile:item.path];
     NSError *error = nil;
     NSData *plainData = [CryptCore decrypt:key data:encData error:&error];
@@ -311,6 +340,30 @@
     }
     [fileManager removeItemAtPath:item.path error:&error];
     return newItem;    
+}
+
+- (void)moveFrom:(FileItem *)from to:(FileItem *)to {
+    NSString *name = [from.path lastPathComponent];
+    NSMutableString *toPath = [[NSMutableString alloc]initWithCapacity:200];
+    [toPath appendString:to.path];
+    [toPath appendString:@"/"];
+    [toPath appendString:name];
+    
+    NSError *error = nil;
+    [fileManager moveItemAtPath:from.path toPath:toPath error:&error];
+}
+
+- (NSString *)moveFrom:(FileItem *)from toPath:(NSString *)to {
+    NSString *name = [from.path lastPathComponent];
+    NSMutableString *toPath = [[NSMutableString alloc]initWithCapacity:200];
+    [toPath appendString:documentRoot];
+    [toPath appendString:to];
+    [toPath appendString:@"/"];
+    [toPath appendString:name];
+    
+    NSError *error = nil;
+    [fileManager moveItemAtPath:from.path toPath:toPath error:&error];
+    return toPath;
 }
 
 @end

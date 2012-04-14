@@ -56,6 +56,11 @@
         storage = [Storage init];
     }
     
+    // Init detailview for iPad.
+    self.detailViewController.storage = storage;
+    self.detailViewController.passwordManager = passwordManager;
+    self.detailViewController.delegate = self;
+    
     // Load initial items.
     [self insertItems];
 }
@@ -359,6 +364,10 @@
 -(void)detailViewFileItemChanged:(FileItem*)oldItem to:(FileItem *)newItem {
     [self deleteItem:oldItem];
     [self insertItem:newItem];
+}
+
+-(void)detailViewFileItemRemoved:(FileItem *)item {
+    [self deleteItem:item];
 }
 
 @end

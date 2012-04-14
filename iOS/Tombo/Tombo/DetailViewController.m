@@ -31,21 +31,30 @@
     [super viewDidLoad];
     
     [self.navigationController setToolbarHidden:NO];
-    NSString *btnTitle;
     if (self.item != nil) {
-        if (self.item.isCrypt) {
-            btnTitle = @"Decrypt";
-        } else {
-            btnTitle = @"Encrypt";
-        }
-        UIBarButtonItem *cryptBtn = [[UIBarButtonItem alloc] initWithTitle:btnTitle
-                                                                     style:UIBarButtonItemStyleBordered
-                                                                    target:self
-                                                                    action:@selector(crypt:)];
-        [self setToolbarItems:[NSArray arrayWithObjects:cryptBtn, nil] animated:YES];
+        [self setupToolbar];
     }
     
     [self loadNote];
+}
+
+- (void)setupToolbar {
+    NSString *btnTitle;
+    if (self.item.isCrypt) {
+        btnTitle = @"Decrypt";
+    } else {
+        btnTitle = @"Encrypt";
+    }
+    UIBarButtonItem *cryptBtn = [[UIBarButtonItem alloc] initWithTitle:btnTitle
+                                                                 style:UIBarButtonItemStyleBordered
+                                                                target:self
+                                                                action:@selector(crypt:)];
+    UIBarButtonItem *moveBtn = [[UIBarButtonItem alloc] initWithTitle:@"Move"
+                                                                style:UIBarButtonItemStyleBordered
+                                                               target:self 
+                                                               action:@selector(move:)];
+    [self setToolbarItems:[NSArray arrayWithObjects:cryptBtn, moveBtn, nil] animated:NO];
+    
 }
 
 - (void)viewDidUnload
@@ -68,6 +77,10 @@
         
         edit.detailItem = self.item;
         edit.delegate = self.master;
+    } else if ([[segue identifier] isEqualToString:@"moveNote"]) {
+        MoveViewController *move = (MoveViewController*)[[[segue destinationViewController] viewControllers] objectAtIndex:0];
+        move.delegate = self;
+        move.folders = [self.storage listFolders];
     }
 }
 
@@ -109,6 +122,10 @@
     }
 }
 
+- (void)move:(id)sender {
+    [self performSegueWithIdentifier:@"moveNote" sender:self];
+}
+
 - (void)loadNote {
     if (!self.item) return;
     
@@ -135,7 +152,22 @@
         // On iPhone and call by segue, self.text is nil because view is not loaded yet.
         if (self.text) {
             [self loadNote];
+            [self setupToolbar];
         }
     }
 }
+
+#pragma mark - MoveViewControllerDelegate
+
+- (void)moveViewControllerCancel:(MoveViewController *)view {
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+- (void)moveViewControllerSelect:(MoveViewController *)view path:(NSString *)path {
+    NSString *toPath = [self.storage moveFrom:self.item toPath:path];
+    [self.delegate detailViewFileItemRemoved:self.item];
+    self.item.path = toPath;
+    [self dismissModalViewControllerAnimated:YES];
+}
+
 @end

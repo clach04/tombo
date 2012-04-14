@@ -30,6 +30,11 @@
  */
 -(BOOL)isTopDir;
 
+/*
+ * Enumerate top directory recursively and return array of NSString.
+ */
+- (NSArray *)listFolders;
+
 
 -(FileItem*)newItem;
 
@@ -54,5 +59,8 @@
 
 - (FileItem *)encrypt:(NSString *)key item:(FileItem*)item;
 - (FileItem *)decrypt:(NSString *)key item:(FileItem*)item;
+
+- (void)moveFrom:(FileItem *)from to:(FileItem *)to;
+- (NSString *)moveFrom:(FileItem *)from toPath:(NSString *)to;
 
 @end
