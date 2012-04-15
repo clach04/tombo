@@ -47,7 +47,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../../../Tombo\oniguruma;../../../../Tombo\Src\TomboLib;../../../../Tombo\expat\include;../../../../Tombo\Win32\Tombo\res;../../../../Tombo\Src;../../../../Tombo\Src\YAEdit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../../Tombo\Win32\oniguruma;../../../../Tombo\Src\TomboLib;../../../../Tombo\Win32\expat\include;../../../../Tombo\Win32\Tombo\res;../../../../Tombo\Src;../../../../Tombo\Src\YAEdit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;TOMBO;PLATFORM_WIN32;MBCS;_CRT_SECURE_NO_DEPRECATE</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -240,14 +240,14 @@
     <ResourceCompile Include="..\res\Tombo.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\expat\lib\Win32\libexpatw.lib" />
-    <Library Include="..\..\..\oniguruma\win32\oniguruma.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\..\Src\image\draftimg.bmp" />
     <None Include="..\..\..\Src\image\memoimg.bmp" />
     <None Include="..\..\..\Src\image\Tombo.ICO" />
     <None Include="..\..\..\Src\image\toolbar.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\expat\lib\Win32\libexpatw.lib" />
+    <Library Include="..\..\oniguruma\win32\oniguruma.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
