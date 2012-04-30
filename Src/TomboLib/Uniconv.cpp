@@ -1466,7 +1466,7 @@ LPBYTE Base64Decode(const char *pM64str, LPDWORD pDataSize)
 ////////////////////////////////////////////////////////////////////
 
 // ヘッドライン除外文字列
-#define SKIPCHAR TEXT("\\/:,;*?<>\"\t")
+#define SKIPCHAR TEXT("\\/:*?<>\"\t|")
 
 void DropInvalidFileChar(LPTSTR pDst, LPCTSTR pSrc)
 {
