@@ -1,1 +1,7 @@
-gcc -lstdc++ -DTOMBO -oTomboCrypt *.cpp *.c
+# NOTE -lstdc++ position is at the end
+
+# Tested with gcc  7.4.0
+# Dynamic
+#gcc  -DTOMBO -oTomboCrypt *.cpp *.c -lstdc++
+gcc -static -DTOMBO -oTomboCrypt *.cpp *.c  -lstdc++
+
