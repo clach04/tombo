@@ -584,14 +584,14 @@ void MemoSelectView::OnNotify_RClick(POINT pt)
 		g_Repository.GetOption(pURI, &opt);
 
 		nFlg = CTXMENU_FILE | (g_Property.GetUseAssociation() ? CTXMENU_USEASSOC : 0);
-    /*
-    // commented out so chi files can be launched by external apps
+#define TOMBO_OPTION_OPEN_CHI_EXTERNALLY  // chi files can be launched by external apps
+#ifndef TOMBO_OPTION_OPEN_CHI_EXTERNALLY
 		if (!opt.bEncrypt) {
-        */
+#endif  // TOMBO_OPTION_OPEN_CHI_EXTERNALLY
 			nFlg |= CTXMENU_ENABLEEXTAPP;
-            /*
+#ifndef TOMBO_OPTION_OPEN_CHI_EXTERNALLY
 		}
-    */
+#endif  // TOMBO_OPTION_OPEN_CHI_EXTERNALLY
 	}
 
 	HMENU hMenu = PlatformLayer::LoadContextMenu(nFlg);
