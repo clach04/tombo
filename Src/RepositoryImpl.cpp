@@ -330,7 +330,7 @@ BOOL LocalFileRepository::GetHeadLine(const TomboURI *pURI, TString *pHeadLine)
 	if (bIsLeaf) {
 		LPCTSTR pURIstr = pURI->GetFullURI();
 		DWORD n = _tcslen(pURIstr);
-		if (n > 4 && _tcscmp(pURIstr + n - 4, TEXT(".chs")) == 0) {
+		if (n > 4 && _tcscmp(pURIstr + n - 4, TEXT(".chs")) == 0) {  // FIXME hard coded 4 for file extension length
 			TString sPath;
 			if (!pURI->GetFilePath(&sPath)) return FALSE;
 			CryptedMemoNote cn;
@@ -353,8 +353,10 @@ BOOL LocalFileRepository::GetHeadLine(const TomboURI *pURI, TString *pHeadLine)
 	if (bIsLeaf) {
 		LPTSTR p = pHeadLine->Get();
 		DWORD n = _tcslen(p);
-		if (n > 4) {
-			*(p + n - 4) = TEXT('\0');
+		if (n > 4) {  // FIXME hard coded 4 for file extension length
+			//*(p + n - 4) = TEXT('\0');  // FIXME hard coded 4 for file extension length
+			char *file_extension = strrchr(p, '.');
+			*file_extension = TEXT('\0');  // remove extension
 		}
 	}
 	return TRUE;
@@ -375,10 +377,20 @@ BOOL LocalFileRepository::GetOption(const TomboURI *pURI, URIOption *pOption) co
 			pOption->bFolder = TRUE;
 		} else {
 			// file
-			p = p + len - 4;
-			if (_tcsicmp(p, TEXT(".txt")) == 0 ||
-				_tcsicmp(p, TEXT(".chi")) == 0 || 
-				_tcsicmp(p, TEXT(".chs")) == 0) {
+			//p = p + len - 4;  // FIXME strrchr() or right string compare...
+			p = strrchr(p, '.');
+			/*
+			if (p == NULL) {
+				pOption->bValid = FALSE;
+				return TRUE;
+			}
+			*/
+			if ( p && (
+				_tcsicmp(p, TEXT(".txt")) == 0 ||
+				_tcsicmp(p, TEXT(".md")) == 0 ||
+				_tcsicmp(p, TEXT(".chi")) == 0 ||
+				_tcsicmp(p, TEXT(".chs")) == 0)
+				) {
 				pOption->bValid = TRUE;
 				pOption->bFolder = FALSE;
 			} else {
@@ -391,7 +403,7 @@ BOOL LocalFileRepository::GetOption(const TomboURI *pURI, URIOption *pOption) co
 		LPCTSTR p = pURI->GetFullURI();
 		DWORD n = _tcslen(p);
 		if (n > 4) {
-			if (_tcsicmp(p + n - 4, TEXT(".chi")) == 0 ||
+			if (_tcsicmp(p + n - 4, TEXT(".chi")) == 0 ||  // FIXME hard coded 4 for file extension length
 				_tcsicmp(p + n - 4, TEXT(".chs")) == 0) {
 				pOption->bEncrypt = TRUE;
 			} else {
@@ -402,7 +414,7 @@ BOOL LocalFileRepository::GetOption(const TomboURI *pURI, URIOption *pOption) co
 
 	if (pOption->nFlg & NOTE_OPTIONMASK_SAFEFILE) {
 		LPCTSTR p = pURI->GetFullURI();
-		if (_tcslen(p) > 4 && _tcscmp(p + _tcslen(p) - 4, TEXT(".chs")) == 0) {
+		if (_tcslen(p) > 4 && _tcscmp(p + _tcslen(p) - 4, TEXT(".chs")) == 0) {  // FIXME hard coded 4 for file extension length
 			pOption->bSafeFileName = TRUE;
 		} else {
 			pOption->bSafeFileName = FALSE;

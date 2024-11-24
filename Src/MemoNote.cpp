@@ -243,7 +243,7 @@ MemoNote *CryptedMemoNote::GetNewInstance() const
 
 LPCTSTR PlainMemoNote::GetExtension()
 {
-	return TEXT(".txt");
+	return TEXT(".txt");  // TODO / FIXME .md files get saved/renamed as .txt if the title/first line changes and Note Tree does NOT get updated on screen (good news, is that existing files are not overwritten/deleted)
 }
 
 LPCTSTR CryptedMemoNote::GetExtension()
@@ -492,13 +492,17 @@ BOOL MemoNote::Rename(LPCTSTR pTopDir, LPCTSTR pNewName)
 
 DWORD MemoNote::IsNote(LPCTSTR pFile)
 {
+	DWORD nType = NOTE_TYPE_NO;
 	DWORD len = _tcslen(pFile);
 	if (len <= 4) return NOTE_TYPE_NO;
 
-	LPCTSTR p = pFile + len - 4;
+	//LPCTSTR p = pFile + len - 4;  // FIXME right-find '.', return if not found (or right compare)
+	LPCTSTR p = strrchr(pFile, '.');
+	if (p == NULL) return nType;
 
-	DWORD nType;
 	if (_tcsicmp(p, TEXT(".txt")) == 0) {
+		nType = NOTE_TYPE_PLAIN;
+	} else if (_tcsicmp(p, TEXT(".md")) == 0) {
 		nType = NOTE_TYPE_PLAIN;
 	} else if (_tcsicmp(p, TEXT(".chi")) == 0) {
 		nType = NOTE_TYPE_CRYPTED;
