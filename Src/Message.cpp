@@ -73,6 +73,7 @@ LPTSTR TomboMessage::GetNatvieData(HANDLE hFile)
 	}
 	*(pTmp + nBytes) = '\0';
 
+#if 0 // zz
 #if defined(PLATFORM_WIN32)
 	// convert to UCS2 data
 	LPWSTR pW = ConvUTF8ToUCS2(pTmp);
@@ -80,13 +81,21 @@ LPTSTR TomboMessage::GetNatvieData(HANDLE hFile)
 
 	// convert to MBCS data
 	int nSize = WideCharToMultiByte(CP_ACP, 0, pW, -1, NULL, 0, NULL, NULL);
-	char *pData = new char[nSize + 1];
+	BYTE *pData = new BYTE[nSize + 1];
 	WideCharToMultiByte(CP_ACP, 0, pW, -1, pData, nSize, NULL, NULL);
 	delete [] pW;
 #else
 	LPWSTR pData = ConvUTF8ToUCS2(pTmp);
 	delete[] pTmp;
 #endif
+#else // zz
+#ifdef UNICODE
+	LPWSTR pData = ConvUTF8ToUCS2(pTmp);
+	delete[] pTmp;
+#else
+#error "UNICODE?"
+#endif
+#endif // 
 	return pData;
 }
 

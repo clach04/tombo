@@ -214,7 +214,7 @@ BOOL PhysicalLineManager::LoadDoc(LPCTSTR pStr)
 // Load document
 /////////////////////////////////////////////////////////////////////////////
 
-char *PhysicalLineManager::GetDocumentData(LPDWORD pLen)
+TCHAR *PhysicalLineManager::GetDocumentData(LPDWORD pLen)
 {
 	DWORD nSize = 0;
 
@@ -244,7 +244,7 @@ char *PhysicalLineManager::GetDocumentData(LPDWORD pLen)
 	}
 	*q = TEXT('\0');
 
-	char *pResultData;
+	TCHAR *pResultData;
 #ifdef _WIN32_WCE
 	pResultData = ConvUnicode2SJIS(pData);
 	*pLen = strlen(pResultData);

@@ -357,7 +357,7 @@ LPTSTR ConvSJIS2Unicode(const char *p)
 		return NULL;
 	}
 
-#ifdef _WIN32_WCE
+#if defined _WIN32_WCE
 #if defined(PLATFORM_BE500) && defined(TOMBO_LANG_ENGLISH)
 	if (g_Property.GetCodePage() == 1253) { // Greek codepage
 		MultiByteToWideChar_CP1253((LPCSTR)p, pUni, -1);
@@ -369,7 +369,11 @@ LPTSTR ConvSJIS2Unicode(const char *p)
 #endif
 
 #else	// _WIN32_WCE
+#if defined(UNICODE)
+	MultiByteToWideChar(CP_ACP, 0, (LPCSTR)p, -1, pUni, l);
+#else
 	_tcscpy(pUni, p);
+#endif
 #endif
 	return pUni;
 }
@@ -463,7 +467,11 @@ char *ConvUnicode2SJIS(LPCTSTR p)
 	WideCharToMultiByte(CP_ACP, 0, p, -1, pS, l, NULL, NULL);
 #endif
 #else // _WIN32_WCE
+#if defined(UNICODE)
+	WideCharToMultiByte(CP_ACP, 0, p, -1, pS, l, NULL, NULL);
+#else
 	strcpy(pS, p);
+#endif
 #endif
 	return pS;
 }
@@ -475,7 +483,7 @@ char *ConvUnicode2SJIS(LPCTSTR p)
 LPWSTR ConvTCharToWChar(LPCTSTR p)
 {
 	if (p == NULL) return NULL;
-#if defined(PLATFORM_WIN32)
+#if defined(PLATFORM_WIN32) && !defined(UNICODE)
 	LPWSTR pW;
 	DWORD nLen = strlen(p);
 	pW = new WCHAR[nLen +1];
@@ -491,7 +499,7 @@ LPWSTR ConvTCharToWChar(LPCTSTR p)
 LPTSTR ConvWCharToTChar(LPCWSTR p)
 {
 	if (p == NULL) return NULL;
-#if defined(PLATFORM_WIN32)
+#if defined(PLATFORM_WIN32) && !defined(UNICODE)
 	DWORD nLen = WideCharToMultiByte(CP_ACP, 0, p, -1, NULL, 0, NULL, NULL);
 	LPTSTR pT = new TCHAR[nLen + 1];
 	if (pT == NULL) return NULL;
@@ -1557,7 +1565,7 @@ void WipeOutAndDelete(LPTSTR p)
 	delete [] p;
 }
 
-#ifdef _WIN32_WCE
+//#ifdef _WIN32_WCE
 void WipeOutAndDelete(char *p)
 {
 	if (p == NULL) return;
@@ -1568,7 +1576,7 @@ void WipeOutAndDelete(char *p)
 	}
 	delete [] p;
 }
-#endif
+//#endif
 
 /////////////////////////////////////////////
 // Clear file contents and delete it

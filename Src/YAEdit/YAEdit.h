@@ -100,7 +100,7 @@ public:
 	static YAEdit *GetInstance(YAEditCallback *pCallback, COLORREF cBk);
 
 	// get YAEditDoc instance
-	virtual YAEditDoc *CreateDocument(const char *pStr, YAEditCallback*pCb) = 0;
+	virtual YAEditDoc *CreateDocument(const TCHAR *pStr, YAEditCallback*pCb) = 0;
 };
 
 
@@ -137,7 +137,7 @@ protected:
 	///////////////////////////////////////
 	// key related members
 #if defined(PLATFORM_WIN32)
-	char aKeyBuffer[3];
+	TCHAR aKeyBuffer[3];
 #endif
 
 	///////////////////////////////////////
@@ -325,6 +325,6 @@ public:
 
 	////////////////////////////////////////////////////
 	// 
-	YAEditDoc *CreateDocument(const char *pStr, YAEditCallback*pCb);
+	YAEditDoc *CreateDocument(const TCHAR *pStr, YAEditCallback*pCb);
 };
 #endif

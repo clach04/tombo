@@ -44,7 +44,7 @@ extern "C" {
 // WinMain
 //////////////////////////////////////
 #ifndef UNIT_TEST
-int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR pCmdLine, int nCmdShow)
+int WINAPI _tWinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR pCmdLine, int nCmdShow)
 {
 	// initialize random seed
 	srand(GetTickCount());
@@ -52,8 +52,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR pCmdLine, int nCmdSh
 	// load message resources.
 	g_mMsgRes.Init();
 
+	BOOL bResult;
+	bResult = g_Property.Load();
+
 	// Check other Tombo.exe is executed
-	if (CheckAndRaiseAnotherTombo()) {
+	if (!g_Property.GetMultiInstance()
+			&& CheckAndRaiseAnotherTombo()) {
 		return 0;
 	}
 
@@ -104,8 +108,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPTSTR pCmdLine, int nCmdSh
 	g_hInstance = hInst;
 
 	// load properties
-	BOOL bResult;
-	bResult = g_Property.Load();
 	if (!bResult || g_Property.IsNeedAskUser()) {
 		BOOL bPrev = bDisableHotKey;
 		bDisableHotKey = TRUE;

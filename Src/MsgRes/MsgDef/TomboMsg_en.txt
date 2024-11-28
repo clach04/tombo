@@ -185,7 +185,7 @@ MSG_MENUITEM_W32_T_ERASEPASS	Erase password
 MSG_MENUITEM_W32_T_VIRTUALFOLDER	Virtual folder
 MSG_MENUITEM_W32_T_OPTIONS	&Options
 MSG_MENUITEM_W32B_HELP	&Help
-MSG_MENUITEM_W32_H_ABOUT	&About TOMBO
+MSG_MENUITEM_W32_H_ABOUT	&About TOMBO (U)
 MSG_MENUITEM_CTX_TRACELINK	Jump to original
 MSG_DLG_CMN_OK	OK
 MSG_DLG_CMN_CANCEL	Cancel
@@ -260,7 +260,7 @@ MSG_DLG_PROPTAB_APPBTN_BUTTON2	Button2
 MSG_DLG_PROPTAB_APPBTN_BUTTON3	Button3
 MSG_DLG_PROPTAB_APPBTN_BUTTON4	Button4
 MSG_DLG_PROPTAB_APPBTN_BUTTON5	Button5
-MSG_DLG_PROPTAB_APPBTN_HELP	Assign application button to action button. It is enabled after restarting TOMBO
+MSG_DLG_PROPTAB_APPBTN_HELP	Assign application button to action button. It is enabled after restarting TOMBO (U)
 MSG_DLG_PROPTAB_APPBTN_DISABLE	Disable close notes on edit view
 MSG_DLG_PROPTAB_SIP_SHIFT	Keep space over the SIP
 MSG_CODEPAGE_DEFAULT	Default(System native)
@@ -273,14 +273,14 @@ MSG_PROPTAB_EXTAPP	External Apps
 MSG_DLG_EXTAPP_USEASSOC	Use file association
 MSG_DLG_EXTAPP_LBL_APP1	Application1:
 MSG_DLG_EXTAPP_LBL_APP2	Application2:
-MSG_DLG_EXTAPP_CAUTION	CAUTION:\r\nIf external application creates backup file, TOMBO is \r\n*NOT DELETE* it. Please check yourself before encryption whether backup file exists or not.
+MSG_DLG_EXTAPP_CAUTION	CAUTION:\r\nIf external application creates backup file, TOMBO (U) is \r\n*NOT DELETE* it. Please check yourself before encryption whether backup file exists or not.
 MSG_DLG_EXTAPP_CHOOSE_TTL	Choose application
 MSG_DLG_EXTAPP_CHOOSE_EXT	app(*.exe)\0*.exe\0all(*.*)\0*.*\0\0
 MSG_MENUITEM_BE_T_TWOPANE	Two panes
 MSG_MENUITEM_B_ADDBM	Add bookmark
 MSG_MENUITEM_B_EDITBM	Edit bookmark
 MSG_DLG_PROPTAB_USE_CLEARTYPE_FONT_CE	Use ClearType font
-MSG_DLG_PROPTAB_DISABLESAVEDLG	Disable save daialog
+MSG_DLG_PROPTAB_DISABLESAVEDLG	Disable save dialog
 MSG_MENUITEM_W32_T_REBAR	Toolbar
 MSG_DLG_SAVEPROP_FAILED	Save options failed. Change may not be reflected.
 MSG_DLG_PROPTAB_TIMEOUT_USE_SAFENAME	Use random filename
@@ -306,3 +306,5 @@ MSG_DLG_COLORTAB_EOL	End of line
 MSG_DLG_COLORTAB_LEOL	End of line(wrap)
 MSG_DLG_COLORTAB_TAB	Tab
 MSG_DLG_COLORTAB_EOF	End of file
+MSG_MENUITEM_W32_T_MULTIINSTANCE	Multi instance
+MSG_CODEPAGE_ANSI	ANSI(system non-Unicode)

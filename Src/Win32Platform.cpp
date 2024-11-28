@@ -11,9 +11,9 @@
 #include "Property.h"
 #include "Message.h"
 
-#define NUM_MY_TOOLBAR_BMPS 12
+#define NUM_MY_TOOLBAR_BMPS 15
 
-#define NUM_TOOLBAR_BUTTONS 19
+#define NUM_TOOLBAR_BUTTONS 22
 static TBBUTTON aToolbarButtons[NUM_TOOLBAR_BUTTONS] = {
 	{STD_FILENEW + NUM_MY_TOOLBAR_BMPS,  IDM_NEWMEMO,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
 	{STD_FILESAVE + NUM_MY_TOOLBAR_BMPS, IDM_SAVE,       TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
@@ -34,6 +34,9 @@ static TBBUTTON aToolbarButtons[NUM_TOOLBAR_BUTTONS] = {
 	{6,                                  IDM_TOGGLEPANE, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
 	{10,                                 IDM_TOPMOST,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
 	{0,                                  0,              TBSTATE_ENABLED, TBSTYLE_SEP,    0, 0, 0, -1},
+	{12,                                 IDM_CP_UNICODE, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
+	{13,                                 IDM_CP_UTF8,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
+	{14,                                 IDM_CP_ANSI,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, -1},
 };
 
 Win32Platform::Win32Platform() : pStatusBar(NULL)
@@ -50,7 +53,7 @@ static HWND CreateToolBar(HWND hParent, HINSTANCE hInst)
 	HWND hwndTB;
 	TBADDBITMAP tbab;
 
-	hwndTB = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPSTR)NULL, 
+	hwndTB = CreateWindowEx(WS_EX_TOOLWINDOW, TOOLBARCLASSNAME, (LPTSTR)NULL, 
 							WS_CHILD | 
 							WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CCS_NODIVIDER | CCS_NORESIZE |
 							TBSTYLE_FLAT | TBSTYLE_ALTDRAG |
@@ -93,13 +96,13 @@ void Win32Platform::Create(HWND hWnd, HINSTANCE hInst)
 	hToolBar = CreateToolBar(hRebar, hInst);
 
 	REBARBANDINFO rbband;
-	rbband.cbSize = sizeof(rbband);
+	rbband.cbSize = REBARBANDINFO_V6_SIZE; //sizeof(rbband);
 	rbband.fMask = RBBIM_SIZE | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE ;
 	rbband.fStyle = RBBS_CHILDEDGE | RBBS_GRIPPERALWAYS;
 
 	DWORD dwBtnSize = SendMessage(hToolBar, TB_GETBUTTONSIZE, 0, 0);
 
- 	rbband.cbSize = sizeof(rbband);
+ 	rbband.cbSize = REBARBANDINFO_V6_SIZE; // sizeof(rbband);
 	rbband.hwndChild  = hToolBar;
 	rbband.cxMinChild = 0;
 	rbband.cyMinChild = HIWORD(dwBtnSize);
@@ -335,14 +338,15 @@ static MenuMsgRes aToolMenu[] = {
 	{  2, IDM_SHOWREBAR,       MF_CHECKED,             MSG_ID_MENUITEM_W32_T_REBAR },
 	{  3, IDM_SHOWSTATUSBAR,   MF_CHECKED,             MSG_ID_MENUITEM_W32_T_STATUSBAR },
 	{  4, IDM_TOPMOST,         0,                      MSG_ID_MENUITEM_W32_T_STAYTOPMOST },
-	{  5, -1,                  0,                      0 },
-	{  6, IDM_ENCRYPT,         MF_GRAYED,              MSG_ID_MENUITEM_W32_T_ENCRYPT },
-	{  7, IDM_DECRYPT,         MF_GRAYED,              MSG_ID_MENUITEM_W32_T_DECRYPT },
-	{  8, -1,                  0,                      0 },
-	{  9, IDM_FORGETPASS,      0,                      MSG_ID_MENUITEM_W32_T_ERASEPASS },
-	{ 10, -1,                  0,                      0 },
-	{ 11, IDM_VFOLDER_DEF,     0,                      MSG_ID_MENUITEM_W32_T_VIRTUALFOLDER },
-	{ 12, IDM_PROPERTY,        0,                      MSG_ID_MENUITEM_W32_T_OPTIONS },
+	{  5, IDM_MULTIINSTANCE,   0,                      MSG_ID_MENUITEM_W32_T_MULTIINSTANCE },
+	{  6, -1,                  0,                      0 },
+	{  7, IDM_ENCRYPT,         MF_GRAYED,              MSG_ID_MENUITEM_W32_T_ENCRYPT },
+	{  8, IDM_DECRYPT,         MF_GRAYED,              MSG_ID_MENUITEM_W32_T_DECRYPT },
+	{  9, -1,                  0,                      0 },
+	{ 10, IDM_FORGETPASS,      0,                      MSG_ID_MENUITEM_W32_T_ERASEPASS },
+	{ 11, -1,                  0,                      0 },
+	{ 12, IDM_VFOLDER_DEF,     0,                      MSG_ID_MENUITEM_W32_T_VIRTUALFOLDER },
+	{ 13, IDM_PROPERTY,        0,                      MSG_ID_MENUITEM_W32_T_OPTIONS },
 };
 
 static MenuMsgRes aHelpMenu[] = {

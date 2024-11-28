@@ -111,7 +111,7 @@ BOOL SearchEngineA::SearchTextT(LPCTSTR pText, DWORD nStartPos, BOOL bForward, B
 	LPBYTE pData = ConvTCharToFileEncoding(pText, &nTextLen);
 	SecureBufferAutoPointerByte ap(pData, nTextLen);
 
-#if defined(PLATFORM_WIN32)
+#if defined(PLATFORM_WIN32) && !defined(UNICODE)
 	DWORD nSystemCodePage = 0;
 #else
 	DWORD nSystemCodePage = TOMBO_CP_UTF16LE;

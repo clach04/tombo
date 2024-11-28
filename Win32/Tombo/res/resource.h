@@ -242,6 +242,10 @@
 #define IDM_TRACELINK                   40035
 #define IDM_BOOKMARK_ADD                40037
 #define IDM_BOOKMARK_CONFIG             40038
+#define IDM_MULTIINSTANCE               40039
+#define IDM_CP_UNICODE                  40040
+#define IDM_CP_UTF8                     40041
+#define IDM_CP_ANSI                     40042
 
 // Next default values for new objects
 // 

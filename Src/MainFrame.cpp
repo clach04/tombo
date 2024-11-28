@@ -520,6 +520,8 @@ void MainFrame::OnCreate(HWND hWnd, WPARAM wParam, LPARAM lParam)
 
 #if defined(PLATFORM_WIN32)
 	SetTopMost();
+	SetMultiInstance();
+	SetCodePage();
 #endif
 	ActivateView(VT_SelectView);
 
@@ -687,6 +689,22 @@ void MainFrame::OnCommand(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	case IDM_TOPMOST:
 		g_Property.ToggleStayTopMost();
 		SetTopMost();
+		break;
+	case IDM_CP_UNICODE:
+		g_Property.SetCodePage(TOMBO_CP_UTF16LE);
+		SetCodePage();
+		break;
+	case IDM_CP_UTF8:
+		g_Property.SetCodePage(TOMBO_CP_UTF8);
+		SetCodePage();
+		break;
+	case IDM_CP_ANSI:
+		g_Property.SetCodePage(TOMBO_CP_ANSI);
+		SetCodePage();
+		break;
+	case IDM_MULTIINSTANCE:
+		g_Property.ToggleMultiInstance();
+		SetMultiInstance();
 		break;
 #endif
 	case IDM_SEARCH:
@@ -1027,7 +1045,7 @@ void MainFrame::SetWindowTitle(const TomboURI *pURI)
 		}
 
 		// change window title
-		LPCTSTR pPrefix = TEXT("Tombo - ");
+		LPCTSTR pPrefix = TEXT("Tombo (U) - ");
 		LPCTSTR pBase;
 		TString sHeadLine;
 		if (g_Repository.GetHeadLine(pURI, &sHeadLine)) {
@@ -1418,6 +1436,7 @@ void MainFrame::OnProperty()
 	}
 #endif
 
+	SetCodePage();
 }
 
 ///////////////////////////////////////////////////
@@ -1795,6 +1814,52 @@ void MainFrame::SetTopMost()
 		SendMessage(pPlatform->hToolBar, TB_SETSTATE, IDM_TOPMOST, MAKELONG(TBSTATE_ENABLED, 0)); 
 
 		SetWindowPos(hMainWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	}
+#endif
+}
+
+void MainFrame::SetCodePage()
+{
+#if defined(PLATFORM_WIN32)
+	HMENU hMenu = GetMenu(hMainWnd);
+	UINT aChecks[] = {
+		false,	// unicode
+		false,	// utf-8
+		false,	// ANSI
+	};
+
+	switch (g_Property.GetCodePage()) {
+	case TOMBO_CP_UTF16LE: aChecks[0] = true; break;
+	case TOMBO_CP_UTF8: aChecks[1] = true; break;
+	case TOMBO_CP_ANSI: aChecks[2] = true; break;
+	default: break;
+	}
+
+	CheckMenuItem(hMenu, IDM_CP_UNICODE, MF_BYCOMMAND | (aChecks[0] ? MF_CHECKED : MF_UNCHECKED));
+	SendMessage(pPlatform->hToolBar, TB_SETSTATE, IDM_CP_UNICODE, MAKELONG(TBSTATE_ENABLED | (aChecks[0] ? TBSTATE_PRESSED : 0), 0)); 
+	CheckMenuItem(hMenu, IDM_CP_UTF8, MF_BYCOMMAND | (aChecks[1] ? MF_CHECKED : MF_UNCHECKED));
+	SendMessage(pPlatform->hToolBar, TB_SETSTATE, IDM_CP_UTF8, MAKELONG(TBSTATE_ENABLED | (aChecks[1] ? TBSTATE_PRESSED : 0), 0)); 
+	CheckMenuItem(hMenu, IDM_CP_ANSI, MF_BYCOMMAND | (aChecks[2] ? MF_CHECKED : MF_UNCHECKED));
+	SendMessage(pPlatform->hToolBar, TB_SETSTATE, IDM_CP_ANSI, MAKELONG(TBSTATE_ENABLED | (aChecks[2] ? TBSTATE_PRESSED : 0), 0)); 
+
+#endif
+}
+
+void MainFrame::SetMultiInstance()
+{
+#if defined(PLATFORM_WIN32)
+	HMENU hMenu = GetMenu(hMainWnd);
+
+	if (g_Property.GetMultiInstance()) {
+		CheckMenuItem(hMenu, IDM_MULTIINSTANCE, MF_BYCOMMAND | MF_CHECKED);
+		//SendMessage(pPlatform->hToolBar, TB_SETSTATE, IDM_TOPMOST, MAKELONG(TBSTATE_ENABLED |TBSTATE_PRESSED, 0)); 
+
+		//SetWindowPos(hMainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+	} else {
+		CheckMenuItem(hMenu, IDM_MULTIINSTANCE, MF_BYCOMMAND | MF_UNCHECKED);
+		//SendMessage(pPlatform->hToolBar, TB_SETSTATE, IDM_TOPMOST, MAKELONG(TBSTATE_ENABLED, 0)); 
+
+		//SetWindowPos(hMainWnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	}
 #endif
 }

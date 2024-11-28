@@ -127,15 +127,15 @@ BOOL TSSrcTag::StartElement(ParseInfo *p, const XML_Char **atts)
 
 	DWORD i = 0;
 	while(atts[i] != NULL) {
-		if (wcsicmp(atts[i], L"folder") == 0) {
+		if (_wcsicmp(atts[i], L"folder") == 0) {
 			delete[] pSrc;
 			pSrc = StringDupW(atts[i + 1]);
 			if (pSrc == NULL) return FALSE;
-		} else if (wcsicmp(atts[i], L"uri") == 0) {
+		} else if (_wcsicmp(atts[i], L"uri") == 0) {
 			delete[] pURI;
 			pURI = StringDupW(atts[i + 1]);
 			if (pURI == NULL) return FALSE;
-		} else if (wcsicmp(atts[i], L"checkencrypt") == 0) {
+		} else if (_wcsicmp(atts[i], L"checkencrypt") == 0) {
 			bCheckEncrypt = TRUE;
 		}
 
@@ -205,17 +205,17 @@ BOOL TSGrepTag::StartElement(ParseInfo *p, const XML_Char **atts)
 	bCaseSensitive = bFileNameOnly = bNegate = bCheckEncrypt = FALSE;
 	DWORD i = 0;
 	while(atts[i] != NULL) {
-		if (wcsicmp(atts[i], L"pattern") == 0) {
+		if (_wcsicmp(atts[i], L"pattern") == 0) {
 			pPattern = new WCHAR[wcslen(atts[i + 1]) + 1];
 			if (pPattern == NULL) return FALSE;
 			wcscpy(pPattern, atts[i + 1]);
-		} else if (wcsicmp(atts[i], L"casesensitive") == 0) {
+		} else if (_wcsicmp(atts[i], L"casesensitive") == 0) {
 			bCaseSensitive = TRUE;
-		} else if (wcsicmp(atts[i], L"filenameonly") == 0) {
+		} else if (_wcsicmp(atts[i], L"filenameonly") == 0) {
 			bFileNameOnly = TRUE;
-		} else if (wcsicmp(atts[i], L"not") == 0) {
+		} else if (_wcsicmp(atts[i], L"not") == 0) {
 			bNegate = TRUE;
-		} else if (wcsicmp(atts[i], L"checkencrypt") == 0) {
+		} else if (_wcsicmp(atts[i], L"checkencrypt") == 0) {
 			bCheckEncrypt = TRUE;
 		}
 		i += 2;
@@ -237,9 +237,13 @@ BOOL TSGrepTag::EndElement(ParseInfo *p)
 #ifdef _WIN32_WCE
 	LPTSTR pConved = pPattern;
 #else
+#ifdef UNICODE // zz
+	LPTSTR pConved = pPattern;
+#else
 	ConvertWideToMultiByte conv;
 	if (!conv.Convert(pPattern)) return FALSE;
 	LPTSTR pConved = conv.Get();
+#endif
 #endif
 	if (!pFilter || !pFilter->Init(pConved, bCaseSensitive, bCheckEncrypt, bFileNameOnly, bNegate, g_pPasswordManager)) return FALSE;
 
@@ -274,7 +278,7 @@ BOOL TSVFolderTag::StartElement(ParseInfo *p, const XML_Char **atts)
 {
 	DWORD i = 0;
 	while(atts[i] != NULL) {
-		if (wcsicmp(atts[i], L"name") == 0) {
+		if (_wcsicmp(atts[i], L"name") == 0) {
 			pName = new WCHAR[wcslen(atts[i + 1]) + 1];
 			if (pName == NULL) return FALSE;
 			wcscpy(pName, atts[i + 1]);
@@ -305,9 +309,13 @@ BOOL TSVFolderTag::EndElement(ParseInfo *p)
 #ifdef _WIN32_WCE
 	LPTSTR pConved = pName;
 #else
+#ifdef UNICODE // zz
+	LPTSTR pConved = pName;
+#else
 	ConvertWideToMultiByte conv;
 	if (!conv.Convert(pName)) return FALSE;
 	LPTSTR pConved = conv.Get();
+#endif
 #endif
 
 	p->pListener->ProcessStream(pConved, TRUE, (VFDirectoryGenerator*)pHead, pStore);
@@ -337,14 +345,14 @@ BOOL TSTimestampTag::StartElement(ParseInfo *p, const XML_Char **atts)
 	nRecent = TRUE;
 	nDelta = 0xFFFFFFFF;
 	while(atts[i] != NULL) {
-		if (wcsicmp(atts[i], L"days") == 0) {
+		if (_wcsicmp(atts[i], L"days") == 0) {
 			// atts[i + 1];
 			nDelta = _wtol(atts[i + 1]);
 		}
-		if (wcsicmp(atts[i], L"older") == 0) {
+		if (_wcsicmp(atts[i], L"older") == 0) {
 			nRecent = FALSE;
 		}
-		if (wcsicmp(atts[i], L"newer") == 0) {
+		if (_wcsicmp(atts[i], L"newer") == 0) {
 			nRecent = TRUE;
 		}
 		i += 2;
@@ -387,7 +395,7 @@ BOOL TSLimitTag::StartElement(ParseInfo *p, const XML_Char **atts)
 	nLimit = 0xFFFFFFFF;
 	DWORD i = 0;
 	while(atts[i] != NULL) {
-		if (wcsicmp(atts[i], L"number") == 0) {
+		if (_wcsicmp(atts[i], L"number") == 0) {
 			// atts[i + 1];
 			nLimit = _wtol(atts[i + 1]);
 		}
@@ -428,22 +436,22 @@ BOOL TSOrderTag::StartElement(ParseInfo *p, const XML_Char **atts)
 {
 	DWORD i = 0;
 	while(atts[i] != NULL) {
-		if (wcsicmp(atts[i], L"func") == 0) {
-			if (wcsicmp(atts[i + 1], L"filename_asc") == 0) {
+		if (_wcsicmp(atts[i], L"func") == 0) {
+			if (_wcsicmp(atts[i + 1], L"filename_asc") == 0) {
 				sfType = VFSortFilter::SortFunc_FileNameAsc;
-			} else if (wcsicmp(atts[i + 1], L"filename_dsc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"filename_dsc") == 0) {
 				sfType = VFSortFilter::SortFunc_FileNameDsc;
-			} else if (wcsicmp(atts[i + 1], L"lastupdate_asc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"lastupdate_asc") == 0) {
 				sfType = VFSortFilter::SortFunc_LastUpdateAsc;
-			} else if (wcsicmp(atts[i + 1], L"lastupdate_dsc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"lastupdate_dsc") == 0) {
 				sfType = VFSortFilter::SortFunc_LastUpdateDsc;
-			} else if (wcsicmp(atts[i + 1], L"createdate_asc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"createdate_asc") == 0) {
 				sfType = VFSortFilter::SortFunc_CreateDateAsc;
-			} else if (wcsicmp(atts[i + 1], L"createdate_dsc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"createdate_dsc") == 0) {
 				sfType = VFSortFilter::SortFunc_CreateDateDsc;
-			} else if (wcsicmp(atts[i + 1], L"filesize_asc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"filesize_asc") == 0) {
 				sfType = VFSortFilter::SortFunc_FileSizeAsc;
-			} else if (wcsicmp(atts[i + 1], L"filesize_dsc") == 0) {
+			} else if (_wcsicmp(atts[i + 1], L"filesize_dsc") == 0) {
 				sfType = VFSortFilter::SortFunc_FileSizeDsc;
 			} else {
 				return FALSE;
@@ -494,19 +502,19 @@ BOOL ParseInfo::Init(VirtualFolderEnumListener *pLsnr)
 
 DWORD ParseInfo::GetTagID(const WCHAR *pTagName)
 {
-	if (wcsicmp(pTagName, L"folders") == 0) {
+	if (_wcsicmp(pTagName, L"folders") == 0) {
 		return TAGID_FOLDERS;
-	} else if (wcsicmp(pTagName, L"vfolder") == 0) {
+	} else if (_wcsicmp(pTagName, L"vfolder") == 0) {
 		return TAGID_VFOLDER;
-	} else if (wcsicmp(pTagName, L"grep") == 0) {
+	} else if (_wcsicmp(pTagName, L"grep") == 0) {
 		return TAGID_GREP;
-	} else if (wcsicmp(pTagName, L"src") == 0) {
+	} else if (_wcsicmp(pTagName, L"src") == 0) {
 		return TAGID_SRC;
-	} else if (wcsicmp(pTagName, L"timestamp") == 0) {
+	} else if (_wcsicmp(pTagName, L"timestamp") == 0) {
 		return TAGID_TIMESTAMP;
-	} else if (wcsicmp(pTagName, L"limit") == 0) {
+	} else if (_wcsicmp(pTagName, L"limit") == 0) {
 		return TAGID_LIMIT;
-	} else if (wcsicmp(pTagName, L"sort") == 0) {
+	} else if (_wcsicmp(pTagName, L"sort") == 0) {
 		return TAGID_ORDER;
 	} else {
 		return TAGID_UNKNOWN;

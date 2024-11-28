@@ -149,7 +149,7 @@ void YAEditor::OnGetFocus()
 LPTSTR YAEditor::GetMemo()
 {
 	DWORD nLen;
-	char *pData = pEdit->GetDoc()->GetDocumentData(&nLen);
+	TCHAR *pData = pEdit->GetDoc()->GetDocumentData(&nLen);
 #if defined(PLATFORM_WIN32)
 	return pData;
 #else
@@ -167,7 +167,7 @@ void YAEditor::MoveWindow(DWORD x, DWORD y, DWORD nWidth, DWORD nHeight)
 BOOL YAEditor::SetMemo(LPCTSTR pMemoW, DWORD nPos, BOOL bReadOnly)
 {
 #if defined(PLATFORM_WIN32)
-	const char *pMemo = pMemoW;
+	const TCHAR *pMemo = pMemoW;
 #else
 	char *pMemo = ConvUnicode2SJIS(pMemoW);
 #endif

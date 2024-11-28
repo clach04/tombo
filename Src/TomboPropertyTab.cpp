@@ -19,8 +19,6 @@
 #define MEMO_TOP_DIR_NUM_HISTORY 8
 #define FONTSIZE_MIN 6
 #define FONTSIZE_MAX 32
-#define DEFAULT_FONTNAME TEXT("Tahoma")
-#define DEFAULT_FONTSIZE 9
 #define CLEARTYPE_QUALITY 5
 
 #define SIP_DELTA 16
@@ -270,14 +268,9 @@ static void SetFontSize(HWND hFontSize, DWORD nDefaultSize)
 	}
 }
 
-static void InitFontControls(HDC hDC, HWND hName, HWND hSize, HWND hDefault, HWND hCT, LPCTSTR pPropName, DWORD nPropSize, BYTE bQuality)
+static void InitFontControls(HDC hDC, HWND hName, HWND hSize, HWND hDefault, HWND hCT, LPCTSTR pPropName, DWORD nPropSize, BYTE bQuality, LPCTSTR pFont, DWORD nSize)
 {
-	LPCTSTR pFont;
-	DWORD nSize;
-
 	if (nPropSize == 0xFFFFFFFF) {
-		pFont = DEFAULT_FONTNAME;
-		nSize = DEFAULT_FONTSIZE;
 		SendMessage(hDefault, BM_SETCHECK, BST_CHECKED, 0);
 		EnableWindow(hName, FALSE);
 		EnableWindow(hSize, FALSE);
@@ -330,8 +323,8 @@ void FontTab::Init(HWND hDlg)
 
 	HDC hDC = GetDC(hDlg);
 
-	InitFontControls(hDC, hSelectName, hSelectSize, hSelectUseDefault, hSelectCT, pProperty->GetSelectViewFontName(), pProperty->GetSelectViewFontSize(), (BYTE)pProperty->GetSelectViewFontQuality());
-	InitFontControls(hDC, hDetailsName, hDetailsSize, hDetailsUseDefault, hDetailsCT, pProperty->GetDetailsViewFontName(), pProperty->GetDetailsViewFontSize(), (BYTE)pProperty->GetDetailsViewFontQuality());
+	InitFontControls(hDC, hSelectName, hSelectSize, hSelectUseDefault, hSelectCT, pProperty->GetSelectViewFontName(), pProperty->GetSelectViewFontSize(), (BYTE)pProperty->GetSelectViewFontQuality(), DEFAULT_FONTNAME, DEFAULT_FONTSIZE);
+	InitFontControls(hDC, hDetailsName, hDetailsSize, hDetailsUseDefault, hDetailsCT, pProperty->GetDetailsViewFontName(), pProperty->GetDetailsViewFontSize(), (BYTE)pProperty->GetDetailsViewFontQuality(), DEFAULT_FONTNAME_TEXT, DEFAULT_FONTSIZE);
 
 	ReleaseDC(hDlg, hDC);
 }
@@ -731,11 +724,29 @@ void CodepageTab::Init(HWND hDlg)
 	OverrideDlgMsg(hDlg, -1, aCPRes, sizeof(aCPRes)/sizeof(DlgMsgRes));
 
 	HWND hWnd = GetDlgItem(hDlg, IDC_PROPTAB_CODEPAGE_CODEPAGE);
+#if defined(UNICODE)
+	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_UTF16);
+	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_UTF8);
+	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_ANSI);
+#else
 	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_DEFAULT);
 	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_UTF16);
 	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_UTF8);
 	SendMessage(hWnd, CB_ADDSTRING, 0, (LPARAM)MSG_CODEPAGE_GREEK);
+#endif
 	switch (pProperty->GetCodePage()) {
+#if defined(UNICODE)
+	default:
+	case TOMBO_CP_UTF16LE:
+		SendMessage(hWnd, CB_SETCURSEL, 0, 0);
+		break;
+	case TOMBO_CP_UTF8:
+		SendMessage(hWnd, CB_SETCURSEL, 1, 0);
+		break;
+	case TOMBO_CP_ANSI:
+		SendMessage(hWnd, CB_SETCURSEL, 2, 0);
+		break;
+#else
 	case TOMBO_CP_UTF16LE:
 		SendMessage(hWnd, CB_SETCURSEL, 1, 0);
 		break;
@@ -747,6 +758,7 @@ void CodepageTab::Init(HWND hDlg)
 		break;
 	default:
 		SendMessage(hWnd, CB_SETCURSEL, 0, 0);
+#endif
 	}
 }
 
@@ -754,6 +766,19 @@ BOOL CodepageTab::Apply(HWND hDlg)
 {
 	HWND hWnd = GetDlgItem(hDlg, IDC_PROPTAB_CODEPAGE_CODEPAGE);
 	switch (SendMessage(hWnd, CB_GETCURSEL, 0, 0)) {
+#if defined (UNICODE)
+	default:
+	case 0:		// UTF16
+		pProperty->SetCodePage(TOMBO_CP_UTF16LE);
+		break;
+	case 1:		// UTF8
+		pProperty->SetCodePage(TOMBO_CP_UTF8);
+		break;
+	case 2:		// ANSI
+		pProperty->SetCodePage(TOMBO_CP_ANSI);
+		break;
+	}
+#else
 	case 0:		// default
 		pProperty->SetCodePage(TOMBO_CP_DEFAULT);
 		break;
@@ -767,6 +792,7 @@ BOOL CodepageTab::Apply(HWND hDlg)
 		pProperty->SetCodePage(TOMBO_CP_GREEK);
 		break;
 	}
+#endif
 	return TRUE;
 }
 

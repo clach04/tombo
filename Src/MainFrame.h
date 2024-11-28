@@ -133,6 +133,8 @@ public:
 	void TogglePane(); // switch 1pange/2panes
 
 	void SetTopMost(); // keep top of the window
+	void SetMultiInstance(); // allow multi instances.
+	void SetCodePage();
 
 	//////////////////////////
 	// open notes

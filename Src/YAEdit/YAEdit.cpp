@@ -82,7 +82,7 @@ YAEdit *YAEdit::GetInstance(YAEditCallback *pCallback, COLORREF cBk)
 	return new YAEditImpl(pCallback, cBk);
 }
 
-YAEditDoc *YAEditImpl::CreateDocument(const char *pStr, YAEditCallback* pCb)
+YAEditDoc *YAEditImpl::CreateDocument(const TCHAR *pStr, YAEditCallback* pCb)
 {
 	YAEditDoc *pDoc = new YAEditDoc();
 	if (pDoc == NULL) {
@@ -214,7 +214,7 @@ BOOL YAEditImpl::Create(HINSTANCE hInst, HWND hParent, DWORD nId, RECT &r, BOOL 
 	if (!SetWrapper()) return FALSE;
 
 	pDoc = new YAEditDoc(); 
-	if (!pDoc->Init("", this, pCallback)) return FALSE;
+	if (!pDoc->Init(_T(""), this, pCallback)) return FALSE;
 	
 #if defined(PLATFORM_WIN32) || defined(PLATFORM_HPC)
 	pView->hViewWnd = CreateWindowEx(WS_EX_CLIENTEDGE, YAEDIT_CLASS_NAME, TEXT(""),
@@ -1478,12 +1478,12 @@ DWORD YAEditImpl::GetPrevOffset(DWORD n, DWORD nPos)
 	LineChunk lc;
 	if (!GetLineMgr()->GetLineChunk(n, &lc)) return FALSE;
 
-	const char *p = lc.GetLineData();
+	const TCHAR *p = lc.GetLineData();
 	if (!p) return 0;
 
-	const char *r = p + nPos;
-	const char *q = p;
-	const char *pPrevChar = NULL;
+	const TCHAR *r = p + nPos;
+	const TCHAR *q = p;
+	const TCHAR *pPrevChar = NULL;
 	while(*q && r > q) {
 		pPrevChar = q;
 		if (IsDBCSLeadByte(*q)) {

@@ -36,7 +36,7 @@ public:
 	BOOL Init();
 
 	BOOL LoadDoc(LPCTSTR pStr);
-	char* GetDocumentData(LPDWORD pLen);
+	TCHAR* GetDocumentData(LPDWORD pLen);
 
 	LPTSTR GetLine(DWORD n);
 	LineInfo *GetLineInfo(DWORD nLine);

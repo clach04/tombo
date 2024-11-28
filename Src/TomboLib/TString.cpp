@@ -212,11 +212,15 @@ BOOL WString::Set(TString *pSrc)
 	wcscpy(pString, pSrc->Get());
 #else
 	// TString has char strings. Convert WBCS to Unicode.
-	DWORD len = strlen(pSrc->Get());
+	DWORD len = _tcslen(pSrc->Get());
 	if (!Alloc(len + 1)) return FALSE;
 		// Strictly say, this allocation is overallocation. 
 		// But for performance, allocation does without counting.
+#ifdef UNICODE // zz
+	_tcsncpy(pString, pSrc->Get(), len);
+#else
 	MultiByteToWideChar(CP_ACP, 0, pSrc->Get(), -1, pString, len + 1);
+#endif
 #endif
 
 	return TRUE;

@@ -36,7 +36,7 @@
 #define PROP_FILE_NAME TEXT("tomboprops.xml")
 #define PROP_TMP_FILE_NAME TEXT("tomboprops.xml~")
 
-#define TOMBO_MAIN_KEY TEXT("Software\\flatfish\\Tombo")
+#define TOMBO_MAIN_KEY TEXT("Software\\flatfish\\TomboU")
 #define TOPDIR_ATTR_NAME TEXT("TopDir")
 #define USEYAE_ATTR_NAME TEXT("UseYAEdit")
 #define BOOKMARK_ATTR_NAME TEXT("BookMark")
@@ -99,9 +99,9 @@ struct PropListNum {
 	{ PROP_N_PASSTIMEOUT,				TEXT("PassTimeOut"),				5 },
 	{ PROP_N_DETAILSVIEW_KEEPCARET,		TEXT("KeepCaret"),					FALSE },
 	{ PROP_NDETAILSVIEW_TABSTOP,		TEXT("Tabstop"),					8 },
-	{ PROP_N_SELECTVIEW_FONTSIZE,		TEXT("SelectViewFontSize"),			0xFFFFFFFF },
+	{ PROP_N_SELECTVIEW_FONTSIZE,		TEXT("SelectViewFontSize"),			DEFAULT_FONTSIZE },
 	{ PROP_N_SELECTVIEW_FONTQUALITY,	TEXT("SelectViewFontQuality"),		DEFAULT_QUALITY },
-	{ PROP_N_DETAILSVIEW_FONTSIZE,		TEXT("DetailsViewFontSize"),		0xFFFFFFFF },
+	{ PROP_N_DETAILSVIEW_FONTSIZE,		TEXT("DetailsViewFontSize"),		DEFAULT_FONTSIZE },
 	{ PROP_N_DETAILSVIEW_FONTQUALITY,	TEXT("DetailsViewFontQuality"),		DEFAULT_QUALITY },
 	{ PROP_N_AUTOSELECT_MODE,			TEXT("AutoSelectMode"),				TRUE },
 	{ PROP_N_SINGLECLICK_MODE,			TEXT("SingleClickMode"),			TRUE },
@@ -118,7 +118,7 @@ struct PropListNum {
 	{ PROP_N_APP_BUTTON5,				TEXT("AppButton5"),					APPBUTTON_ACTION_DISABLE },
 	{ PROP_N_SIPSIZE_DELTA,				TEXT("SipSizeDelta"),				0},
 #endif
-	{ PROP_N_CODEPAGE,					TEXT("CodePage"),					0 },
+	{ PROP_N_CODEPAGE,					TEXT("CodePage"),					TOMBO_CP_UTF16LE },
 #if defined(PLATFORM_PKTPC) || defined(PLATFORM_WM5)
 	{ PROP_N_DISABLEEXTRAACTIONBUTTON,	TEXT("DisableExtraActionButton"),	0},
 #endif
@@ -128,6 +128,7 @@ struct PropListNum {
 #if defined(PLATFORM_WIN32)
 	{ PROP_N_STAYTOPMOST,				TEXT("StayTopMost"),				0 },
 	{ PROP_N_HIDEREBAR,					TEXT("HideRebar"),					0 },
+	{ PROP_N_MULTIINSTANCE,				TEXT("MultiInstance"),				0 },
 #endif
 	{ PROP_N_WRAPTEXT,					TEXT("WrapText"),					1 },
 	{ PROP_N_OPENREADONLY,				TEXT("OpenReadOnly"),				FALSE },
@@ -155,8 +156,8 @@ struct PropListStr {
 	LPCTSTR pDefault;
 } propListStr[] = {
 	{ PROP_S_TOPDIR,					TOPDIR_ATTR_NAME,					NULL },	
-	{ PROP_S_SELECTVIEW_FONTNAME,		TEXT("SelectViewFontName"),			TEXT("") },
-	{ PROP_S_DETAILSVIEW_FONTNAME,		TEXT("DetailsViewFontName"),		TEXT("") },
+	{ PROP_S_SELECTVIEW_FONTNAME,		TEXT("SelectViewFontName"),			DEFAULT_FONTNAME },
+	{ PROP_S_DETAILSVIEW_FONTNAME,		TEXT("DetailsViewFontName"),		DEFAULT_FONTNAME_TEXT },
 	{ PROP_S_DETAILSVIEW_DATEFORMAT1,	TEXT("DateFormat1"),				DEFAULTDATEFORMAT1 },
 	{ PROP_S_DETAILSVIEW_DATEFORMAT2,	TEXT("DateFormat2"),				DEFAULTDATEFORMAT2 },
 	{ PROP_S_DEFAULTNOTE,				TEXT("DefaultNote"),				TEXT("") },
@@ -605,7 +606,7 @@ static BOOL GetPropPath(LPTSTR pPath) {
 	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, appDataPath);
 	_tcscpy(pathbuf2, appDataPath);
 
-	_tcscat(appDataPath, TEXT("\\Tombo"));
+	_tcscat(appDataPath, TEXT("\\TomboU"));
 	DWORD attr = GetFileAttributes(appDataPath);
 	_tcscpy(pPath, appDataPath);
 	_tcscat(pPath, TEXT("\\"));
@@ -1044,8 +1045,12 @@ static BOOL MakeFont(HFONT *phFont, LPCTSTR pName, DWORD nSize, BYTE bQuality)
 		*phFont = NULL;
 		return TRUE;
 	}
+
 	LOGFONT lf;
-	lf.lfHeight = nSize;
+	HDC hDC = GetDC(HWND_DESKTOP);
+	lf.lfHeight = -MulDiv(nSize, GetDeviceCaps(hDC, LOGPIXELSY), 72); // nSize;
+	ReleaseDC(HWND_DESKTOP, hDC);
+
 	lf.lfWidth = 0;
 	lf.lfEscapement = 0;
 	lf.lfOrientation = 0;
@@ -1252,6 +1257,13 @@ LPBYTE ConvTCharToFileEncoding(LPCTSTR p, LPDWORD pSize)
 	LPBYTE pData;
 
 	switch (g_Property.GetCodePage()) {
+	default:
+#if !defined(UNICODE)
+		pData = (LPBYTE)ConvUnicode2SJIS(p);
+		if (pData == NULL) return FALSE;
+		*pSize = strlen((const char*)pData);
+		break;
+#endif
 	case TOMBO_CP_UTF16LE:
 		pData = (LPBYTE)ConvTCharToWChar(p);
 		if (pData == NULL) return FALSE;
@@ -1262,10 +1274,11 @@ LPBYTE ConvTCharToFileEncoding(LPCTSTR p, LPDWORD pSize)
 		if (pData == NULL) return FALSE;
 		*pSize = strlen((const char*)pData);
 		break;
-	default:
+	case TOMBO_CP_ANSI:
 		pData = (LPBYTE)ConvUnicode2SJIS(p);
 		if (pData == NULL) return FALSE;
 		*pSize = strlen((const char*)pData);
+		break;
 	}
 	return pData;
 }
@@ -1273,11 +1286,15 @@ LPBYTE ConvTCharToFileEncoding(LPCTSTR p, LPDWORD pSize)
 LPTSTR ConvFileEncodingToTChar(LPBYTE p)
 {
 	switch (g_Property.GetCodePage()) {
+	default:
+#if !defined(UNICODE)
+		return ConvSJIS2Unicode((const char*)p);	
+#endif
 	case TOMBO_CP_UTF16LE:
 		return ConvWCharToTChar((LPCWSTR)p);
 	case TOMBO_CP_UTF8:
 		return ConvUTF8ToTChar((const char*)p);
-	default:
+	case TOMBO_CP_ANSI:
 		return ConvSJIS2Unicode((const char*)p);	
 	}
 }

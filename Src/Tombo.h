@@ -28,9 +28,9 @@ class PasswordManager;
 ///////////////////////////////////////
 
 
-#define TOMBO_MAIN_FRAME_WINDOW_CLSS TEXT("TomboMainFrmWnd")
+#define TOMBO_MAIN_FRAME_WINDOW_CLSS TEXT("TomboUMainFrmWnd")
 
-#define TOMBO_APP_NAME TEXT("Tombo")
+#define TOMBO_APP_NAME TEXT("Tombo (U)")
 
 // ï∂éöóÒÉäÉ\Å[ÉXÇÃç≈ëÂí∑
 #define MESSAGE_MAX_SIZE 1024

@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <commctrl.h>
+#include <tchar.h>
 #include "resource.h"
 #include "StatusBar.h"
 
@@ -12,12 +13,12 @@ BOOL StatusBar::Create(HWND hWnd, BOOL bNew)
 									hWnd, IDC_STATUS);
 #endif
 #if defined(PLATFORM_WIN32)
-	hStatusBar = CreateStatusWindow(WS_CHILD | SBARS_SIZEGRIP, "", 
+	hStatusBar = CreateStatusWindow(WS_CHILD | SBARS_SIZEGRIP, _T(""), 
 									hWnd, IDC_STATUS);
 #endif
 
 	ResizeStatusBar();
-	SendMessage(hStatusBar, SB_SETTEXT, 0 | SBT_NOBORDERS , (LPARAM)"");
+	SendMessage(hStatusBar, SB_SETTEXT, 0 | SBT_NOBORDERS , (LPARAM)_T(""));
 	return TRUE;
 }
 

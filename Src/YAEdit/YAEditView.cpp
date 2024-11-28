@@ -299,9 +299,11 @@ BOOL YAEditView::PaintLine(HDC hDC, LineChunk *pChunk, const LPRECT pRect, DWORD
 		default:	// normal char
 			{
 				if (bInvertText) {
+					SetBkMode(hDC, OPAQUE);
 					SetTextColor(hDC, colorDef.rgbBackground);
 					SetBkColor(hDC, colorDef.rgbForeground);
 				} else {
+					SetBkMode(hDC, TRANSPARENT);
 					SetTextColor(hDC, colorDef.rgbForeground);
 					SetBkColor(hDC, colorDef.rgbBackground);
 				}

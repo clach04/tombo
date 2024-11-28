@@ -19,8 +19,8 @@ public:
 	void Clear();
 
 #if defined(PLATFORM_WIN32)
-	BYTE GetOnebyteCharWidth(const char c);
-	BYTE GetTwobyteCharWidth(const char *p);
+	BYTE GetOnebyteCharWidth(const TCHAR c);
+	BYTE GetTwobyteCharWidth(const TCHAR *p);
 #else
 	BYTE GetWideCharWidth(const WCHAR c);
 #endif

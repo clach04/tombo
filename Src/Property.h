@@ -47,8 +47,9 @@
 #define PROP_N_LEOL_COLOR				35
 #define PROP_N_TAB_COLOR				36
 #define PROP_N_EOF_COLOR				37
+#define PROP_N_MULTIINSTANCE			38	// WIN32
 
-#define NUM_PROPS_NUM 38
+#define NUM_PROPS_NUM 39
 
 #define PROP_S_TOPDIR					 0
 #define PROP_S_SELECTVIEW_FONTNAME		 1
@@ -68,6 +69,11 @@
 #define TOMBO_CP_UTF16LE	 1200	// UTF-16LE
 #define TOMBO_CP_UTF8		65001	// UTF-8
 #define TOMBO_CP_GREEK		 1253	// Greek
+#define TOMBO_CP_ANSI		 0		// non-Unicode system (ANSI)
+
+#define DEFAULT_FONTNAME TEXT("Tahoma")
+#define DEFAULT_FONTNAME_TEXT TEXT("Georgia")
+#define DEFAULT_FONTSIZE 9
 
 ////////////////////////////////////
 // accessor generation macros
@@ -224,6 +230,9 @@ public:
 
 	NUM_ACCESSOR(HideRebar, PROP_N_HIDEREBAR)	// hide rebar(toolbar)
 	void ToggleShowRebar() { nPropsNum[PROP_N_HIDEREBAR] = !nPropsNum[PROP_N_HIDEREBAR]; }
+
+	NUM_ACCESSOR(MultiInstance, PROP_N_MULTIINSTANCE)	// keep tombo topmost of the window
+	void ToggleMultiInstance() { nPropsNum[PROP_N_MULTIINSTANCE] = !nPropsNum[PROP_N_MULTIINSTANCE]; }
 #endif
 
 	// Color related props

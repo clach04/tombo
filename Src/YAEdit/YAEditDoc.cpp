@@ -69,7 +69,7 @@ YAEditDoc::~YAEditDoc()
 	if (pUndo) delete pUndo;
 }
 
-BOOL YAEditDoc::Init(const char *pStr, YAEditListener *pL, YAEditCallback*pCb)
+BOOL YAEditDoc::Init(const TCHAR *pStr, YAEditListener *pL, YAEditCallback*pCb)
 {
 	pCallback = pCb;
 	pListener = pL;
@@ -81,7 +81,7 @@ BOOL YAEditDoc::Init(const char *pStr, YAEditListener *pL, YAEditCallback*pCb)
 // load document
 /////////////////////////////////////////////////////////////////////////////
 
-BOOL YAEditDoc::LoadDoc(const char *pStr)
+BOOL YAEditDoc::LoadDoc(const TCHAR *pStr)
 {
 	ReleaseDoc();
 	LPTSTR pStrT;
@@ -104,7 +104,7 @@ BOOL YAEditDoc::LoadDoc(const char *pStr)
 // save document
 /////////////////////////////////////////////////////////////////////////////
 
-char *YAEditDoc::GetDocumentData(LPDWORD pLen)
+TCHAR *YAEditDoc::GetDocumentData(LPDWORD pLen)
 {
 	return pPhLineMgr->GetDocumentData(pLen);
 }

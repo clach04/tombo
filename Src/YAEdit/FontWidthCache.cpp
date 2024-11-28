@@ -34,7 +34,7 @@ void FontWidthCache::Clear()
 
 #if defined(PLATFORM_WIN32)
 
-BYTE FontWidthCache::GetOnebyteCharWidth(const char c)
+BYTE FontWidthCache::GetOnebyteCharWidth(const TCHAR c)
 {
 	DWORD nIdx = c;
 
@@ -43,7 +43,7 @@ BYTE FontWidthCache::GetOnebyteCharWidth(const char c)
 	return (BYTE)size.cx;
 }
 
-BYTE FontWidthCache::GetTwobyteCharWidth(const char *p)
+BYTE FontWidthCache::GetTwobyteCharWidth(const TCHAR *p)
 {
 	if (*p == '\0') return 0;
 	SIZE size;

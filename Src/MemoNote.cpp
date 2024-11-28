@@ -69,13 +69,13 @@ LPBYTE PlainMemoNote::GetMemoBodyNative(LPCTSTR pTopDir, PasswordManager *pMgr, 
 	File inf;
 	if (!inf.Open(sFileName.Get(), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING)) return NULL;
 
-	LPBYTE pData = new BYTE[inf.FileSize() + 2];
+	LPBYTE pData = new BYTE[inf.FileSize() + 16];
 	if (pData == NULL) return NULL;
 
 	DWORD nSize = inf.FileSize();
 	if (!inf.Read(pData, &nSize)) return NULL;
-	pData[nSize] = TEXT('\0');
-	pData[nSize + 1] = TEXT('\0');	// sentinel for the UTF16 encoding file
+	for (int i = 0; i < 16; i++)
+		pData[nSize + i] = TEXT('\0'); 	// sentinel for the UTF16/ANSI encoding file
 
 	*pSize = nSize;
 	return pData;
@@ -97,6 +97,7 @@ LPBYTE CryptedMemoNote::GetMemoBodySub(LPCTSTR pTopDir, PasswordManager *pMgr, L
 			pMgr->ForgetPassword();
 			return NULL;
 		}
+
 		CryptManager cMgr;
 		if (!cMgr.Init(pPassword)) return NULL;
 
@@ -105,9 +106,31 @@ LPBYTE CryptedMemoNote::GetMemoBodySub(LPCTSTR pTopDir, PasswordManager *pMgr, L
 			bRegistedPassword = TRUE;
 			break;
 		} else {
+
+			// fix encryption issue up to 3.0.beta5:
+			//  due wiping out directly assigned password pointer
+			//  at the last lines of PasswordDialog::OnOK()
+			//  the password was always filled with zeroes
+			//  and most of .chi files produced by Tombo(U)
+			//  were encrypted with empty password. :-(
+			//  Let's try this case too.
+			CryptManager cMgr;
+			if (!cMgr.Init("")) return NULL;
+			pPlain = cMgr.LoadAndDecrypt(pSize, sFileName.Get());
+			if (pPlain != NULL) {
+				MessageBox(NULL, TEXT("Due encryption issues in version 3.0.beta5\n")
+													TEXT("this memo was encrypted in INSECURE way!\n")
+													TEXT("Please decrypt it and encrypt again.\n")
+													TEXT("Thank you for understanding!"),
+												TEXT("Warning"), MB_ICONWARNING|MB_OK|MB_TASKMODAL);
+				bRegistedPassword = TRUE;
+				break;
+			}
+
 			bRegistedPassword = FALSE;
 			pMgr->ForgetPassword();
 		}
+
 	}
 	return pPlain;
 }

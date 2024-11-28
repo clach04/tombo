@@ -5,7 +5,7 @@
 // 読み込めない場合には0を返す。この場合、GetLastError()にエラーコード。
 // EOFの場合にはGetLastError()はERROR_HANDLE_EOFを返す
 
-char FileInputStream::getNext()
+TCHAR FileInputStream::getNext()
 {
 
 	DWORD nr;
@@ -35,10 +35,10 @@ char FileInputStream::getNext()
 	return 0; // dummy
 }
 
-BOOL FileInputStream::GetLine(char *buf, DWORD s, BOOL bNoCR)
+BOOL FileInputStream::GetLine(TCHAR *buf, DWORD s, BOOL bNoCR)
 {
-	char *p = buf;
-	char *max = buf + s;
+	TCHAR *p = buf;
+	TCHAR *max = buf + s;
 	BOOL bCR = FALSE;
 
 	while(TRUE) {

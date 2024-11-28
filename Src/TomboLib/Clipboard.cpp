@@ -45,9 +45,13 @@ LPTSTR Clipboard::GetText()
 
 	LPTSTR pText = NULL;
 #if defined(PLATFORM_WIN32)
+#if defined(UNICODE)
+	HANDLE hText = GetClipboardData(CF_UNICODETEXT);
+#else
 	HANDLE hText = GetClipboardData(CF_TEXT);
+#endif
 	if (hText != NULL) {
-		pText = StringDup((char*)LocalLock(hText));
+		pText = StringDup((LPCTSTR)LocalLock(hText));
 		LocalUnlock(hText);
 		if (pText == NULL) return NULL;
 	}
@@ -91,7 +95,7 @@ BOOL Clipboard::SetText(LPCTSTR pText)
 	LocalUnlock(hText);
 
 	UINT uType;
-#if defined(PLATFORM_WIN32)
+#if defined(PLATFORM_WIN32) && !defined(UNICODE)
 	uType = CF_TEXT;
 #else
 	uType = CF_UNICODETEXT;

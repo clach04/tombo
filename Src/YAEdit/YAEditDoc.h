@@ -38,15 +38,15 @@ public:
 	YAEditDoc();
 	~YAEditDoc();
 
-	BOOL Init(const char *pStr, YAEditListener *pListener, YAEditCallback*pCb);
+	BOOL Init(const TCHAR *pStr, YAEditListener *pListener, YAEditCallback*pCb);
 
 	PhysicalLineManager *GetPhMgr() { return pPhLineMgr; }
 
 	////////////////////////////////////////////////////
 	// set/get document
 
-	BOOL LoadDoc(const char *pStr);
-	char *GetDocumentData(LPDWORD pLen);
+	BOOL LoadDoc(const TCHAR *pStr);
+	TCHAR *GetDocumentData(LPDWORD pLen);
 
 	////////////////////////////////////////////////////
 	// retrieve & set line 

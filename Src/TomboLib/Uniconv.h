@@ -195,9 +195,9 @@ void GetFilePath(LPTSTR pPath, LPCTSTR pFullPath);
 // These function clear buffer to zero before release memory.
 
 void WipeOutAndDelete(LPTSTR pMemo);
-#ifdef _WIN32_WCE
+//#if defined(_WIN32_WCE)
 void WipeOutAndDelete(char *pMemo);
-#endif
+//#endif
 
 //////////////////////////////////
 // Delete file

@@ -185,7 +185,7 @@ Erase password
 Virtual folder
 &Options
 &Help
-&About TOMBO
+&About TOMBO (U)
 Jump to original
 OK
 Cancel
@@ -260,7 +260,7 @@ Button2
 Button3
 Button4
 Button5
-Assign application button to action button. It is enabled after restarting TOMBO
+Assign application button to action button. It is enabled after restarting TOMBO (U)
 Disable close notes on edit view
 Keep space over the SIP
 Default(System native)
@@ -273,14 +273,14 @@ External Apps
 Use file association
 Application1:
 Application2:
-CAUTION:\r\nIf external application creates backup file, TOMBO is \r\n*NOT DELETE* it. Please check yourself before encryption whether backup file exists or not.
+CAUTION:\r\nIf external application creates backup file, TOMBO (U) is \r\n*NOT DELETE* it. Please check yourself before encryption whether backup file exists or not.
 Choose application
 app(*.exe)\0*.exe\0all(*.*)\0*.*\0\0
 Two panes
 Add bookmark
 Edit bookmark
 Use ClearType font
-Disable save daialog
+Disable save dialog
 Toolbar
 Save options failed. Change may not be reflected.
 Use random filename

@@ -4,9 +4,9 @@
 #include "File.h"
 
 void WipeOutAndDelete(char *p, DWORD len);
-#ifdef _WIN32_WCE
+// #ifdef _WIN32_WCE
 void WipeOutAndDelete(LPTSTR p, DWORD len);
-#endif
+//#endif
 
 BOOL CryptManager::Init(const char *pKey)
 {
@@ -293,12 +293,12 @@ void WipeOutAndDelete(LPTSTR p, DWORD len)
 }
 
 
-#ifdef _WIN32_WCE
+//#ifdef _WIN32_WCE
 void WipeOutAndDelete(char *p, DWORD len)
 {
 	for (DWORD i = 0; i < len; i++) p[i] = TEXT('\0');
 	delete [] p;
 }
 
-#endif
+//#endif
 
