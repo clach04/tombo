@@ -10,3 +10,6 @@ However it relies on some third-party libraries and the source code is NOT in th
 A command line tool, TomboCrypt, can be built on other platforms both 64-bit and 32-bit using alternative compilers. For example GCC.
 
 For more portable, robust and easier-to-maintain tools see https://github.com/clach04/puren_tonbo
+
+Also checkout [Tombo-U](https://sourceforge.net/projects/tombo-u/) which adds **some** Unicode (limited to BMP) support to Tombo.
+https://github.com/clach04/tombo/issues/8
