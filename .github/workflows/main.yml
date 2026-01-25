@@ -16,11 +16,22 @@ jobs:
       # "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && msbuild
       # ...
 
+      - name: Copy EXEs for packaging
+        run: |
+          cp Win32/expat/lib/Win32/libexpatw.dll .
+          cp Win32/oniguruma/win32/oniguruma.dll .
+          cp Win32/Tombo/Release/Tombo.exe .
+
       - name: Upload EXEs
         uses: actions/upload-artifact@v4
         with:
           name: Tombo_x86
           path: |
-            ./**/*.exe
-            Win32/expat/lib/Win32/libexpatw.dll
-            Win32/oniguruma/win32/oniguruma.dll
+            Tombo.exe
+            libexpatw.dll
+            oniguruma.dll
+
+    #        ./**/*.exe
+    #        Win32/expat/lib/Win32/libexpatw.dll
+    #        Win32/oniguruma/win32/oniguruma.dll
+
