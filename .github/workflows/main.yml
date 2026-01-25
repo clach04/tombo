@@ -19,5 +19,5 @@ jobs:
       - name: Upload EXEs
         uses: actions/upload-artifact@v4
         with:
-          name: Windows32Bin
-          path: ./**/*.exe
+          name: Tombo_x86
+          path: ./**/*.exe Win32/expat/lib/Win32/libexpatw.dll Win32/oniguruma/win32/oniguruma.dll
