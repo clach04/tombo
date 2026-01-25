@@ -11,5 +11,7 @@ jobs:
       - name: Build Tombo Visual Studio Project
         working-directory: Win32/Tombo
         run: |
-          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && msbuild
+          "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars32.bat" && msbuild
+
+      # "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && msbuild
       # ...
