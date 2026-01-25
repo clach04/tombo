@@ -1,0 +1,10 @@
+jobs:
+  test:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Build Tombo Visual Studio Project
+        working-directory: Win32/Tombo
+        run: |
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" && msbuild
+      # ...
