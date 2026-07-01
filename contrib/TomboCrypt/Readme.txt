@@ -2,7 +2,14 @@ TomboCrypt
 
 TomboCrypt is a simple command line utility, written by Michael Efimov.
 
-TomboCrypt can encrypt text from stdin into the file, or decrypt file into stdout. 
+TomboCrypt can encrypt text from stdin into the file, or decrypt file into stdout.
 It works on Win32 and Linux.
 
-Add only Readme.txt by hirami, but this is Michael's work! 
+Add only Readme.txt by hirami, but this is Michael's work!
+
+---------------------
+
+## chi_crypt
+
+chi_crypt.c is an UNTESTED c99 implementation with a "nicer" command line interface.
+CLI arguments are similar to ccrypt.
