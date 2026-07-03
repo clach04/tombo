@@ -6,6 +6,9 @@
  * Compile:
  *   gcc -std=c99 -DTOMBO -o chi_crypt chi_crypt.c blowfish.c md5.c
  *
+ *   Debug (deterministic salt for testing):
+ *   gcc -std=c99 -DTOMBO -DFIXED_VALUES -o chi_crypt chi_crypt.c blowfish.c md5.c
+ *
  * Usage:
  *   chi_crypt -e infile outfile [--password PASS] [-b]
  *   chi_crypt -d infile outfile [--password PASS]
@@ -193,7 +196,11 @@ static void do_encrypt(const char *inname, const char *outname,
     buf = calloc(1, buflen);
     if (!buf) ERR("out of memory\n");
 
+#ifdef FIXED_VALUES
+    memset(salt, 0, 8);
+#else
     rand_bytes(salt, 8);
+#endif
     memcpy(buf, salt, 8);
     getMD5Sum(md5sum, plaintext, filesize);
     memcpy(buf + 8, md5sum, 16);
