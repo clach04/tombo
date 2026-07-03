@@ -45,6 +45,13 @@ static void set_binary_stdout(void)
 #endif
 }
 
+static void set_binary_stdin(void)
+{
+#ifdef _WIN32
+    _setmode(_fileno(stdin), _O_BINARY);
+#endif
+}
+
 /* --- random bytes --- */
 
 static void rand_bytes(unsigned char *buf, int n)
@@ -172,6 +179,7 @@ static void do_encrypt(const char *inname, const char *outname,
 
     /* read input */
     if (strcmp(inname, "-") == 0) {
+        set_binary_stdin();
         fin = stdin;
     } else {
         fin = fopen(inname, "rb");
@@ -261,6 +269,7 @@ static void do_decrypt(const char *inname, const char *outname,
 
     /* read file */
     if (strcmp(inname, "-") == 0) {
+        set_binary_stdin();
         fin = stdin;
     } else {
         fin = fopen(inname, "rb");
