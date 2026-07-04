@@ -122,9 +122,19 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
     if (g_hFindDlg && IsDialogMessage(g_hFindDlg, &msg)) continue;
     if (msg.message == WM_KEYDOWN && msg.wParam == VK_TAB) {
       HWND hFocus = GetFocus();
-      if (hFocus == g_hTree) SetFocus(g_hEditor);
-      else if (hFocus == g_hEditor) SetFocus(g_hTree);
-      continue;
+      int shift = GetKeyState(VK_SHIFT) & 0x8000;
+      if (hFocus == g_hTree && !shift) {
+        SetFocus(g_hEditor);
+        continue;
+      }
+      if (hFocus == g_hEditor && shift) {
+        SetFocus(g_hTree);
+        continue;
+      }
+      if (hFocus == g_hEditor && !shift) {
+        SendMessage(g_hEditor, EM_REPLACESEL, TRUE, (LPARAM)"\t");
+        continue;
+      }
     }
     if (msg.message == WM_KEYDOWN && (GetKeyState(VK_CONTROL) & 0x8000)) {
       int id = 0;
