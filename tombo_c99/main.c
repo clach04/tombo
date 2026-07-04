@@ -120,6 +120,15 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
 
   while (GetMessage(&msg, NULL, 0, 0)) {
     if (g_hFindDlg && IsDialogMessage(g_hFindDlg, &msg)) continue;
+    if (msg.message == WM_KEYDOWN && (msg.wParam == VK_OEM_PLUS || msg.wParam == VK_OEM_MINUS)
+        && GetFocus() == g_hTree) {
+      HTREEITEM hSel = TreeView_GetSelection(g_hTree);
+      if (hSel) {
+        TreeView_Expand(g_hTree, hSel,
+          msg.wParam == VK_OEM_PLUS ? TVE_EXPAND : TVE_COLLAPSE);
+      }
+      continue;
+    }
     if (msg.message == WM_KEYDOWN && msg.wParam == VK_TAB) {
       HWND hFocus = GetFocus();
       int shift = GetKeyState(VK_SHIFT) & 0x8000;
@@ -415,6 +424,14 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             UINT state = TreeView_GetItemState(g_hTree, hSel, TVIS_EXPANDED);
             TreeView_Expand(g_hTree, hSel, (state & TVIS_EXPANDED) ? TVE_COLLAPSE : TVE_EXPAND);
           }
+        }
+        return 0;
+      }
+      if (kd->wVKey == VK_ADD || kd->wVKey == VK_SUBTRACT) {
+        HTREEITEM hSel = TreeView_GetSelection(g_hTree);
+        if (hSel) {
+          TreeView_Expand(g_hTree, hSel,
+            kd->wVKey == VK_ADD ? TVE_EXPAND : TVE_COLLAPSE);
         }
         return 0;
       }
