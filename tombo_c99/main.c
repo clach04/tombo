@@ -673,9 +673,9 @@ static int PromptSave(void) {
 static void UpdateTitle(void) {
   char title[512];
   if (g_curFile[0])
-    snprintf(title, sizeof(title), "%s%s - Tombo", g_dirty ? "*" : "", g_curFile);
+    snprintf(title, sizeof(title), "Tombo - %s%s", g_dirty ? "*" : "", g_curFile);
   else
-    snprintf(title, sizeof(title), "%sUntitled - Tombo", g_dirty ? "*" : "");
+    snprintf(title, sizeof(title), "Tombo - %sUntitled", g_dirty ? "*" : "");
   SetWindowText(g_hWnd, title);
 }
 
