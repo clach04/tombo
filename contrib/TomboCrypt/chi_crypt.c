@@ -373,6 +373,7 @@ static void usage(void)
     fprintf(stderr, "Usage: chi_crypt -e|-d infile outfile [--password PASS] [-b/--brave]\n");
     fprintf(stderr, "  -e        encrypt\n");
     fprintf(stderr, "  -d        decrypt\n");
+    fprintf(stderr, "  -h/--help show this help\n");
     fprintf(stderr, "  -b        skip password confirmation (encrypt only)\n");
     fprintf(stderr, "  --password PASS   supply password on command line, rather than prompt\n");
 #ifdef FIXED_VALUES
@@ -401,6 +402,9 @@ int main(int argc, char *argv[])
             mode = 1;
         } else if (strcmp(argv[i], "-d") == 0) {
             mode = 2;
+        } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+            usage();
+            return 0;
         } else if (strcmp(argv[i], "-b") == 0 || strcmp(argv[i], "--brave") == 0) {
             brave = 1;
         } else if (strcmp(argv[i], "--password") == 0) {
