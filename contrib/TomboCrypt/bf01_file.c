@@ -11,7 +11,7 @@
 
 #include "bf01_file.h"
 
-#define ERR(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0)  // TODO / FIXME NOT suitable for GUI
+#define ERR_EXIT(...) do { fprintf(stderr, __VA_ARGS__); exit(1); } while (0)
 
 /* C API from blowfish.c and md5.c FIXME header files needed or inline */
 extern void *BF_Init(unsigned char *key, unsigned keylen);
@@ -24,35 +24,37 @@ extern void  getMD5Sum(unsigned char *md5sum, unsigned char *in, int len);
 
 /* --- random bytes --- */
 
-void bf01_rand_bytes(unsigned char *buf, int n)
+int bf01_rand_bytes(unsigned char *buf, int n, int hard_exit)
 {
 #ifdef _WIN32
     int i;
     for (i = 0; i < n; i++)
         buf[i] = (unsigned char)(rand() & 0xFF);
+    return 0;
 #else
     FILE *f = fopen("/dev/urandom", "rb");
-    if (!f) ERR("cannot open /dev/urandom\n");
-    if ((int)fread(buf, 1, n, f) != n) ERR("failed to read /dev/urandom\n");
+    if (!f) { if (hard_exit) ERR_EXIT("cannot open /dev/urandom\n"); return -1; }
+    if ((int)fread(buf, 1, n, f) != n) { fclose(f); if (hard_exit) ERR_EXIT("failed to read /dev/urandom\n"); return -1; }
     fclose(f);
+    return 0;
 #endif
 }
 
 
 /* --- read all of stdin or a file into malloc'd buffer --- */
 
-static unsigned char *read_all(FILE *f, uint32_t *out_size)
+static unsigned char *read_all(FILE *f, uint32_t *out_size, int hard_exit)
 {
     size_t cap = 32768;
     #define READ_BUFF_SIZE 4096
     size_t size = 0;
     unsigned char *data = malloc(cap);
-    if (!data) ERR("out of memory\n");
+    if (!data) { if (hard_exit) ERR_EXIT("out of memory\n"); return NULL; }
     while (!feof(f)) {
         if (size + READ_BUFF_SIZE > cap) {
             cap *= 2;
             data = realloc(data, cap);
-            if (!data) ERR("out of memory\n");
+            if (!data) { if (hard_exit) ERR_EXIT("out of memory\n"); return NULL; }
         }
         size += fread(data + size, 1, READ_BUFF_SIZE, f);
     }
@@ -70,7 +72,7 @@ void bf01_derive_key(unsigned char md5key[16], const char *password, int passlen
 /* --- encrypt stream --- */
 
 /* encrypt stream; if salt is NULL (default and recommended usage), random salt is generated - if not NULL, needs point to 8 byte buffer */
-int bf01_encrypt_stream(FILE *fin, FILE *fout, const char *password, int brave, const unsigned char *salt)
+int bf01_encrypt_stream(FILE *fin, FILE *fout, const char *password, int brave, const unsigned char *salt, int hard_exit)
 {
     int passlen;
     uint32_t filesize;
@@ -87,26 +89,28 @@ int bf01_encrypt_stream(FILE *fin, FILE *fout, const char *password, int brave, 
     /* password */
     if (password) {
         passlen = (int)strlen(password);
-        if (passlen >= PASS_MAX) ERR("password too long (max %d)\n", PASS_MAX);  // TODO empty password check?
+        if (passlen >= PASS_MAX) { if (hard_exit) ERR_EXIT("password too long (max %d)\n", PASS_MAX); return -1; }
     } else {
-        ERR("NULL empty password\n");
+        if (hard_exit) ERR_EXIT("NULL empty password\n");
+        return -1;
     }
 
     /* derive key */
     bf01_derive_key(md5key, password, passlen);
 
     /* read input */
-    plaintext = read_all(fin, &filesize);
+    plaintext = read_all(fin, &filesize, hard_exit);
+    if (!plaintext) return -1;
 
     /* build encrypt buffer: salt(8) + md5(16) + plaintext, padded to 8-byte */
     buflen = ((filesize >> 3) + 1) * 8 + 24;
     buf = calloc(1, buflen);
-    if (!buf) ERR("out of memory\n");
+    if (!buf) { free(plaintext); if (hard_exit) ERR_EXIT("out of memory\n"); return -1; }
 
     if (salt) {
         use_salt = salt;
     } else {
-        bf01_rand_bytes(saltbuf, 8);
+        bf01_rand_bytes(saltbuf, 8, hard_exit);
         use_salt = saltbuf;
     }
     memcpy(buf, use_salt, 8);
@@ -116,7 +120,7 @@ int bf01_encrypt_stream(FILE *fin, FILE *fout, const char *password, int brave, 
 
     /* encrypt */
     bf = BF_Init(md5key, 16);
-    if (!bf) ERR("BF_Init failed\n");
+    if (!bf) { free(plaintext); free(buf); if (hard_exit) ERR_EXIT("BF_Init failed\n"); return -1; }
     {
         unsigned char *p = buf;
         unsigned char tmp[8];
@@ -148,7 +152,7 @@ int bf01_encrypt_stream(FILE *fin, FILE *fout, const char *password, int brave, 
 
 /* --- decrypt stream --- */
 
-int bf01_decrypt_stream(FILE *fin, FILE *fout, const char *password)
+int bf01_decrypt_stream(FILE *fin, FILE *fout, const char *password, int hard_exit)
 {
     int passlen;
     unsigned char *filedata;
@@ -163,30 +167,32 @@ int bf01_decrypt_stream(FILE *fin, FILE *fout, const char *password)
     /* password */
     if (password) {
         passlen = (int)strlen(password);
-        if (passlen >= PASS_MAX) ERR("password too long (max %d)\n", PASS_MAX);  // TODO empty password check?
+        if (passlen >= PASS_MAX) { if (hard_exit) ERR_EXIT("password too long (max %d)\n", PASS_MAX); return -1; }
     } else {
-        ERR("NULL empty password\n");
+        if (hard_exit) ERR_EXIT("NULL empty password\n");
+        return -1;
     }
 
     /* derive key */
     bf01_derive_key(md5key, password, passlen);
 
     /* read file */
-    filedata = read_all(fin, &nfilesize);
+    filedata = read_all(fin, &nfilesize, hard_exit);
+    if (!filedata) return -1;
 
     /* validate header */
-    if (nfilesize < 8) ERR("file too small\n");
+    if (nfilesize < 8) { free(filedata); if (hard_exit) ERR_EXIT("file too small\n"); return -1; }
     memcpy(magic, filedata, 4);
     magic[4] = '\0';
-    if (strcmp(magic, "BF01") != 0) ERR("bad magic: %s\n", magic);
+    if (strcmp(magic, "BF01") != 0) { free(filedata); if (hard_exit) ERR_EXIT("bad magic: %s\n", magic); return -1; }
     memcpy(&datasize, filedata + 4, 4);
 
     cipherlen = nfilesize - 8;
-    if (cipherlen < 24) ERR("ciphertext too short\n");
+    if (cipherlen < 24) { free(filedata); if (hard_exit) ERR_EXIT("ciphertext too short\n"); return -1; }
 
     /* decrypt */
     bf = BF_Init(md5key, 16);
-    if (!bf) ERR("BF_Init failed\n");
+    if (!bf) { free(filedata); if (hard_exit) ERR_EXIT("BF_Init failed\n"); return -1; }
     {
         unsigned char *p = filedata + 8;
         unsigned char tmp[8];
@@ -203,7 +209,9 @@ int bf01_decrypt_stream(FILE *fin, FILE *fout, const char *password)
     /* verify md5 */
     getMD5Sum(md5check, filedata + 8 + 24, (int)datasize);
     if (memcmp(filedata + 8 + 8, md5check, 16) != 0) {
-        ERR("invalid password\n");
+        free(filedata);
+        if (hard_exit) ERR_EXIT("invalid password\n");
+        return -1;
     }
 
     /* write output */

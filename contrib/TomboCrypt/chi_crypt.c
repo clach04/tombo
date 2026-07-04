@@ -158,9 +158,9 @@ static void do_encrypt(const char *inname, const char *outname, const char *pass
     }
 
 #ifdef FIXED_VALUES
-    bf01_encrypt_stream(fin, fout, password, brave, fixed_salt);
+    bf01_encrypt_stream(fin, fout, password, brave, fixed_salt, 1);
 #else
-    bf01_encrypt_stream(fin, fout, password, brave, NULL);
+    bf01_encrypt_stream(fin, fout, password, brave, NULL, 1);
 #endif
 
     if (fin != stdin) fclose(fin);
@@ -192,7 +192,7 @@ static void do_decrypt(const char *inname, const char *outname,
         if (!fout) ERR("cannot open %s for writing\n", outname);
     }
 
-    bf01_decrypt_stream(fin, fout, password);
+    bf01_decrypt_stream(fin, fout, password, 1);
 
     if (fin != stdin) fclose(fin);
     if (fout != stdout) fclose(fout);
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 
     srand((unsigned)time(NULL));
 #ifdef FIXED_VALUES
-    bf01_rand_bytes(fixed_salt, 8);  // only use a truly fixed salt if command line argument specified
+    bf01_rand_bytes(fixed_salt, 8, 1);  // only use a truly fixed salt if command line argument specified
 #endif
 
     for (i = 1; i < argc; i++) {
