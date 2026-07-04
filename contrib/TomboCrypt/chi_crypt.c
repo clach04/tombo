@@ -7,7 +7,7 @@
  *   gcc -std=c99 -DTOMBO -o chi_crypt chi_crypt.c blowfish.c md5.c
  *
  *   Debug (deterministic salt for testing):
- *   gcc -std=c99 -DTOMBO -DFIXED_VALUES -o chi_crypt chi_crypt.c blowfish.c md5.c
+ *   gcc -std=c99 -DTOMBO -DFIXED_VALUES -o chi_crypt_salted chi_crypt.c blowfish.c md5.c
  *
  * Usage:
  *   chi_crypt -e infile outfile [--password PASS] [-b]
@@ -16,6 +16,9 @@
  *   chi_crypt -d infile - [--password PASS]           (stdout)
  *
  * -b / --brave: skip password confirmation on encrypt
+ *
+ * FIXED_VALUES debug mode adds:
+ *   --salt HEX    16 hex digits (8 bytes) for encrypt salt
  */
 
 #include <stdint.h>
@@ -146,6 +149,34 @@ static unsigned char *read_all(FILE *f, uint32_t *out_size)
     return data;
 }
 
+#ifdef FIXED_VALUES
+static unsigned char fixed_salt[8];
+static int has_fixed_salt=0;
+
+static int hex_digit(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+static int parse_hex(const char *hex, unsigned char *out, int nbytes)
+{
+    int i;
+    if ((int)strlen(hex) != nbytes * 2)
+        return -1;
+    for (i = 0; i < nbytes; i++) {
+        int hi = hex_digit(hex[i * 2]);
+        int lo = hex_digit(hex[i * 2 + 1]);
+        if (hi < 0 || lo < 0)
+            return -1;
+        out[i] = (unsigned char)((hi << 4) | lo);
+    }
+    return 0;
+}
+#endif
+
 /* --- encrypt --- */
 
 static void do_encrypt(const char *inname, const char *outname,
@@ -197,7 +228,7 @@ static void do_encrypt(const char *inname, const char *outname,
     if (!buf) ERR("out of memory\n");
 
 #ifdef FIXED_VALUES
-    memset(salt, 0, 8);
+    memcpy(salt, fixed_salt, 8);
 #else
     rand_bytes(salt, 8);
 #endif
@@ -344,6 +375,9 @@ static void usage(void)
     fprintf(stderr, "  -d        decrypt\n");
     fprintf(stderr, "  -b        skip password confirmation (encrypt only)\n");
     fprintf(stderr, "  --password PASS   supply password on command line, rather than prompt\n");
+#ifdef FIXED_VALUES
+    fprintf(stderr, "  --salt HEX        16 hex digits (8 bytes) for encrypt salt\n");
+#endif
     fprintf(stderr, "  -b/--brave   only prompt for password once\n");
     fprintf(stderr, "  Use - for infile/outfile to use stdin/stdout\n");
 }
@@ -358,6 +392,9 @@ int main(int argc, char *argv[])
     int i;
 
     srand((unsigned)time(NULL));
+#ifdef FIXED_VALUES
+    rand_bytes(fixed_salt, 8);  // only use a truly fixed salt if command line argument specified
+#endif
 
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-e") == 0) {
@@ -370,6 +407,13 @@ int main(int argc, char *argv[])
             if (++i >= argc) ERR("--password requires an argument\n");
             password = argv[i];
             if ((int)strlen(password) >= PASS_MAX) ERR("password too long (max %d)\n", PASS_MAX);
+#ifdef FIXED_VALUES
+        } else if (strcmp(argv[i], "--salt") == 0) {
+            if (++i >= argc) ERR("--salt requires 16 hex digits\n");
+            if (parse_hex(argv[i], fixed_salt, 8) != 0)
+                ERR("--salt must be exactly 16 hex digits\n");
+            has_fixed_salt = 1;
+#endif
         } else if (strcmp(argv[i], "-") == 0) {
             if (!infile) {
                 infile = argv[i];
