@@ -220,6 +220,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       strncpy(g_curDir, defDir, MAX_PATH - 1);
       PopulateTree(g_hTree, defDir, TVI_ROOT);
     }
+    SetFocus(g_hTree);
     return 0;
   }
 
