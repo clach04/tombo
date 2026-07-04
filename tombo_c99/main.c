@@ -274,7 +274,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       ofn.nMaxFile = MAX_PATH;
       ofn.lpstrInitialDir = g_curDir[0] ? g_curDir : NULL;
       ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-      if (GetOpenFileName(&ofn)) TomboOpenFile(file);
+      if (GetOpenFileName(&ofn) && PromptSave() != IDCANCEL) TomboOpenFile(file);
       break;
     }
     case IDM_SAVE:
@@ -380,7 +380,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       ti.pszText = path;
       ti.cchTextMax = MAX_PATH;
       TreeView_GetItem(g_hTree, &ti);
-      if (ti.lParam) TomboOpenFile((const char *)ti.lParam);
+      if (ti.lParam && PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
     }
     return 0;
   }
