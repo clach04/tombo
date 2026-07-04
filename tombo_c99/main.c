@@ -369,18 +369,37 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
   case WM_NOTIFY: {
     NMHDR *nm = (NMHDR *)lParam;
-    if (nm->idFrom == ID_TREE && nm->code == TVN_SELCHANGED) {
-      NMTREEVIEW *tv = (NMTREEVIEW *)lParam;
-      TVITEM ti;
-      char path[MAX_PATH];
-      if (!(tv->itemNew.state & TVIS_SELECTED)) break;
-      ZeroMemory(&ti, sizeof(ti));
-      ti.mask = TVIF_PARAM | TVIF_TEXT;
-      ti.hItem = tv->itemNew.hItem;
-      ti.pszText = path;
-      ti.cchTextMax = MAX_PATH;
-      TreeView_GetItem(g_hTree, &ti);
-      if (ti.lParam && PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
+    if (nm->idFrom == ID_TREE && nm->code == NM_DBLCLK) {
+      HTREEITEM hSel = TreeView_GetSelection(g_hTree);
+      if (hSel) {
+        TVITEM ti;
+        char path[MAX_PATH];
+        ZeroMemory(&ti, sizeof(ti));
+        ti.mask = TVIF_PARAM | TVIF_TEXT;
+        ti.hItem = hSel;
+        ti.pszText = path;
+        ti.cchTextMax = MAX_PATH;
+        TreeView_GetItem(g_hTree, &ti);
+        if (ti.lParam && PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
+      }
+    }
+    if (nm->idFrom == ID_TREE && nm->code == TVN_KEYDOWN) {
+      NMTVKEYDOWN *kd = (NMTVKEYDOWN *)lParam;
+      if (kd->wVKey == VK_RETURN) {
+        HTREEITEM hSel = TreeView_GetSelection(g_hTree);
+        if (hSel) {
+          TVITEM ti;
+          char path[MAX_PATH];
+          ZeroMemory(&ti, sizeof(ti));
+          ti.mask = TVIF_PARAM | TVIF_TEXT;
+          ti.hItem = hSel;
+          ti.pszText = path;
+          ti.cchTextMax = MAX_PATH;
+          TreeView_GetItem(g_hTree, &ti);
+          if (ti.lParam && PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
+        }
+        return 0;
+      }
     }
     return 0;
   }
