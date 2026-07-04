@@ -530,50 +530,39 @@ static char *expand_lf(const char *src, long srclen, long *dstlen) {
 static void TomboOpenFile(const char *path) {
   if (is_chi_file(path)) {
     char pass[256] = "";
-    FILE *fin, *fout;
-    int rc;
-    char tmpPath[MAX_PATH];
+    FILE *fin;
+    unsigned char *filedata;
+    long filesize;
+    unsigned char *plain;
+    size_t plainlen;
 
     if (!AskPassword(pass, sizeof(pass)))
       return;
 
     fin = fopen(path, "rb");
     if (!fin) { MessageBox(g_hWnd, "Cannot open file", "Error", MB_OK | MB_ICONERROR); return; }
-
-    GetTempPath(MAX_PATH, tmpPath);
-    GetTempFileName(tmpPath, "tmb", 0, tmpPath);
-    fout = fopen(tmpPath, "w+b");
-    if (!fout) { fclose(fin); MessageBox(g_hWnd, "Out of memory", "Error", MB_OK | MB_ICONERROR); return; }
-
-    rc = bf01_decrypt_stream(fin, fout, pass, 0);
+    fseek(fin, 0, SEEK_END);
+    filesize = ftell(fin);
+    rewind(fin);
+    filedata = (unsigned char *)malloc(filesize);
+    if (!filedata) { fclose(fin); MessageBox(g_hWnd, "Out of memory", "Error", MB_OK | MB_ICONERROR); return; }
+    fread(filedata, 1, filesize, fin);
     fclose(fin);
-    if (rc != 0) {
-      fclose(fout);
-      DeleteFile(tmpPath);
+
+    plain = bf01_decrypt_mem(filedata, filesize, pass, &plainlen, 0);
+    free(filedata);
+    if (!plain) {
       MessageBox(g_hWnd, "Decryption failed (wrong password?)", "Error", MB_OK | MB_ICONERROR);
       return;
     }
     {
-      long sz;
-      char *buf;
-      rewind(fout);
-      fseek(fout, 0, SEEK_END);
-      sz = ftell(fout);
-      rewind(fout);
-      buf = (char *)malloc(sz + 1);
-      if (buf) {
-        char *exp;
-        long explen;
-        fread(buf, 1, sz, fout);
-        buf[sz] = '\0';
-        exp = expand_lf(buf, sz, &explen);
-        SetWindowText(g_hEditor, exp ? exp : buf);
-        free(exp);
-        free(buf);
-      }
+      char *exp;
+      long explen;
+      exp = expand_lf((const char *)plain, (long)plainlen, &explen);
+      SetWindowText(g_hEditor, exp ? exp : (const char *)plain);
+      free(exp);
     }
-    fclose(fout);
-    DeleteFile(tmpPath);
+    free(plain);
   } else {
     FILE *f = fopen(path, "rb");
     long sz;
@@ -625,46 +614,25 @@ static void SaveCurrentFile(void) {
 
   if (is_chi_file(g_curFile)) {
     char pass[256] = "";
-    FILE *fin, *fout;
-    int rc;
-    char tmpPath[MAX_PATH];
+    unsigned char *cipher;
+    size_t cipherlen;
+    FILE *f;
     if (!AskPassword(pass, sizeof(pass))) {
       free(buf);
       return;
     }
-    GetTempPath(MAX_PATH, tmpPath);
-    GetTempFileName(tmpPath, "tmb", 0, tmpPath);
-    fout = fopen(tmpPath, "w+b");
-    if (!fout) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
-    fin = fopen(tmpPath, "r+b");
-    if (!fin) { free(buf); fclose(fout); DeleteFile(tmpPath); MessageBox(g_hWnd, "Out of memory", "Error", MB_OK | MB_ICONERROR); return; }
     len = strip_cr(buf, len);
-    fwrite(buf, 1, len, fin);
-    rewind(fin);
-    rc = bf01_encrypt_stream(fin, fout, pass, 0, NULL, 0);
-    fclose(fin);
-    fclose(fout);
-    if (rc != 0) {
-      DeleteFile(tmpPath);
+    cipher = bf01_encrypt_mem((unsigned char *)buf, len, pass, &cipherlen, 0);
+    if (!cipher) {
       MessageBox(g_hWnd, "Encryption failed", "Error", MB_OK | MB_ICONERROR);
       free(buf);
       return;
     }
-    {
-      FILE *f = fopen(g_curFile, "wb");
-      FILE *fin2;
-      if (!f) { DeleteFile(tmpPath); free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
-      fin2 = fopen(tmpPath, "rb");
-      if (fin2) {
-        char dbuf[4096];
-        size_t n;
-        while ((n = fread(dbuf, 1, sizeof(dbuf), fin2)) > 0)
-          fwrite(dbuf, 1, n, f);
-        fclose(fin2);
-      }
-      fclose(f);
-    }
-    DeleteFile(tmpPath);
+    f = fopen(g_curFile, "wb");
+    if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
+    fwrite(cipher, 1, cipherlen, f);
+    fclose(f);
+    free(cipher);
   } else {
     FILE *f = fopen(g_curFile, "wb");
     if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }

@@ -69,6 +69,141 @@ void bf01_derive_key(unsigned char md5key[16], const char *password, int passlen
     getMD5Sum(md5key, (unsigned char *)password, passlen);
 }
 
+/* --- encrypt in memory --- */
+
+unsigned char *bf01_encrypt_mem(const unsigned char *plaintext, size_t plaintext_len, const char *password, size_t *out_len, int hard_exit)
+{
+    int passlen;
+    unsigned char md5key[16];
+    void *bf;
+    uint32_t filesize = (uint32_t)plaintext_len;
+    uint32_t buflen;
+    unsigned char *buf;
+    uint8_t saltbuf[8];
+    unsigned char md5sum[16];
+    size_t total;
+    unsigned char *result;
+
+    if (password) {
+        passlen = (int)strlen(password);
+        if (passlen >= PASS_MAX) { if (hard_exit) ERR_EXIT("password too long (max %d)\n", PASS_MAX); return NULL; }
+    } else {
+        if (hard_exit) ERR_EXIT("NULL empty password\n");
+        return NULL;
+    }
+
+    bf01_derive_key(md5key, password, passlen);
+
+    buflen = ((filesize >> 3) + 1) * 8 + 24;
+    buf = calloc(1, buflen);
+    if (!buf) { if (hard_exit) ERR_EXIT("out of memory\n"); return NULL; }
+
+    bf01_rand_bytes(saltbuf, 8, hard_exit);
+    memcpy(buf, saltbuf, 8);
+    getMD5Sum(md5sum, (unsigned char *)plaintext, filesize);
+    memcpy(buf + 8, md5sum, 16);
+    memcpy(buf + 24, plaintext, filesize);
+
+    bf = BF_Init(md5key, 16);
+    if (!bf) { free(buf); if (hard_exit) ERR_EXIT("BF_Init failed\n"); return NULL; }
+    {
+        unsigned char *p = buf;
+        unsigned char tmp[8];
+        int remaining = (int)(buflen);
+        while (remaining > 8) {
+            memcpy(tmp, p, 8);
+            BF_Enc(bf, p, tmp, 8);
+            p += 8;
+            remaining -= 8;
+        }
+        if (remaining > 0) {
+            memcpy(tmp, p, remaining);
+            memset(tmp + remaining, 0, 8 - remaining);
+            BF_Enc(bf, p, tmp, remaining);
+        }
+    }
+    BF_Free(bf);
+
+    total = 4 + 4 + buflen;
+    result = (unsigned char *)malloc(total);
+    if (!result) { free(buf); if (hard_exit) ERR_EXIT("out of memory\n"); return NULL; }
+    memcpy(result, "BF01", 4);
+    memcpy(result + 4, &filesize, 4);
+    memcpy(result + 8, buf, buflen);
+
+    free(buf);
+    *out_len = total;
+    return result;
+}
+
+/* --- decrypt in memory --- */
+
+unsigned char *bf01_decrypt_mem(const unsigned char *cipherdata, size_t cipherdata_len, const char *password, size_t *out_len, int hard_exit)
+{
+    int passlen;
+    unsigned char md5key[16];
+    char magic[5];
+    uint32_t datasize;
+    uint32_t cipherlen;
+    void *bf;
+    unsigned char md5check[16];
+    unsigned char *work;
+    unsigned char *result;
+
+    if (password) {
+        passlen = (int)strlen(password);
+        if (passlen >= PASS_MAX) { if (hard_exit) ERR_EXIT("password too long (max %d)\n", PASS_MAX); return NULL; }
+    } else {
+        if (hard_exit) ERR_EXIT("NULL empty password\n");
+        return NULL;
+    }
+
+    if (cipherdata_len < 8) { if (hard_exit) ERR_EXIT("file too small\n"); return NULL; }
+    memcpy(magic, cipherdata, 4);
+    magic[4] = '\0';
+    if (strcmp(magic, "BF01") != 0) { if (hard_exit) ERR_EXIT("bad magic: %s\n", magic); return NULL; }
+    memcpy(&datasize, cipherdata + 4, 4);
+
+    cipherlen = (uint32_t)(cipherdata_len - 8);
+    if (cipherlen < 24) { if (hard_exit) ERR_EXIT("ciphertext too short\n"); return NULL; }
+
+    bf01_derive_key(md5key, password, passlen);
+
+    work = (unsigned char *)malloc(cipherlen);
+    if (!work) { if (hard_exit) ERR_EXIT("out of memory\n"); return NULL; }
+    memcpy(work, cipherdata + 8, cipherlen);
+
+    bf = BF_Init(md5key, 16);
+    if (!bf) { free(work); if (hard_exit) ERR_EXIT("BF_Init failed\n"); return NULL; }
+    {
+        unsigned char *p = work;
+        unsigned char tmp[8];
+        int remaining = (int)cipherlen;
+        while (remaining >= 8) {
+            memcpy(tmp, p, 8);
+            BF_Dec(bf, p, tmp);
+            p += 8;
+            remaining -= 8;
+        }
+    }
+    BF_Free(bf);
+
+    getMD5Sum(md5check, work + 24, (int)datasize);
+    if (memcmp(work + 8, md5check, 16) != 0) {
+        free(work);
+        if (hard_exit) ERR_EXIT("invalid password\n");
+        return NULL;
+    }
+
+    result = (unsigned char *)malloc(datasize);
+    if (!result) { free(work); if (hard_exit) ERR_EXIT("out of memory\n"); return NULL; }
+    memcpy(result, work + 24, datasize);
+
+    free(work);
+    *out_len = datasize;
+    return result;
+}
+
 /* --- encrypt stream --- */
 
 /* encrypt stream; if salt is NULL (default and recommended usage), random salt is generated - if not NULL, needs point to 8 byte buffer */
