@@ -260,6 +260,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         UpdateMenuSaveState(hWnd);
         UpdateTitle();
         UpdateStatus();
+        SetFocus(g_hEditor);
       }
       break;
     case IDM_OPEN: {
