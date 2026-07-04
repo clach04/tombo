@@ -409,7 +409,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
           ti.pszText = path;
           ti.cchTextMax = MAX_PATH;
           TreeView_GetItem(g_hTree, &ti);
-          if (ti.lParam && PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
+          if (ti.lParam) {
+            if (PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
+          } else {
+            UINT state = TreeView_GetItemState(g_hTree, hSel, TVIS_EXPANDED);
+            TreeView_Expand(g_hTree, hSel, (state & TVIS_EXPANDED) ? TVE_COLLAPSE : TVE_EXPAND);
+          }
         }
         return 0;
       }
