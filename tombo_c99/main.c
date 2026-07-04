@@ -120,6 +120,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
 
   while (GetMessage(&msg, NULL, 0, 0)) {
     if (g_hFindDlg && IsDialogMessage(g_hFindDlg, &msg)) continue;
+    if (msg.message == WM_KEYDOWN && msg.wParam == VK_TAB) {
+      HWND hFocus = GetFocus();
+      if (hFocus == g_hTree) SetFocus(g_hEditor);
+      else if (hFocus == g_hEditor) SetFocus(g_hTree);
+      continue;
+    }
     if (msg.message == WM_KEYDOWN && (GetKeyState(VK_CONTROL) & 0x8000)) {
       int id = 0;
       switch (msg.wParam) {
