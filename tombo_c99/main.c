@@ -229,13 +229,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     SetEditorFont(g_hEditor);
     SendMessage(g_hEditor, EM_SETLIMITTEXT, 0, 0);
 
-    if (g_cfg.last_dir[0]) PopulateTree(g_hTree, g_cfg.last_dir, TVI_ROOT);
-    else {
-      char defDir[MAX_PATH];
-      GetCurrentDirectory(MAX_PATH, defDir);
-      strncpy(g_curDir, defDir, MAX_PATH - 1);
-      PopulateTree(g_hTree, defDir, TVI_ROOT);
-    }
+    if (g_cfg.last_dir[0]) strncpy(g_curDir, g_cfg.last_dir, MAX_PATH - 1);
+    else GetCurrentDirectory(MAX_PATH, g_curDir);
+    RefreshTree();
     SetFocus(g_hTree);
     return 0;
   }
@@ -498,8 +494,18 @@ static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent) {
 }
 
 static void RefreshTree(void) {
+  TVINSERTSTRUCT tvi;
+  HTREEITEM hRoot;
   TreeView_DeleteAllItems(g_hTree);
-  if (g_curDir[0]) PopulateTree(g_hTree, g_curDir, TVI_ROOT);
+  if (!g_curDir[0]) return;
+  ZeroMemory(&tvi, sizeof(tvi));
+  tvi.hParent = TVI_ROOT;
+  tvi.hInsertAfter = TVI_LAST;
+  tvi.item.mask = TVIF_TEXT;
+  tvi.item.pszText = "Root";
+  hRoot = TreeView_InsertItem(g_hTree, &tvi);
+  PopulateTree(g_hTree, g_curDir, hRoot);
+  TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
 }
 
 /* --- File I/O --- */
