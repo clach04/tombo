@@ -111,3 +111,11 @@ $(TARGET): $(SRCS)
   * `C:\code\c\tombo\contrib\TomboCrypt\blowfish.c` - Blowfish cipher (reuse as-is)
   * `C:\code\c\tombo\contrib\TomboCrypt\md5.c` - MD5 hash (reuse as-is)
   * `C:\code\terminal\colortool_alt_clean\ini.c` + `ini.h` - INI library (vendor copy)
+
+## TODO Items
+
+  * Add a Root note to top of tree
+  * convert text file to encrypted
+  * convert encrypted file to text
+  * working find/search support
+  * Icon support
