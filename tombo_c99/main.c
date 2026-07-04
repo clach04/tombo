@@ -75,7 +75,6 @@ static int is_tombo_ext(const char *name) {
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
   WNDCLASSEX wc;
   MSG msg;
-  RECT rc;
   INITCOMMONCONTROLSEX icc;
 
   (void)hPrev; (void)cmdLine;
@@ -105,15 +104,22 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
   wc.lpszClassName = "FindDialog";
   RegisterClassEx(&wc);
 
-  rc.left = g_cfg.win_x; rc.top = g_cfg.win_y;
-  rc.right = g_cfg.win_x + g_cfg.win_w;
-  rc.bottom = g_cfg.win_y + g_cfg.win_h;
-  AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, TRUE);
-
   g_hWnd = CreateWindowEx(0, "TomboClass", "Tombo",
-    WS_OVERLAPPEDWINDOW, rc.left, rc.top,
-    rc.right - rc.left, rc.bottom - rc.top,
+    WS_OVERLAPPEDWINDOW, g_cfg.win_x, g_cfg.win_y,
+    g_cfg.win_w, g_cfg.win_h,
     NULL, NULL, hInst, NULL);
+
+  {
+    RECT wrc;
+    POINT pt = { g_cfg.win_x + (g_cfg.win_w / 2), g_cfg.win_y + (GetSystemMetrics(SM_CYCAPTION) / 2) };
+    if (!MonitorFromPoint(pt, MONITOR_DEFAULTTONULL)) {
+      SetWindowPos(g_hWnd, NULL, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0,
+        SWP_NOSIZE | SWP_NOZORDER);
+    }
+    GetWindowRect(g_hWnd, &wrc);
+    g_cfg.win_x = wrc.left; g_cfg.win_y = wrc.top;
+    g_cfg.win_w = wrc.right - wrc.left; g_cfg.win_h = wrc.bottom - wrc.top;
+  }
 
   ShowWindow(g_hWnd, nShow);
   UpdateWindow(g_hWnd);
