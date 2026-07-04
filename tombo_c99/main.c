@@ -499,6 +499,34 @@ static int is_chi_file(const char *path) {
   return dot && (!_stricmp(dot, ".chi") || !_stricmp(dot, ".chs"));
 }
 
+static long strip_cr(char *buf, long len) {
+  long w = 0;
+  long r;
+  for (r = 0; r < len; r++) {
+    if (buf[r] != '\r') buf[w++] = buf[r];
+  }
+  return w;
+}
+
+static char *expand_lf(const char *src, long srclen, long *dstlen) {
+  long i, count = 0;
+  char *dst;
+  for (i = 0; i < srclen; i++)
+    count += (src[i] == '\n') ? 2 : 1;
+  dst = (char *)malloc(count + 1);
+  if (!dst) { *dstlen = 0; return NULL; }
+  {
+    long w = 0;
+    for (i = 0; i < srclen; i++) {
+      if (src[i] == '\n') dst[w++] = '\r';
+      dst[w++] = src[i];
+    }
+    dst[w] = '\0';
+    *dstlen = w;
+  }
+  return dst;
+}
+
 static void TomboOpenFile(const char *path) {
   if (is_chi_file(path)) {
     char pass[256] = "";
@@ -534,9 +562,13 @@ static void TomboOpenFile(const char *path) {
       rewind(fout);
       buf = (char *)malloc(sz + 1);
       if (buf) {
+        char *exp;
+        long explen;
         fread(buf, 1, sz, fout);
         buf[sz] = '\0';
-        SetWindowText(g_hEditor, buf);
+        exp = expand_lf(buf, sz, &explen);
+        SetWindowText(g_hEditor, exp ? exp : buf);
+        free(exp);
         free(buf);
       }
     }
@@ -552,9 +584,13 @@ static void TomboOpenFile(const char *path) {
     rewind(f);
     buf = (char *)malloc(sz + 1);
     if (buf) {
+      char *exp;
+      long explen;
       fread(buf, 1, sz, f);
       buf[sz] = '\0';
-      SetWindowText(g_hEditor, buf);
+      exp = expand_lf(buf, sz, &explen);
+      SetWindowText(g_hEditor, exp ? exp : buf);
+      free(exp);
       free(buf);
     }
     fclose(f);
@@ -602,6 +638,7 @@ static void SaveCurrentFile(void) {
     if (!fout) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
     fin = fopen(tmpPath, "r+b");
     if (!fin) { free(buf); fclose(fout); DeleteFile(tmpPath); MessageBox(g_hWnd, "Out of memory", "Error", MB_OK | MB_ICONERROR); return; }
+    len = strip_cr(buf, len);
     fwrite(buf, 1, len, fin);
     rewind(fin);
     rc = bf01_encrypt_stream(fin, fout, pass, 0, NULL, 0);
@@ -631,6 +668,7 @@ static void SaveCurrentFile(void) {
   } else {
     FILE *f = fopen(g_curFile, "wb");
     if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
+    len = strip_cr(buf, len);
     fwrite(buf, 1, len, f);
     fclose(f);
   }
