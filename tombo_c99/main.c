@@ -104,6 +104,19 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
   wc.lpszClassName = "FindDialog";
   RegisterClassEx(&wc);
 
+  {
+    int sw = GetSystemMetrics(SM_CXSCREEN);
+    int sh = GetSystemMetrics(SM_CYSCREEN);
+    if (g_cfg.win_w < 100) g_cfg.win_w = 800;
+    if (g_cfg.win_h < 100) g_cfg.win_h = 600;
+    if (g_cfg.win_w > sw) g_cfg.win_w = sw;
+    if (g_cfg.win_h > sh) g_cfg.win_h = sh;
+    if (g_cfg.win_x < 0) g_cfg.win_x = 0;
+    if (g_cfg.win_y < 0) g_cfg.win_y = 0;
+    if (g_cfg.win_x > sw - g_cfg.win_w) g_cfg.win_x = sw - g_cfg.win_w;
+    if (g_cfg.win_y > sh - g_cfg.win_h) g_cfg.win_y = sh - g_cfg.win_h;
+  }
+
   g_hWnd = CreateWindowEx(0, "TomboClass", "Tombo",
     WS_OVERLAPPEDWINDOW, g_cfg.win_x, g_cfg.win_y,
     g_cfg.win_w, g_cfg.win_h,
@@ -111,11 +124,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
 
   {
     RECT wrc;
-    POINT pt = { g_cfg.win_x + (g_cfg.win_w / 2), g_cfg.win_y + (GetSystemMetrics(SM_CYCAPTION) / 2) };
-    if (!MonitorFromPoint(pt, MONITOR_DEFAULTTONULL)) {
-      SetWindowPos(g_hWnd, NULL, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0,
-        SWP_NOSIZE | SWP_NOZORDER);
-    }
     GetWindowRect(g_hWnd, &wrc);
     g_cfg.win_x = wrc.left; g_cfg.win_y = wrc.top;
     g_cfg.win_w = wrc.right - wrc.left; g_cfg.win_h = wrc.bottom - wrc.top;
