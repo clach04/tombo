@@ -69,7 +69,7 @@ static int AskPassword(char *passBuf, int bufsize);
 static int is_tombo_ext(const char *name) {
   const char *dot = strrchr(name, '.');
   if (!dot) return 0;
-  return !_stricmp(dot, ".txt") || !_stricmp(dot, ".chi") || !_stricmp(dot, ".md");
+  return !_stricmp(dot, ".txt") || !_stricmp(dot, ".chi") || !_stricmp(dot, ".chs") || !_stricmp(dot, ".md");
 }
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
@@ -276,7 +276,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       ZeroMemory(&ofn, sizeof(ofn));
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = hWnd;
-      ofn.lpstrFilter = "Text Files (*.txt;*.md)\0*.txt;*.md\0Encrypted (*.chi)\0*.chi\0All Files (*.*)\0*.*\0";
+      ofn.lpstrFilter = "Text Files (*.txt;*.md)\0*.txt;*.md\0Encrypted (*.chi;*.chs)\0*.chi;*.chs\0All Files (*.*)\0*.*\0";
       ofn.lpstrFile = file;
       ofn.nMaxFile = MAX_PATH;
       ofn.lpstrInitialDir = g_curDir[0] ? g_curDir : NULL;
@@ -496,7 +496,7 @@ static void RefreshTree(void) {
 
 static int is_chi_file(const char *path) {
   const char *dot = strrchr(path, '.');
-  return dot && !_stricmp(dot, ".chi");
+  return dot && (!_stricmp(dot, ".chi") || !_stricmp(dot, ".chs"));
 }
 
 static void TomboOpenFile(const char *path) {
@@ -659,7 +659,7 @@ static void SaveFileAs(void) {
 
   if (GetSaveFileName(&ofn)) {
     dot = strrchr(file, '.');
-    if (!dot || (_stricmp(dot, ".txt") && _stricmp(dot, ".chi") && _stricmp(dot, ".md")))
+    if (!dot || (_stricmp(dot, ".txt") && _stricmp(dot, ".chi") && _stricmp(dot, ".chs") && _stricmp(dot, ".md")))
       strncat(file, ".txt", MAX_PATH - strlen(file) - 1);
     strncpy(g_curFile, file, MAX_PATH - 1);
     g_curFile[MAX_PATH - 1] = '\0';
