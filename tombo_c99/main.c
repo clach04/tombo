@@ -56,6 +56,7 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PassWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
 static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent);
+static void RefreshTree(void);
 static void TomboOpenFile(const char *path);
 static void SaveCurrentFile(void);
 static void SaveFileAs(void);
@@ -119,6 +120,17 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
 
   while (GetMessage(&msg, NULL, 0, 0)) {
     if (g_hFindDlg && IsDialogMessage(g_hFindDlg, &msg)) continue;
+    if (msg.message == WM_KEYDOWN && (GetKeyState(VK_CONTROL) & 0x8000)) {
+      int id = 0;
+      switch (msg.wParam) {
+      case 'N': id = IDM_NEW; break;
+      case 'O': id = IDM_OPEN; break;
+      case 'S': id = g_curFile[0] ? IDM_SAVE : IDM_SAVEAS; break;
+      case 'F': id = IDM_FIND; break;
+      case 'Z': id = IDM_UNDO; break;
+      }
+      if (id) { SendMessage(g_hWnd, WM_COMMAND, id, 0); continue; }
+    }
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
@@ -133,9 +145,16 @@ static void SetEditorFont(HWND hEd) {
   SendMessage(hEd, WM_SETFONT, (WPARAM)g_hFont, TRUE);
 }
 
-static void InitMenu(HMENU hMenu) {
+static void InitMenu(HWND hWnd) {
+  HMENU hMenu = GetMenu(hWnd);
   EnableMenuItem(hMenu, IDM_SAVE, MF_GRAYED);
   EnableMenuItem(hMenu, IDM_SAVEAS, MF_GRAYED);
+}
+
+static void UpdateMenuSaveState(HWND hWnd) {
+  HMENU hMenu = GetMenu(hWnd);
+  EnableMenuItem(hMenu, IDM_SAVE, g_curFile[0] ? MF_ENABLED : MF_GRAYED);
+  EnableMenuItem(hMenu, IDM_SAVEAS, MF_ENABLED);
 }
 
 static HWND CreateEditor(HWND hParent, int wrap) {
@@ -179,7 +198,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     AppendMenu(hHelp, MF_STRING, IDM_ABOUT, "&About");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hHelp, "&Help");
     SetMenu(hWnd, hMenu);
-    InitMenu(hMenu);
+    InitMenu(hWnd);
 
     g_hTree = CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, "",
       WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS,
@@ -224,12 +243,21 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
   }
 
   case WM_COMMAND:
+    if (LOWORD(wParam) == ID_EDITOR && HIWORD(wParam) == EN_CHANGE) {
+      if (!g_dirty) {
+        g_dirty = TRUE;
+        UpdateMenuSaveState(hWnd);
+        UpdateTitle();
+      }
+      return 0;
+    }
     switch (LOWORD(wParam)) {
     case IDM_NEW:
       if (PromptSave() != IDCANCEL) {
         g_curFile[0] = '\0';
         SetWindowText(g_hEditor, "");
         g_dirty = FALSE;
+        UpdateMenuSaveState(hWnd);
         UpdateTitle();
         UpdateStatus();
       }
@@ -243,6 +271,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0Encrypted (*.chi)\0*.chi\0All Files (*.*)\0*.*\0";
       ofn.lpstrFile = file;
       ofn.nMaxFile = MAX_PATH;
+      ofn.lpstrInitialDir = g_curDir[0] ? g_curDir : NULL;
       ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
       if (GetOpenFileName(&ofn)) TomboOpenFile(file);
       break;
@@ -431,6 +460,11 @@ static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent) {
   FindClose(hFind);
 }
 
+static void RefreshTree(void) {
+  TreeView_DeleteAllItems(g_hTree);
+  if (g_curDir[0]) PopulateTree(g_hTree, g_curDir, TVI_ROOT);
+}
+
 /* --- File I/O --- */
 
 static int is_chi_file(const char *path) {
@@ -511,6 +545,7 @@ static void TomboOpenFile(const char *path) {
   }
   g_dirty = FALSE;
   SendMessage(g_hEditor, EM_SETMODIFY, FALSE, 0);
+  UpdateMenuSaveState(g_hWnd);
   UpdateTitle();
   UpdateStatus();
 }
@@ -575,12 +610,15 @@ static void SaveCurrentFile(void) {
   free(buf);
   g_dirty = FALSE;
   SendMessage(g_hEditor, EM_SETMODIFY, FALSE, 0);
+  UpdateMenuSaveState(g_hWnd);
   UpdateTitle();
+  RefreshTree();
 }
 
 static void SaveFileAs(void) {
   OPENFILENAME ofn;
   char file[MAX_PATH] = "";
+  const char *dot;
   if (g_curFile[0]) strncpy(file, g_curFile, MAX_PATH - 1);
 
   ZeroMemory(&ofn, sizeof(ofn));
@@ -589,9 +627,13 @@ static void SaveFileAs(void) {
   ofn.lpstrFilter = "Text Files (*.txt)\0*.txt\0Encrypted (*.chi)\0*.chi\0All Files (*.*)\0*.*\0";
   ofn.lpstrFile = file;
   ofn.nMaxFile = MAX_PATH;
+  ofn.lpstrInitialDir = g_curDir[0] ? g_curDir : NULL;
   ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
 
   if (GetSaveFileName(&ofn)) {
+    dot = strrchr(file, '.');
+    if (!dot || (_stricmp(dot, ".txt") && _stricmp(dot, ".chi")))
+      strncat(file, ".txt", MAX_PATH - strlen(file) - 1);
     strncpy(g_curFile, file, MAX_PATH - 1);
     g_curFile[MAX_PATH - 1] = '\0';
     SaveCurrentFile();
