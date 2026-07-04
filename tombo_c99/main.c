@@ -745,6 +745,7 @@ static int AskPassword(char *passBuf, int bufsize) {
 
   EnableWindow(g_hWnd, TRUE);
   SetForegroundWindow(g_hWnd);
+  if (g_passOk) SetFocus(g_hTree);
   DeleteObject(hDlgFont);
   return g_passOk;
 }
