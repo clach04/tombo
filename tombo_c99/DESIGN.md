@@ -170,6 +170,8 @@ $(TARGET): $(SRCS)
   * New config option to not persist window config
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
+  * Show/Display password option
+  * Support quick filter/search for tree view - ideally from keyboard short cut. New entry field above Tree view
   * New Folder support, menu and right click
   * Delete New Folder support
   * Delete File support
