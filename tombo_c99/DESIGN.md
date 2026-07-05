@@ -167,6 +167,7 @@ $(TARGET): $(SRCS)
   * Delete File support
   * convert text file to encrypted
   * convert encrypted file to text
+  * working find/search support
   * Icon support (tree has placeholder image indices 0/1 but no actual image list)
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
