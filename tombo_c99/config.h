@@ -10,6 +10,7 @@ typedef struct {
   int tree_w;
   char last_dir[260];
   int word_wrap;
+  int safe_save;
 } AppConfig;
 
 void config_load(AppConfig *cfg, const char *path);

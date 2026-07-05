@@ -725,17 +725,70 @@ static void SaveCurrentFile(void) {
       free(buf);
       return;
     }
-    f = fopen(g_curFile, "wb");
-    if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
-    fwrite(cipher, 1, cipherlen, f);
-    fclose(f);
-    free(cipher);
+
+    if (g_cfg.safe_save) {
+      SYSTEMTIME st;
+      char tmpPath[MAX_PATH];
+      FILE *f;
+      GetLocalTime(&st);
+      snprintf(tmpPath, MAX_PATH, "%s.tmp.%04d%02d%02d_%02d%02d%02d",
+        g_curFile, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+      f = fopen(tmpPath, "wb");
+      if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
+      fwrite(cipher, 1, cipherlen, f);
+      fclose(f);
+      if (!DeleteFile(g_curFile) && GetLastError() != ERROR_FILE_NOT_FOUND) {
+        DeleteFile(tmpPath);
+        free(cipher); free(buf);
+        MessageBox(g_hWnd, "Cannot delete original file", "Error", MB_OK | MB_ICONERROR);
+        return;
+      }
+      if (!MoveFile(tmpPath, g_curFile)) {
+        DeleteFile(tmpPath);
+        free(cipher); free(buf);
+        MessageBox(g_hWnd, "Cannot rename temp file", "Error", MB_OK | MB_ICONERROR);
+        return;
+      }
+      free(cipher);
+    } else {
+      f = fopen(g_curFile, "wb");
+      if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
+      fwrite(cipher, 1, cipherlen, f);
+      fclose(f);
+      free(cipher);
+    }
   } else {
-    FILE *f = fopen(g_curFile, "wb");
-    if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
-    len = strip_cr(buf, len);
-    fwrite(buf, 1, len, f);
-    fclose(f);
+    if (g_cfg.safe_save) {
+      SYSTEMTIME st;
+      char tmpPath[MAX_PATH];
+      FILE *f;
+      GetLocalTime(&st);
+      snprintf(tmpPath, MAX_PATH, "%s.tmp.%04d%02d%02d_%02d%02d%02d",
+        g_curFile, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+      f = fopen(tmpPath, "wb");
+      if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
+      len = strip_cr(buf, len);
+      fwrite(buf, 1, len, f);
+      fclose(f);
+      if (!DeleteFile(g_curFile) && GetLastError() != ERROR_FILE_NOT_FOUND) {
+        DeleteFile(tmpPath);
+        free(buf);
+        MessageBox(g_hWnd, "Cannot delete original file", "Error", MB_OK | MB_ICONERROR);
+        return;
+      }
+      if (!MoveFile(tmpPath, g_curFile)) {
+        DeleteFile(tmpPath);
+        free(buf);
+        MessageBox(g_hWnd, "Cannot rename temp file", "Error", MB_OK | MB_ICONERROR);
+        return;
+      }
+    } else {
+      FILE *f = fopen(g_curFile, "wb");
+      if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
+      len = strip_cr(buf, len);
+      fwrite(buf, 1, len, f);
+      fclose(f);
+    }
   }
   free(buf);
   g_dirty = FALSE;
