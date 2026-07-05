@@ -15,6 +15,7 @@ typedef struct {
   int paranoid_save;
   int password_timeout;
   int persist_window;
+  int sort_dirs_first;
   int encoding_count;
   UINT encoding_cps[MAX_ENCODINGS];
 } AppConfig;

@@ -58,7 +58,7 @@ Single-file Win32 GUI (~1076 lines). Key components:
   * **WndProc**: WM_CREATE (menu, tree, splitter, editor, status bar, load last dir from config), WM_SIZE (layout with DeferWindowPos), WM_NOTIFY (tree double-click, tree Enter/+/− keys), WM_COMMAND (menu actions), WM_GETMINMAXINFO (min 400x300), WM_CLOSE (prompt save, save config), WM_DESTROY.
   * **Menu**: File > New (Ctrl+N), Open (Ctrl+O), Save (Ctrl+S), Save As, Exit; Edit > Undo (Ctrl+Z), Cut (Ctrl+X), Copy (Ctrl+C), Paste (Ctrl+V), Find (Ctrl+F), Find Next (F3), Find Previous (Shift+F3); View > Word Wrap; Tools > Forget Password; Help > About.
 
-  * **Tree view**: `TV_INSERTSTRUCT` with `TVI_SORT` for alphabetical ordering. `FindFirstFile`/`FindNextFile` recursion for subdirectories. Shows .txt, .md, .chi, .chs files. Directories have lParam=0 (leaf marker), files have lParam pointing to malloc'd full path string. "Root" node at top. Double-click or Enter opens file. +/- keys expand/collapse. Enter toggles expand for directories.
+  * **Tree view**: `TV_INSERTSTRUCT` with `TVI_SORT` for alphabetical ordering. `FindFirstFile`/`FindNextFile` recursion for subdirectories. When `sort_dirs_first=1`, two-pass population: directories inserted first (sorted), then files (sorted). Shows .txt, .md, .chi, .chs files. Directories have lParam=0 (leaf marker), files have lParam pointing to malloc'd full path string. "Root" node at top. Double-click or Enter opens file. +/- keys expand/collapse. Enter toggles expand for directories.
   * **Splitter**: Custom "Splitter" window class between tree and editor. Drag to resize. Cursor changes to `IDC_SIZEWE`. Min tree width 50px. Position persisted in config as `tree_w`.
   * **Editor**: `CreateWindowExW(L"EDIT", ...)` (native Unicode control) with `ES_MULTILINE|ES_WANTRETURN|ES_AUTOVSCROLL|WS_VSCROLL`. Optional `WS_HSCROLL|ES_AUTOHSCROLL` when word wrap off. Font: Consolas 14pt fixed-width. `EM_SETLIMITTEXT(0, 0)` for unlimited text size. Dirty state tracked via `EN_CHANGE` notification; title shows `*` prefix when modified. Tab inserts tab character (`EM_REPLACESEL`), Shift+Tab moves focus to tree. All content set/get via `SetWindowTextW`/`GetWindowTextW`.
   * **Status bar**: `STATUSCLASSNAME` with `SBARS_SIZEGRIP`. Shows current file path or "No file".
@@ -85,13 +85,13 @@ Single-file Win32 GUI (~1076 lines). Key components:
 ### `config.c` / `config.h`
 Thin wrapper around rxi/ini with write support:
 
-  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`, `persist_window`, `encoding_count`, `encoding_cps[MAX_ENCODINGS]`
+  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`, `persist_window`, `sort_dirs_first`, `encoding_count`, `encoding_cps[MAX_ENCODINGS]`
   * `config_load(cfg, path)` -> fills AppConfig from INI, applies defaults if missing
   * `config_save(cfg, path)` -> writes AppConfig to INI via `fprintf`
   * `config_equal(a, b)` -> returns 1 if two AppConfig structs are identical (field-by-field comparison)
-  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled), persist_window=1 (on), encoding_count=1 (UTF-8)
+  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled), persist_window=1 (on), sort_dirs_first=0 (off), encoding_count=1 (UTF-8)
   * **Config path**: hardcoded as `"tombo.ini"` (same directory as executable)
-  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout, persist_window, encoding_list), `[view]` (word_wrap)
+  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout, persist_window, sort_dirs_first, encoding_list), `[view]` (word_wrap)
 
 ### `encoding.c` / `encoding.h`
 Character encoding conversion module using Win32 APIs:

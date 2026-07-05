@@ -603,46 +603,54 @@ static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent) {
   char pattern[MAX_PATH], childPath[MAX_PATH];
   HANDLE hFind;
   TVINSERTSTRUCT tvi;
+  int pass;
+  int dirs_first = g_cfg.sort_dirs_first;
 
-  snprintf(pattern, MAX_PATH, "%s\\*", dir);
-  hFind = FindFirstFile(pattern, &fd);
-  if (hFind == INVALID_HANDLE_VALUE) return;
+  for (pass = 0; pass < (dirs_first ? 2 : 1); pass++) {
+    snprintf(pattern, MAX_PATH, "%s\\*", dir);
+    hFind = FindFirstFile(pattern, &fd);
+    if (hFind == INVALID_HANDLE_VALUE) continue;
 
-  do {
-    if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      if (fd.cFileName[0] == '.') continue;
-      snprintf(childPath, MAX_PATH, "%s\\%s", dir, fd.cFileName);
+    do {
+      if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+        if (fd.cFileName[0] == '.') continue;
+        if (dirs_first && pass != 0) continue;
+        snprintf(childPath, MAX_PATH, "%s\\%s", dir, fd.cFileName);
 
-      ZeroMemory(&tvi, sizeof(tvi));
-      tvi.hParent = hParent;
-      tvi.hInsertAfter = TVI_SORT;
-      tvi.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-      tvi.item.pszText = fd.cFileName;
-      tvi.item.iImage = 0;
-      tvi.item.iSelectedImage = 0;
-      tvi.item.lParam = 0;
+        ZeroMemory(&tvi, sizeof(tvi));
+        tvi.hParent = hParent;
+        tvi.hInsertAfter = dirs_first ? TVI_LAST : TVI_SORT;
+        tvi.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+        tvi.item.pszText = fd.cFileName;
+        tvi.item.iImage = 0;
+        tvi.item.iSelectedImage = 0;
+        tvi.item.lParam = 0;
 
-      {
-        HTREEITEM hItem = TreeView_InsertItem(hTree, &tvi);
-        PopulateTree(hTree, childPath, hItem);
+        {
+          HTREEITEM hItem = TreeView_InsertItem(hTree, &tvi);
+          PopulateTree(hTree, childPath, hItem);
+        }
+      } else if (is_tombo_ext(fd.cFileName)) {
+        if (dirs_first && pass != 1) continue;
+        {
+          char *fullPath = (char *)malloc(MAX_PATH);
+          if (!fullPath) continue;
+          snprintf(fullPath, MAX_PATH, "%s\\%s", dir, fd.cFileName);
+
+          ZeroMemory(&tvi, sizeof(tvi));
+          tvi.hParent = hParent;
+          tvi.hInsertAfter = dirs_first ? TVI_LAST : TVI_SORT;
+          tvi.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+          tvi.item.pszText = fd.cFileName;
+          tvi.item.iImage = 1;
+          tvi.item.iSelectedImage = 1;
+          tvi.item.lParam = (LPARAM)fullPath;
+          TreeView_InsertItem(hTree, &tvi);
+        }
       }
-    } else if (is_tombo_ext(fd.cFileName)) {
-      char *fullPath = (char *)malloc(MAX_PATH);
-      if (!fullPath) continue;
-      snprintf(fullPath, MAX_PATH, "%s\\%s", dir, fd.cFileName);
-
-      ZeroMemory(&tvi, sizeof(tvi));
-      tvi.hParent = hParent;
-      tvi.hInsertAfter = TVI_SORT;
-      tvi.item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-      tvi.item.pszText = fd.cFileName;
-      tvi.item.iImage = 1;
-      tvi.item.iSelectedImage = 1;
-      tvi.item.lParam = (LPARAM)fullPath;
-      TreeView_InsertItem(hTree, &tvi);
-    }
-  } while (FindNextFile(hFind, &fd));
-  FindClose(hFind);
+    } while (FindNextFile(hFind, &fd));
+    FindClose(hFind);
+  }
 }
 
 static void RefreshTree(void) {

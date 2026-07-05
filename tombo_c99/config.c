@@ -18,6 +18,7 @@ static void defaults(AppConfig *cfg) {
   cfg->paranoid_save = 0;
   cfg->password_timeout = 0;
   cfg->persist_window = 1;
+  cfg->sort_dirs_first = 1;
   cfg->encoding_count = 1;
   cfg->encoding_cps[0] = CP_UTF8;
 }
@@ -40,6 +41,7 @@ void config_load(AppConfig *cfg, const char *path) {
   v = ini_get(ini, "general", "paranoid_save"); if (v) cfg->paranoid_save = atoi(v);
   v = ini_get(ini, "general", "password_timeout"); if (v) cfg->password_timeout = atoi(v);
   v = ini_get(ini, "general", "persist_window"); if (v) cfg->persist_window = atoi(v);
+  v = ini_get(ini, "general", "sort_dirs_first"); if (v) cfg->sort_dirs_first = atoi(v);
   if (!cfg->persist_window) { cfg->win_x = 100; cfg->win_y = 100; cfg->win_w = 800; cfg->win_h = 600; }
   v = ini_get(ini, "general", "encoding_list");
   if (v) {
@@ -63,7 +65,7 @@ void config_save(const AppConfig *cfg, const char *path) {
   FILE *f = fopen(path, "w");
   if (!f) return;
   fprintf(f, "[window]\nx=%d\ny=%d\nw=%d\nh=%d\ntree_w=%d\n", cfg->win_x, cfg->win_y, cfg->win_w, cfg->win_h, cfg->tree_w);
-  fprintf(f, "[general]\nlast_dir=%s\nsafe_save=%d\nparanoid_save=%d\npassword_timeout=%d\npersist_window=%d\n", cfg->last_dir, cfg->safe_save, cfg->paranoid_save, cfg->password_timeout, cfg->persist_window);
+  fprintf(f, "[general]\nlast_dir=%s\nsafe_save=%d\nparanoid_save=%d\npassword_timeout=%d\npersist_window=%d\nsort_dirs_first=%d\n", cfg->last_dir, cfg->safe_save, cfg->paranoid_save, cfg->password_timeout, cfg->persist_window, cfg->sort_dirs_first);
   fprintf(f, "[view]\nword_wrap=%d\n", cfg->word_wrap);
   fclose(f);
 }
@@ -78,5 +80,6 @@ int config_equal(const AppConfig *a, const AppConfig *b) {
     && a->paranoid_save == b->paranoid_save
     && a->password_timeout == b->password_timeout
     && a->persist_window == b->persist_window
+    && a->sort_dirs_first == b->sort_dirs_first
     && a->encoding_count == b->encoding_count;
 }
