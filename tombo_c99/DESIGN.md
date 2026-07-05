@@ -127,5 +127,7 @@ $(TARGET): $(SRCS)
   * Icon support
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
+  * support command line arguments, for example file to open, folder to use as root
+  * add a view-only mode, to prevent accidental editing and/or deleting
   * support external editor support, under config
   * support templats/snippets, e.g. todays date, time, timestamp, and static text in config file
