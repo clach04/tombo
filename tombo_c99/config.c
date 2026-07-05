@@ -46,3 +46,14 @@ void config_save(const AppConfig *cfg, const char *path) {
   fprintf(f, "[view]\nword_wrap=%d\n", cfg->word_wrap);
   fclose(f);
 }
+
+int config_equal(const AppConfig *a, const AppConfig *b) {
+  return a->win_x == b->win_x && a->win_y == b->win_y
+    && a->win_w == b->win_w && a->win_h == b->win_h
+    && a->tree_w == b->tree_w
+    && strcmp(a->last_dir, b->last_dir) == 0
+    && a->word_wrap == b->word_wrap
+    && a->safe_save == b->safe_save
+    && a->paranoid_save == b->paranoid_save
+    && a->password_timeout == b->password_timeout;
+}

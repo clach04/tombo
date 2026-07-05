@@ -563,11 +563,13 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     KillTimer(hWnd, IDT_PASSWORD);
     {
       RECT rc;
+      AppConfig saved = g_cfg;
       GetWindowRect(hWnd, &rc);
       g_cfg.win_x = rc.left; g_cfg.win_y = rc.top;
       g_cfg.win_w = rc.right - rc.left; g_cfg.win_h = rc.bottom - rc.top;
       g_cfg.tree_w = g_treeW;
-      config_save(&g_cfg, CFG_PATH);
+      if (!config_equal(&g_cfg, &saved))
+        config_save(&g_cfg, CFG_PATH);
     }
     DestroyWindow(hWnd);
     return 0;

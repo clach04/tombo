@@ -17,5 +17,6 @@ typedef struct {
 
 void config_load(AppConfig *cfg, const char *path);
 void config_save(const AppConfig *cfg, const char *path);
+int config_equal(const AppConfig *a, const AppConfig *b);
 
 #endif
