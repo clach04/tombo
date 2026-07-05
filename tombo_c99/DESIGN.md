@@ -166,6 +166,8 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
+  * Do not save config, if config has not changed
+  * New config option to not persist window config
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
   * New Folder support, menu and right click
