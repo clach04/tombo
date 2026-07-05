@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "encoding.h"
 #include "bf01_file.h"
 
 #define IDM_NEW      1001
@@ -58,11 +59,15 @@ static char g_curFile[MAX_PATH];
 static char g_curDir[MAX_PATH];
 static BOOL g_dirty;
 static HFONT g_hFont;
-static char g_findText[256];
+static wchar_t g_findText[256];
 
 static char g_cached_pass[256];
 static int g_pass_cached;
 static DWORD g_pass_expire_tick;
+
+static wchar_t *g_editor_wtext;
+static int g_editor_wlen;
+static UINT g_file_cp;
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PassWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -78,6 +83,8 @@ static void UpdateTitle(void);
 static void UpdateStatus(void);
 static void SetEditorFont(HWND hEd);
 static int AskPassword(char *passBuf, int bufsize, int encrypt);
+static void SetEditorTextW(const wchar_t *wtext);
+static int GetEditorTextW(wchar_t **out_w, int *out_wlen);
 
 static void PasswordCache_Set(const char *pass) {
   strncpy(g_cached_pass, pass, sizeof(g_cached_pass) - 1);
@@ -274,7 +281,7 @@ static LRESULT CALLBACK SplitterWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 static HWND CreateEditor(HWND hParent, int wrap) {
   DWORD style = WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL;
   if (!wrap) style |= WS_HSCROLL | ES_AUTOHSCROLL;
-  return CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
+  return CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
     style, 0, 0, 100, 100, hParent, (HMENU)ID_EDITOR, g_hInst, NULL);
 }
 
@@ -377,7 +384,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     case IDM_NEW:
       if (PromptSave() != IDCANCEL) {
         g_curFile[0] = '\0';
-        SetWindowText(g_hEditor, "");
+        SetWindowTextW(g_hEditor, L"");
+        if (g_editor_wtext) { free(g_editor_wtext); g_editor_wtext = NULL; }
+        g_editor_wlen = 0;
+        g_file_cp = 0;
         g_dirty = FALSE;
         UpdateMenuSaveState(hWnd);
         UpdateTitle();
@@ -432,37 +442,37 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       SetFocus(g_hFindDlg);
       break;
     case IDM_FINDNEXT: {
-      FINDTEXTA ft;
+      FINDTEXTW ft;
       LONG selEnd;
       LONG pos;
       SendMessage(g_hEditor, EM_GETSEL, 0, (WPARAM)&selEnd);
       ft.chrg.cpMin = selEnd;
       ft.chrg.cpMax = -1;
       ft.lpstrText = g_findText;
-      if (g_findText[0] && (pos = (LONG)SendMessage(g_hEditor, EM_FINDTEXT, 0, (LPARAM)&ft)) >= 0)
-        SendMessage(g_hEditor, EM_SETSEL, pos, pos + (LONG)strlen(g_findText));
+      if (g_findText[0] && (pos = (LONG)SendMessageW(g_hEditor, EM_FINDTEXTW, 0, (LPARAM)&ft)) >= 0)
+        SendMessage(g_hEditor, EM_SETSEL, pos, pos + (int)wcslen(g_findText));
       break;
     }
     case IDM_FINDPREV: {
-      FINDTEXTA ft;
+      FINDTEXTW ft;
       LONG selStart;
       LONG pos;
       SendMessage(g_hEditor, EM_GETSEL, (WPARAM)&selStart, 0);
       ft.chrg.cpMin = selStart;
       ft.chrg.cpMax = 0;
       ft.lpstrText = g_findText;
-      if (g_findText[0] && (pos = (LONG)SendMessage(g_hEditor, EM_FINDTEXT, FR_DOWN, (LPARAM)&ft)) >= 0)
-        SendMessage(g_hEditor, EM_SETSEL, pos, pos + (LONG)strlen(g_findText));
+      if (g_findText[0] && (pos = (LONG)SendMessageW(g_hEditor, EM_FINDTEXTW, FR_DOWN, (LPARAM)&ft)) >= 0)
+        SendMessage(g_hEditor, EM_SETSEL, pos, pos + (int)wcslen(g_findText));
       break;
     }
     case IDM_WORDWRAP: {
-      int len = GetWindowTextLength(g_hEditor);
-      char *text = NULL;
+      int len = GetWindowTextLengthW(g_hEditor);
+      wchar_t *wtext = NULL;
       RECT edRc;
       HWND hOld = g_hEditor;
       if (len > 0) {
-        text = (char *)malloc(len + 1);
-        if (text) GetWindowText(g_hEditor, text, len + 1);
+        wtext = (wchar_t *)malloc((len + 1) * sizeof(wchar_t));
+        if (wtext) GetWindowTextW(g_hEditor, wtext, len + 1);
       }
       GetWindowRect(g_hEditor, &edRc);
       MapWindowPoints(HWND_DESKTOP, hWnd, (LPPOINT)&edRc, 2);
@@ -472,9 +482,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         edRc.right - edRc.left, edRc.bottom - edRc.top, SWP_NOZORDER);
       SetEditorFont(g_hEditor);
       SendMessage(g_hEditor, EM_SETLIMITTEXT, 0, 0);
-      if (text) {
-        SetWindowText(g_hEditor, text);
-        free(text);
+      if (wtext) {
+        SetWindowTextW(g_hEditor, wtext);
+        free(wtext);
       }
       DestroyWindow(hOld);
       SetFocus(g_hEditor);
@@ -573,6 +583,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       if (!config_equal(&g_cfg, &saved))
         config_save(&g_cfg, CFG_PATH);
     }
+    if (g_editor_wtext) { free(g_editor_wtext); g_editor_wtext = NULL; }
     DestroyWindow(hWnd);
     return 0;
 
@@ -655,32 +666,95 @@ static int is_chi_file(const char *path) {
   return dot && (!_stricmp(dot, ".chi") || !_stricmp(dot, ".chs"));
 }
 
-static long strip_cr(char *buf, long len) {
-  long w = 0;
-  long r;
+static int strip_cr_w(wchar_t *buf, int len) {
+  int w = 0, r;
   for (r = 0; r < len; r++) {
-    if (buf[r] != '\r') buf[w++] = buf[r];
+    if (buf[r] != L'\r') buf[w++] = buf[r];
   }
   return w;
 }
 
-static char *expand_lf(const char *src, long srclen, long *dstlen) {
-  long i, count = 0;
-  char *dst;
+static wchar_t *expand_lf_w(const wchar_t *src, int srclen, int *dstlen) {
+  int i, count = 0;
+  wchar_t *dst;
   for (i = 0; i < srclen; i++)
-    count += (src[i] == '\n') ? 2 : 1;
-  dst = (char *)malloc(count + 1);
+    count += (src[i] == L'\n') ? 2 : 1;
+  dst = (wchar_t *)malloc((count + 1) * sizeof(wchar_t));
   if (!dst) { *dstlen = 0; return NULL; }
   {
-    long w = 0;
+    int w = 0;
     for (i = 0; i < srclen; i++) {
-      if (src[i] == '\n') dst[w++] = '\r';
+      if (src[i] == L'\n') dst[w++] = L'\r';
       dst[w++] = src[i];
     }
-    dst[w] = '\0';
+    dst[w] = L'\0';
     *dstlen = w;
   }
   return dst;
+}
+
+static void SetEditorTextW(const wchar_t *wtext) {
+  SetWindowTextW(g_hEditor, wtext);
+}
+
+static int GetEditorTextW(wchar_t **out_w, int *out_wlen) {
+  int wlen = GetWindowTextLengthW(g_hEditor);
+  *out_w = (wchar_t *)malloc((wlen + 1) * sizeof(wchar_t));
+  if (!*out_w) { *out_wlen = 0; return 0; }
+  GetWindowTextW(g_hEditor, *out_w, wlen + 1);
+  *out_wlen = wlen;
+  return 1;
+}
+
+static void TomboOpenFileRaw(const unsigned char *raw, long rawlen) {
+  wchar_t *wtext = NULL;
+  int wlen = 0;
+  int bom_len = 0;
+  UINT cp;
+  int i;
+
+  cp = encoding_detect_bom(raw, rawlen, &bom_len);
+  if (cp) {
+    g_file_cp = cp;
+    if (cp == 1200 || cp == 1201) {
+      int wlen2 = MultiByteToWideChar(cp, 0, (const char *)raw + bom_len, (int)(rawlen - bom_len), NULL, 0);
+      if (wlen2 > 0) {
+        wtext = (wchar_t *)malloc((wlen2 + 1) * sizeof(wchar_t));
+        if (wtext) {
+          MultiByteToWideChar(cp, 0, (const char *)raw + bom_len, (int)(rawlen - bom_len), wtext, wlen2);
+          wtext[wlen2] = L'\0';
+          wlen = wlen2;
+        }
+      }
+    } else {
+      encoding_to_wide(raw + bom_len, (int)(rawlen - bom_len), cp, &wtext, &wlen);
+    }
+  }
+
+  if (!wtext) {
+    for (i = 0; i < g_cfg.encoding_count; i++) {
+      if (encoding_to_wide(raw + bom_len, (int)(rawlen - bom_len), g_cfg.encoding_cps[i], &wtext, &wlen)) {
+        g_file_cp = g_cfg.encoding_cps[i];
+        break;
+      }
+    }
+  }
+
+  if (!wtext) {
+    MessageBox(g_hWnd, "Cannot decode file with any configured encoding", "Error", MB_OK | MB_ICONERROR);
+    return;
+  }
+
+  {
+    int explen;
+    wchar_t *expanded = expand_lf_w(wtext, wlen, &explen);
+    free(wtext);
+    if (!expanded) return;
+    SetEditorTextW(expanded);
+    if (g_editor_wtext) free(g_editor_wtext);
+    g_editor_wtext = expanded;
+    g_editor_wlen = explen;
+  }
 }
 
 static void TomboOpenFile(const char *path) {
@@ -713,31 +787,20 @@ static void TomboOpenFile(const char *path) {
     }
     PasswordCache_Set(pass);
     PasswordCache_ResetTimer();
-    {
-      char *exp;
-      long explen;
-      exp = expand_lf((const char *)plain, (long)plainlen, &explen);
-      SetWindowText(g_hEditor, exp ? exp : (const char *)plain);
-      free(exp);
-    }
+    TomboOpenFileRaw(plain, (long)plainlen);
     free(plain);
   } else {
     FILE *f = fopen(path, "rb");
     long sz;
-    char *buf;
+    unsigned char *buf;
     if (!f) { MessageBox(g_hWnd, "Cannot open file", "Error", MB_OK | MB_ICONERROR); return; }
     fseek(f, 0, SEEK_END);
     sz = ftell(f);
     rewind(f);
-    buf = (char *)malloc(sz + 1);
+    buf = (unsigned char *)malloc(sz);
     if (buf) {
-      char *exp;
-      long explen;
       fread(buf, 1, sz, f);
-      buf[sz] = '\0';
-      exp = expand_lf(buf, sz, &explen);
-      SetWindowText(g_hEditor, exp ? exp : buf);
-      free(exp);
+      TomboOpenFileRaw(buf, sz);
       free(buf);
     }
     fclose(f);
@@ -761,29 +824,36 @@ static void TomboOpenFile(const char *path) {
 }
 
 static void SaveCurrentFile(void) {
-  char *buf;
-  long len;
+  wchar_t *wbuf;
+  int wlen;
+  char *bytes = NULL;
+  int blen = 0;
+  UINT save_cp;
   if (!g_curFile[0]) { SaveFileAs(); return; }
 
-  len = GetWindowTextLength(g_hEditor);
-  buf = (char *)malloc(len + 1);
-  if (!buf) return;
-  GetWindowText(g_hEditor, buf, len + 1);
+  if (!GetEditorTextW(&wbuf, &wlen)) return;
+  wlen = strip_cr_w(wbuf, wlen);
+
+  save_cp = g_file_cp ? g_file_cp : (g_cfg.encoding_count > 0 ? g_cfg.encoding_cps[0] : CP_UTF8);
+  if (!wide_to_encoding(wbuf, wlen, save_cp, &bytes, &blen)) {
+    MessageBox(g_hWnd, "Cannot encode text to target encoding", "Error", MB_OK | MB_ICONERROR);
+    free(wbuf);
+    return;
+  }
+  free(wbuf);
 
   if (is_chi_file(g_curFile)) {
     char pass[256] = "";
     unsigned char *cipher;
     size_t cipherlen;
-    FILE *f;
     if (!AskPassword(pass, sizeof(pass), 1)) {
-      free(buf);
+      free(bytes);
       return;
     }
-    len = strip_cr(buf, len);
-    cipher = bf01_encrypt_mem((unsigned char *)buf, len, pass, &cipherlen, 0);
+    cipher = bf01_encrypt_mem((unsigned char *)bytes, blen, pass, &cipherlen, 0);
     if (!cipher) {
       MessageBox(g_hWnd, "Encryption failed", "Error", MB_OK | MB_ICONERROR);
-      free(buf);
+      free(bytes);
       return;
     }
     PasswordCache_Set(pass);
@@ -797,22 +867,22 @@ static void SaveCurrentFile(void) {
       snprintf(tmpPath, MAX_PATH, "%s.tmp.%04d%02d%02d_%02d%02d%02d",
         g_curFile, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
       f = fopen(tmpPath, "wb");
-      if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
+      if (!f) { free(cipher); free(bytes); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
 #ifdef DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK
-      fwrite(cipher, 1, cipherlen-1, f);  // DEBUG corrupt the file to see if paranoid mode catches it
+      fwrite(cipher, 1, cipherlen-1, f);
 #else
       fwrite(cipher, 1, cipherlen, f);
 #endif
       fclose(f);
       if (g_cfg.paranoid_save) {
-        unsigned char *verify = (unsigned char *)malloc(cipherlen);  // NOTE only detects truncation and changes, not longer files
+        unsigned char *verify = (unsigned char *)malloc(cipherlen);
         FILE *fv = fopen(tmpPath, "rb");
         int ok = verify && fv && fread(verify, 1, cipherlen, fv) == cipherlen && memcmp(verify, cipher, cipherlen) == 0;
         if (fv) fclose(fv);
         free(verify);
         if (!ok) {
           char msg[MAX_PATH + 64];
-          free(cipher); free(buf);
+          free(cipher); free(bytes);
           snprintf(msg, sizeof(msg), "Verify failed: temp file does not match source\n%s", tmpPath);
           MessageBox(g_hWnd, msg, "Error", MB_OK | MB_ICONERROR);
           return;
@@ -820,20 +890,20 @@ static void SaveCurrentFile(void) {
       }
       if (!DeleteFile(g_curFile) && GetLastError() != ERROR_FILE_NOT_FOUND) {
         DeleteFile(tmpPath);
-        free(cipher); free(buf);
+        free(cipher); free(bytes);
         MessageBox(g_hWnd, "Cannot delete original file", "Error", MB_OK | MB_ICONERROR);
         return;
       }
       if (!MoveFile(tmpPath, g_curFile)) {
         DeleteFile(tmpPath);
-        free(cipher); free(buf);
+        free(cipher); free(bytes);
         MessageBox(g_hWnd, "Cannot rename temp file", "Error", MB_OK | MB_ICONERROR);
         return;
       }
       free(cipher);
     } else {
-      f = fopen(g_curFile, "wb");
-      if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
+      FILE *f = fopen(g_curFile, "wb");
+      if (!f) { free(cipher); free(bytes); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
       fwrite(cipher, 1, cipherlen, f);
       fclose(f);
       free(cipher);
@@ -847,23 +917,22 @@ static void SaveCurrentFile(void) {
       snprintf(tmpPath, MAX_PATH, "%s.tmp.%04d%02d%02d_%02d%02d%02d",
         g_curFile, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
       f = fopen(tmpPath, "wb");
-      if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
-      len = strip_cr(buf, len);
+      if (!f) { free(bytes); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
 #ifdef DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK
-      fwrite(buf, 1, len-1, f);  // DEBUG corrupt the file to see if paranoid mode catches it
+      fwrite(bytes, 1, blen-1, f);
 #else
-      fwrite(buf, 1, len, f);
+      fwrite(bytes, 1, blen, f);
 #endif
       fclose(f);
       if (g_cfg.paranoid_save) {
-        char *verify = (char *)malloc(len);  // NOTE only detects truncation and changes, not longer files
+        char *verify = (char *)malloc(blen);
         FILE *fv = fopen(tmpPath, "rb");
-        int ok = verify && fv && fread(verify, 1, len, fv) == (size_t)len && memcmp(verify, buf, len) == 0;
+        int ok = verify && fv && fread(verify, 1, blen, fv) == (size_t)blen && memcmp(verify, bytes, blen) == 0;
         if (fv) fclose(fv);
         free(verify);
         if (!ok) {
           char msg[MAX_PATH + 64];
-          free(buf);
+          free(bytes);
           snprintf(msg, sizeof(msg), "Verify failed: temp file does not match source\n%s", tmpPath);
           MessageBox(g_hWnd, msg, "Error", MB_OK | MB_ICONERROR);
           return;
@@ -871,25 +940,24 @@ static void SaveCurrentFile(void) {
       }
       if (!DeleteFile(g_curFile) && GetLastError() != ERROR_FILE_NOT_FOUND) {
         DeleteFile(tmpPath);
-        free(buf);
+        free(bytes);
         MessageBox(g_hWnd, "Cannot delete original file", "Error", MB_OK | MB_ICONERROR);
         return;
       }
       if (!MoveFile(tmpPath, g_curFile)) {
         DeleteFile(tmpPath);
-        free(buf);
+        free(bytes);
         MessageBox(g_hWnd, "Cannot rename temp file", "Error", MB_OK | MB_ICONERROR);
         return;
       }
     } else {
       FILE *f = fopen(g_curFile, "wb");
-      if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
-      len = strip_cr(buf, len);
-      fwrite(buf, 1, len, f);
+      if (!f) { free(bytes); MessageBox(g_hWnd, "Cannot write file", "Error", MB_OK | MB_ICONERROR); return; }
+      fwrite(bytes, 1, blen, f);
       fclose(f);
     }
   }
-  free(buf);
+  free(bytes);
   g_dirty = FALSE;
   SendMessage(g_hEditor, EM_SETMODIFY, FALSE, 0);
   UpdateMenuSaveState(g_hWnd);
@@ -937,7 +1005,7 @@ static void UpdateTitle(void) {
     snprintf(title, sizeof(title), "Tombo - %s%s", g_dirty ? "*" : "", g_curFile);
   else
     snprintf(title, sizeof(title), "Tombo - %sUntitled", g_dirty ? "*" : "");
-  SetWindowText(g_hWnd, title);
+  SetWindowTextA(g_hWnd, title);
 }
 
 static void UpdateStatus(void) {
@@ -972,13 +1040,13 @@ static int AskPassword(char *passBuf, int bufsize, int encrypt) {
 
   CreateWindow("STATIC", "Enter password:", WS_CHILD | WS_VISIBLE,
     10, 10, 200, 20, hPass, NULL, g_hInst, NULL);
-  hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
+  hEdit = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_PASSWORD | ES_AUTOHSCROLL,
     10, 35, 210, 24, hPass, (HMENU)IDC_PASS_EDIT, g_hInst, NULL);
 
   hLabel2 = CreateWindow("STATIC", "Confirm password:", WS_CHILD | WS_VISIBLE,
     10, 65, 200, 20, hPass, NULL, g_hInst, NULL);
-  hEdit2 = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
+  hEdit2 = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_PASSWORD | ES_AUTOHSCROLL,
     10, 85, 210, 24, hPass, (HMENU)IDC_PASS_EDIT2, g_hInst, NULL);
 
@@ -1078,7 +1146,7 @@ static LRESULT CALLBACK FindWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
       DEFAULT_QUALITY, DEFAULT_PITCH, "MS Shell Dlg");
     CreateWindow("STATIC", "Find:", WS_CHILD | WS_VISIBLE,
       10, 12, 30, 20, hWnd, NULL, g_hInst, NULL);
-    CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", g_findText,
+    CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", g_findText,
       WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
       45, 10, 180, 24, hWnd, (HMENU)IDC_FIND_EDIT, g_hInst, NULL);
     CreateWindow("BUTTON", "Next",
@@ -1102,10 +1170,10 @@ static LRESULT CALLBACK FindWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
   }
   case WM_COMMAND:
     if (LOWORD(wParam) == IDC_FIND_NEXT || LOWORD(wParam) == IDC_FIND_PREV) {
-      FINDTEXTA ft;
+      FINDTEXTW ft;
       LONG selStart, selEnd;
       LONG pos;
-      GetDlgItemText(hWnd, IDC_FIND_EDIT, g_findText, sizeof(g_findText));
+      GetDlgItemTextW(hWnd, IDC_FIND_EDIT, g_findText, sizeof(g_findText)/sizeof(g_findText[0]));
       if (!g_findText[0]) return 0;
       SendMessage(g_hEditor, EM_GETSEL, (WPARAM)&selStart, (LPARAM)&selEnd);
       if (LOWORD(wParam) == IDC_FIND_NEXT) {
@@ -1116,11 +1184,11 @@ static LRESULT CALLBACK FindWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
         ft.chrg.cpMax = 0;
       }
       ft.lpstrText = g_findText;
-      if ((pos = (LONG)SendMessage(g_hEditor, EM_FINDTEXT,
+      if ((pos = (LONG)SendMessageW(g_hEditor, EM_FINDTEXTW,
             LOWORD(wParam) == IDC_FIND_PREV ? FR_DOWN : 0, (LPARAM)&ft)) >= 0)
-        SendMessage(g_hEditor, EM_SETSEL, pos, pos + (LONG)strlen(g_findText));
+        SendMessage(g_hEditor, EM_SETSEL, pos, pos + (int)wcslen(g_findText));
       else
-        MessageBox(hWnd, "Not found", "Find", MB_OK);
+        MessageBoxW(hWnd, L"Not found", L"Find", MB_OK);
       return 0;
     }
     if (LOWORD(wParam) == IDC_FIND_CLOSE || LOWORD(wParam) == IDCANCEL) {

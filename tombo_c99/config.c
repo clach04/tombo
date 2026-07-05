@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
+#include "encoding.h"
 
 #define CFG_PATH "tombo.ini"
 
@@ -17,6 +18,8 @@ static void defaults(AppConfig *cfg) {
   cfg->paranoid_save = 0;
   cfg->password_timeout = 0;
   cfg->persist_window = 1;
+  cfg->encoding_count = 1;
+  cfg->encoding_cps[0] = CP_UTF8;
 }
 
 void config_load(AppConfig *cfg, const char *path) {
@@ -38,6 +41,21 @@ void config_load(AppConfig *cfg, const char *path) {
   v = ini_get(ini, "general", "password_timeout"); if (v) cfg->password_timeout = atoi(v);
   v = ini_get(ini, "general", "persist_window"); if (v) cfg->persist_window = atoi(v);
   if (!cfg->persist_window) { cfg->win_x = 100; cfg->win_y = 100; cfg->win_w = 800; cfg->win_h = 600; }
+  v = ini_get(ini, "general", "encoding_list");
+  if (v) {
+    char tmp[256];
+    char *tok, *ctx;
+    int n = 0;
+    strncpy(tmp, v, sizeof(tmp) - 1);
+    tmp[sizeof(tmp) - 1] = '\0';
+    tok = strtok_s(tmp, ",", &ctx);
+    while (tok && n < MAX_ENCODINGS) {
+      UINT cp = encoding_name_to_cp(tok);
+      if (cp) cfg->encoding_cps[n++] = cp;
+      tok = strtok_s(NULL, ",", &ctx);
+    }
+    if (n > 0) cfg->encoding_count = n;
+  }
   ini_free(ini);
 }
 
@@ -59,5 +77,6 @@ int config_equal(const AppConfig *a, const AppConfig *b) {
     && a->safe_save == b->safe_save
     && a->paranoid_save == b->paranoid_save
     && a->password_timeout == b->password_timeout
-    && a->persist_window == b->persist_window;
+    && a->persist_window == b->persist_window
+    && a->encoding_count == b->encoding_count;
 }

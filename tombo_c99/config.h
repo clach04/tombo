@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include "ini.h"
+#include "encoding.h"
 
 #define CFG_PATH "tombo.ini"
 
@@ -14,6 +15,8 @@ typedef struct {
   int paranoid_save;
   int password_timeout;
   int persist_window;
+  int encoding_count;
+  UINT encoding_cps[MAX_ENCODINGS];
 } AppConfig;
 
 void config_load(AppConfig *cfg, const char *path);

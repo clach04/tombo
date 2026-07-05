@@ -17,6 +17,8 @@ Medium feature set:
   * Movable splitter between tree and editor
   * Multi-line text editor pane with status bar
   * Open/save .txt, .md (plain) and .chi, .chs (encrypted) files
+  * Unicode text support via configurable encoding list (UTF-8, CP1252, etc.)
+  * BOM detection (UTF-8, UTF-16 LE/BE)
   * Password dialog for encrypt/decrypt (confirm field on encrypt only)
   * Password caching with inactivity timer (configurable timeout, auto-forget, manual forget via Tools menu)
   * Text search (find next/prev, modeless find dialog)
@@ -31,6 +33,7 @@ Medium feature set:
 tombo_c99/
   main.c          Win32 entry, window proc, message loop, menus, dialogs
   config.c/.h     INI config load/save (rxi/ini adapted for write)
+  encoding.c/.h   Character encoding conversion (MultiByteToWideChar/WideCharToMultiByte)
   Makefile         gcc build
 ```
 
@@ -57,15 +60,15 @@ Single-file Win32 GUI (~1076 lines). Key components:
 
   * **Tree view**: `TV_INSERTSTRUCT` with `TVI_SORT` for alphabetical ordering. `FindFirstFile`/`FindNextFile` recursion for subdirectories. Shows .txt, .md, .chi, .chs files. Directories have lParam=0 (leaf marker), files have lParam pointing to malloc'd full path string. "Root" node at top. Double-click or Enter opens file. +/- keys expand/collapse. Enter toggles expand for directories.
   * **Splitter**: Custom "Splitter" window class between tree and editor. Drag to resize. Cursor changes to `IDC_SIZEWE`. Min tree width 50px. Position persisted in config as `tree_w`.
-  * **Editor**: `CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", ...)` with `ES_MULTILINE|ES_WANTRETURN|ES_AUTOVSCROLL|WS_VSCROLL`. Optional `WS_HSCROLL|ES_AUTOHSCROLL` when word wrap off. Font: Consolas 14pt fixed-width. `EM_SETLIMITTEXT(0, 0)` for unlimited text size. Dirty state tracked via `EN_CHANGE` notification; title shows `*` prefix when modified. Tab inserts tab character (`EM_REPLACESEL`), Shift+Tab moves focus to tree.
+  * **Editor**: `CreateWindowExW(L"EDIT", ...)` (native Unicode control) with `ES_MULTILINE|ES_WANTRETURN|ES_AUTOVSCROLL|WS_VSCROLL`. Optional `WS_HSCROLL|ES_AUTOHSCROLL` when word wrap off. Font: Consolas 14pt fixed-width. `EM_SETLIMITTEXT(0, 0)` for unlimited text size. Dirty state tracked via `EN_CHANGE` notification; title shows `*` prefix when modified. Tab inserts tab character (`EM_REPLACESEL`), Shift+Tab moves focus to tree. All content set/get via `SetWindowTextW`/`GetWindowTextW`.
   * **Status bar**: `STATUSCLASSNAME` with `SBARS_SIZEGRIP`. Shows current file path or "No file".
   * **File open flow**:
-      - Plain (.txt, .md): `fopen` + `fread` into malloc'd buffer, expand LF to CRLF, `SetWindowText` to edit
-      - Encrypted (.chi, .chs): `fopen` + `fread` entire file into memory, `bf01_decrypt_mem` with password, expand LF to CRLF, `SetWindowText`
+      - Plain (.txt, .md): `fopen` + `fread` into malloc'd buffer, detect BOM, try each encoding via `encoding_to_wide` (UTF-8 strict first, then fallbacks), expand LF to CRLF in wide string, `SetWindowTextW` to edit
+      - Encrypted (.chi, .chs): `fopen` + `fread` entire file into memory, `bf01_decrypt_mem` with password, same encoding detection/conversion as plain
       - Open dialog filter: "Text Files (*.txt;*.md)" / "Encrypted (*.chi;*.chs)" / "All Files"
       - After open: set `g_curFile`, update `g_curDir` from path, clear dirty state, update title/status/menu/refresh tree
   * **File save flow**:
-      - `GetWindowText` from editor, strip CR (`strip_cr`) to normalize to LF-only on disk
+      - `GetWindowTextW` from editor, strip CR in wide string (`strip_cr_w`), convert to bytes via `wide_to_encoding` using file's original codepage (or first encoding for new files)
       - Plain (.txt, .md): write directly or via safe_save temp file
       - Encrypted (.chi, .chs): `bf01_encrypt_mem` with password, write cipher or via safe_save temp file
       - Save dialog filter: "Text Files (*.txt)" / "Encrypted (*.chi)" / "All Files"
@@ -82,13 +85,22 @@ Single-file Win32 GUI (~1076 lines). Key components:
 ### `config.c` / `config.h`
 Thin wrapper around rxi/ini with write support:
 
-  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`, `persist_window`
+  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`, `persist_window`, `encoding_count`, `encoding_cps[MAX_ENCODINGS]`
   * `config_load(cfg, path)` -> fills AppConfig from INI, applies defaults if missing
   * `config_save(cfg, path)` -> writes AppConfig to INI via `fprintf`
   * `config_equal(a, b)` -> returns 1 if two AppConfig structs are identical (field-by-field comparison)
-  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled), persist_window=1 (on)
+  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled), persist_window=1 (on), encoding_count=1 (UTF-8)
   * **Config path**: hardcoded as `"tombo.ini"` (same directory as executable)
-  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout, persist_window), `[view]` (word_wrap)
+  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout, persist_window, encoding_list), `[view]` (word_wrap)
+
+### `encoding.c` / `encoding.h`
+Character encoding conversion module using Win32 APIs:
+
+  * Name-to-codepage lookup table: `"utf8"` -> `CP_UTF8`, `"cp1252"` -> `1252`, etc. (~20 encodings)
+  * `encoding_name_to_cp(name)` -> UINT codepage, 0 if unknown
+  * `encoding_to_wide(bytes, len, cp, &out_w, &out_wlen)` -> 1=success, 0=invalid. Uses `MultiByteToWideChar` with `MB_ERR_INVALID_CHARS` for UTF-8 strict validation
+  * `wide_to_encoding(wstr, wlen, cp, &out_bytes, &out_len)` -> 1=success. Uses `WideCharToMultiByte`
+  * `encoding_detect_bom(bytes, len, &bom_len)` -> codepage or 0. Detects UTF-8 BOM (EF BB BF), UTF-16 LE (FF FE), UTF-16 BE (FE FF)
 
 ### `Makefile`
 ```makefile
@@ -98,7 +110,7 @@ LDFLAGS = -lgdi32 -lcomctl32 -lcomdlg32
 
 TOMBO_CRYPT = ../contrib/TomboCrypt
 
-SRCS = main.c config.c ini.c $(TOMBO_CRYPT)/bf01_file.c $(TOMBO_CRYPT)/blowfish.c $(TOMBO_CRYPT)/md5.c
+SRCS = main.c config.c encoding.c ini.c $(TOMBO_CRYPT)/bf01_file.c $(TOMBO_CRYPT)/blowfish.c $(TOMBO_CRYPT)/md5.c
 OBJS = $(SRCS:.c=.o)
 TARGET = tombo.exe
 
@@ -129,6 +141,7 @@ $(TARGET): $(SRCS)
   * **Menu state**: Save grayed when no file is loaded (`g_curFile[0] == 0`). SaveAs always enabled. Updated on open/new/save.
   * **RefreshTree after save**: Tree is repopulated after save to reflect any filename changes.
   * **Conditional config save**: Do not save config, if config has not changed. On exit (`WM_CLOSE`), config is only written to disk if it differs from the originally loaded values. Saves a copy of loaded config before applying live window geometry, then compares with `config_equal` before calling `config_save`. Avoids unnecessary disk writes when nothing changed.
+  * **Unicode encoding support**: EDIT control created with `CreateWindowExW` (native Unicode). File content converted between file encoding and UTF-16 via `encoding_to_wide`/`wide_to_encoding`. Encoding list configured via `encoding_list` INI setting. On load: BOM detection first, then try each encoding in order with UTF-8 strict validation (`MB_ERR_INVALID_CHARS`). On save: use first encoding in list (or file's original encoding). Tree view stays ANSI (system codepage filenames). Title/status bar use ANSI path strings converted via `MultiByteToWideChar` only at API boundaries.
 
 ## Build & Test
 
@@ -146,6 +159,9 @@ $(TARGET): $(SRCS)
   12. Test prompt to save: Modify text, try to open another file, verify prompt appears
   13. Test password caching: Set `password_timeout=10` in tombo.ini. Open .chi file, enter password. Save it without re-prompting. Wait >10s, next operation prompts again.
   14. Test Tools > Forget Password: Cache password, then Tools > Forget Password, next operation prompts immediately.
+  15. Test UTF-8: Create file with accented characters (e.g. cafe.txt), open, verify display
+  16. Test CP1252: Create file with CP1252 encoding, set `encoding_list=utf8,cp1252`, open, verify display
+  17. Test BOM: Create UTF-8 file with BOM, verify BOM stripped on load, not re-added on save
 
 ## Critical Files
 

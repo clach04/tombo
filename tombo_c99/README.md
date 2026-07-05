@@ -7,6 +7,8 @@ Plain text editor with encryption for Windows, built with C99 and Win32 API.
   * Tree view sidebar for navigating directories
   * Multi-line text editor with word wrap
   * Open/save plain text (.txt, .md) and encrypted (.chi, .chs) files
+  * Unicode text support via configurable encoding list (UTF-8, CP1252, etc.)
+  * BOM detection (UTF-8, UTF-16 LE/BE)
   * Password dialog for encrypt/decrypt
   * Password caching with inactivity timer (configurable via `password_timeout`)
   * Tools menu with manual "Forget Password"
@@ -56,6 +58,7 @@ safe_save=1
 paranoid_save=0
 password_timeout=300
 persist_window=1
+encoding_list=utf8,cp1252
 
 [word]
 word_wrap=0
@@ -65,6 +68,7 @@ word_wrap=0
   * `paranoid_save` - Read back temp file and verify contents before rename. Default: 0 (off)
   * `password_timeout` - Cache password in memory for N seconds after successful encrypt/decrypt. Inactivity resets the timer. 0 = disabled (prompt every time). Default: 0
   * `persist_window` - Save and restore window position/size across sessions. 0 = always open at default size/position. Default: 1
+  * `encoding_list` - Comma-separated list of character encodings to try when opening files. First encoding used for saving. BOM detection tried before the list. Default: `utf8`
 
 ## License
 
