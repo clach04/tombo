@@ -738,7 +738,7 @@ static void SaveCurrentFile(void) {
       fwrite(cipher, 1, cipherlen, f);
       fclose(f);
       {
-        unsigned char *verify = (unsigned char *)malloc(cipherlen);
+        unsigned char *verify = (unsigned char *)malloc(cipherlen); // NOTE only detects truncation and changes, not longer files
         FILE *fv = fopen(tmpPath, "rb");
         int ok = verify && fv && fread(verify, 1, cipherlen, fv) == cipherlen && memcmp(verify, cipher, cipherlen) == 0;
         if (fv) fclose(fv);
@@ -785,7 +785,7 @@ static void SaveCurrentFile(void) {
       fwrite(buf, 1, len, f);
       fclose(f);
       {
-        char *verify = (char *)malloc(len);
+        char *verify = (char *)malloc(len);  // NOTE only detects truncation and changes, not longer files
         FILE *fv = fopen(tmpPath, "rb");
         int ok = verify && fv && fread(verify, 1, len, fv) == (size_t)len && memcmp(verify, buf, len) == 0;
         if (fv) fclose(fv);
