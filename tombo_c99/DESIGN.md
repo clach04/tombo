@@ -85,6 +85,7 @@ Thin wrapper around rxi/ini with write support:
   * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`
   * `config_load(cfg, path)` -> fills AppConfig from INI, applies defaults if missing
   * `config_save(cfg, path)` -> writes AppConfig to INI via `fprintf`
+  * `config_equal(a, b)` -> returns 1 if two AppConfig structs are identical (field-by-field comparison)
   * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled)
   * **Config path**: hardcoded as `"tombo.ini"` (same directory as executable)
   * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout), `[view]` (word_wrap)
@@ -127,6 +128,7 @@ $(TARGET): $(SRCS)
   * **Dirty state**: Tracked via `EN_CHANGE` notification (sets `g_dirty` on first change). Title shows `*` prefix. `EM_GETMODIFY` also tracked. `PromptSave()` called on destructive actions.
   * **Menu state**: Save grayed when no file is loaded (`g_curFile[0] == 0`). SaveAs always enabled. Updated on open/new/save.
   * **RefreshTree after save**: Tree is repopulated after save to reflect any filename changes.
+  * **Conditional config save**: On exit (`WM_CLOSE`), config is only written to disk if it differs from the originally loaded values. Saves a copy of loaded config before applying live window geometry, then compares with `config_equal` before calling `config_save`. Avoids unnecessary disk writes when nothing changed.
 
 ## Build & Test
 
