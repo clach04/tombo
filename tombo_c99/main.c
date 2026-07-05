@@ -735,7 +735,11 @@ static void SaveCurrentFile(void) {
         g_curFile, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
       f = fopen(tmpPath, "wb");
       if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
+#ifdef DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK
+      fwrite(cipher, 1, cipherlen-1, f);  // DEBUG corrupt the file to see if paranoid mode catches it
+else
       fwrite(cipher, 1, cipherlen, f);
+#endif
       fclose(f);
       if (g_cfg.paranoid_save) {
         unsigned char *verify = (unsigned char *)malloc(cipherlen);  // NOTE only detects truncation and changes, not longer files
@@ -782,7 +786,11 @@ static void SaveCurrentFile(void) {
       f = fopen(tmpPath, "wb");
       if (!f) { free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
       len = strip_cr(buf, len);
+#ifdef DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK
+      fwrite(buf, 1, len-1, f);  // DEBUG corrupt the file to see if paranoid mode catches it
+else
       fwrite(buf, 1, len, f);
+#endif
       fclose(f);
       if (g_cfg.paranoid_save) {
         char *verify = (char *)malloc(len);  // NOTE only detects truncation and changes, not longer files
