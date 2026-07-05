@@ -13,7 +13,7 @@ static void defaults(AppConfig *cfg) {
   cfg->tree_w = 200;
   cfg->last_dir[0] = '\0';
   cfg->word_wrap = 0;
-  cfg->safe_save = 0;
+  cfg->safe_save = 1;
 }
 
 void config_load(AppConfig *cfg, const char *path) {
