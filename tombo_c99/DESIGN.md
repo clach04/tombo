@@ -127,3 +127,5 @@ $(TARGET): $(SRCS)
   * Icon support
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
+  * support external editor support, under config
+  * support templats/snippets, e.g. todays date, time, timestamp, and static text in config file
