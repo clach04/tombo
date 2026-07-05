@@ -7,6 +7,7 @@
 
 typedef struct {
   int win_x, win_y, win_w, win_h;
+  int tree_w;
   char last_dir[260];
   int word_wrap;
 } AppConfig;

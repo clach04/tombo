@@ -10,6 +10,7 @@ static void defaults(AppConfig *cfg) {
   cfg->win_y = 100;
   cfg->win_w = 800;
   cfg->win_h = 600;
+  cfg->tree_w = 200;
   cfg->last_dir[0] = '\0';
   cfg->word_wrap = 0;
 }
@@ -24,6 +25,7 @@ void config_load(AppConfig *cfg, const char *path) {
   v = ini_get(ini, "window", "y"); if (v) cfg->win_y = atoi(v);
   v = ini_get(ini, "window", "w"); if (v) cfg->win_w = atoi(v);
   v = ini_get(ini, "window", "h"); if (v) cfg->win_h = atoi(v);
+  v = ini_get(ini, "window", "tree_w"); if (v) cfg->tree_w = atoi(v);
   v = ini_get(ini, "general", "last_dir");
   if (v) { strncpy(cfg->last_dir, v, sizeof(cfg->last_dir) - 1); cfg->last_dir[sizeof(cfg->last_dir) - 1] = '\0'; }
   v = ini_get(ini, "view", "word_wrap"); if (v) cfg->word_wrap = atoi(v);
@@ -33,7 +35,7 @@ void config_load(AppConfig *cfg, const char *path) {
 void config_save(const AppConfig *cfg, const char *path) {
   FILE *f = fopen(path, "w");
   if (!f) return;
-  fprintf(f, "[window]\nx=%d\ny=%d\nw=%d\nh=%d\n", cfg->win_x, cfg->win_y, cfg->win_w, cfg->win_h);
+  fprintf(f, "[window]\nx=%d\ny=%d\nw=%d\nh=%d\ntree_w=%d\n", cfg->win_x, cfg->win_y, cfg->win_w, cfg->win_h, cfg->tree_w);
   fprintf(f, "[general]\nlast_dir=%s\n", cfg->last_dir);
   fprintf(f, "[view]\nword_wrap=%d\n", cfg->word_wrap);
   fclose(f);

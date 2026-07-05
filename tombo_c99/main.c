@@ -29,6 +29,7 @@
 #define ID_TREE      2001
 #define ID_EDITOR    2002
 #define ID_STATUS    2003
+#define ID_SPLITTER  2004
 
 #define IDC_PASS_EDIT    3001
 #define IDC_PASS_CONFIRM 3002
@@ -42,9 +43,11 @@
 
 static HINSTANCE g_hInst;
 static HWND g_hWnd;
-static HWND g_hTree, g_hEditor, g_hStatus;
+static HWND g_hTree, g_hEditor, g_hStatus, g_hSplitter;
 static HWND g_hFindDlg;
 static int g_passOk;
+static int g_treeW = 200;
+static int g_splitDrag;
 static AppConfig g_cfg;
 static char g_curFile[MAX_PATH];
 static char g_curDir[MAX_PATH];
@@ -55,6 +58,7 @@ static char g_findText[256];
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PassWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK SplitterWndProc(HWND, UINT, WPARAM, LPARAM);
 static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent);
 static void RefreshTree(void);
 static void TomboOpenFile(const char *path);
@@ -102,6 +106,11 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
 
   wc.lpfnWndProc = FindWndProc;
   wc.lpszClassName = "FindDialog";
+  RegisterClassEx(&wc);
+
+  wc.style = CS_HREDRAW;
+  wc.lpfnWndProc = SplitterWndProc;
+  wc.lpszClassName = "Splitter";
   RegisterClassEx(&wc);
 
   {
@@ -196,6 +205,36 @@ static void UpdateMenuSaveState(HWND hWnd) {
   EnableMenuItem(hMenu, IDM_SAVEAS, MF_ENABLED);
 }
 
+static LRESULT CALLBACK SplitterWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+  switch (msg) {
+  case WM_SETCURSOR:
+    SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+    return TRUE;
+  case WM_LBUTTONDOWN:
+    SetCapture(hWnd);
+    g_splitDrag = 1;
+    return 0;
+  case WM_LBUTTONUP:
+    if (g_splitDrag) { ReleaseCapture(); g_splitDrag = 0; }
+    return 0;
+  case WM_MOUSEMOVE:
+    if (g_splitDrag) {
+      POINT pt;
+      RECT crc;
+      pt.x = (short)LOWORD(lParam);
+      pt.y = (short)HIWORD(lParam);
+      ClientToScreen(hWnd, &pt);
+      ScreenToClient(g_hWnd, &pt);
+      if (pt.x < 50) pt.x = 50;
+      g_treeW = pt.x;
+      GetClientRect(g_hWnd, &crc);
+      SendMessage(g_hWnd, WM_SIZE, 0, MAKELPARAM(crc.right, crc.bottom));
+    }
+    return 0;
+  }
+  return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
 static HWND CreateEditor(HWND hParent, int wrap) {
   DWORD style = WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL;
   if (!wrap) style |= WS_HSCROLL | ES_AUTOHSCROLL;
@@ -243,6 +282,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS,
       0, 0, 200, 400, hWnd, (HMENU)ID_TREE, g_hInst, NULL);
 
+    g_hSplitter = CreateWindow("Splitter", "",
+      WS_CHILD | WS_VISIBLE, 200, 0, 4, 400, hWnd, (HMENU)ID_SPLITTER, g_hInst, NULL);
+
     g_hEditor = CreateEditor(hWnd, 0);
 
     g_hStatus = CreateWindowEx(0, STATUSCLASSNAME, "",
@@ -254,6 +296,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
     if (g_cfg.last_dir[0]) strncpy(g_curDir, g_cfg.last_dir, MAX_PATH - 1);
     else GetCurrentDirectory(MAX_PATH, g_curDir);
+    g_treeW = g_cfg.tree_w;
     RefreshTree();
     SetFocus(g_hTree);
     return 0;
@@ -262,7 +305,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
   case WM_SIZE: {
     RECT rc;
     int w = LOWORD(lParam), h = HIWORD(lParam);
-    int treeW = 200;
     int statusH = 0;
     HDWP hdwp;
 
@@ -270,11 +312,13 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     GetWindowRect(g_hStatus, &rc);
     statusH = rc.bottom - rc.top;
 
-    hdwp = BeginDeferWindowPos(3);
-    DeferWindowPos(hdwp, g_hTree, NULL, 0, 0, treeW, h - statusH, SWP_NOZORDER);
-    DeferWindowPos(hdwp, g_hEditor, NULL, treeW, 0, w - treeW, h - statusH, SWP_NOZORDER);
+    hdwp = BeginDeferWindowPos(4);
+    DeferWindowPos(hdwp, g_hTree, NULL, 0, 0, g_treeW, h - statusH, SWP_NOZORDER);
+    DeferWindowPos(hdwp, g_hSplitter, NULL, g_treeW, 0, 4, h - statusH, SWP_NOZORDER);
+    DeferWindowPos(hdwp, g_hEditor, NULL, g_treeW + 4, 0, w - g_treeW - 4, h - statusH, SWP_NOZORDER);
     DeferWindowPos(hdwp, g_hStatus, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
     EndDeferWindowPos(hdwp);
+    RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW);
     return 0;
   }
 
@@ -467,6 +511,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       GetWindowRect(hWnd, &rc);
       g_cfg.win_x = rc.left; g_cfg.win_y = rc.top;
       g_cfg.win_w = rc.right - rc.left; g_cfg.win_h = rc.bottom - rc.top;
+      g_cfg.tree_w = g_treeW;
       config_save(&g_cfg, CFG_PATH);
     }
     DestroyWindow(hWnd);
