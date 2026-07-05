@@ -185,7 +185,6 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
-  * Show/Display password option
   * Support quick filter/search for tree view - ideally from keyboard short cut. New entry field above Tree view
   * New Folder support, menu and right click
   * Delete New Folder support
