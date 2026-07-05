@@ -116,6 +116,7 @@ $(TARGET): $(SRCS)
 
   * Add option for safe-saving, save to a temp file, once successful, delete old filename and rename temp to old
       * double safe paranoid mode could load temp file from disk and compare contents before delete/rename step
+  * Undo still shows file as modified, even though it is not changed
   * Add support for caching password in memory, with auto-forget on an inactivity timer
   * New Folder support, menu and right click
   * Delete New Folder support
