@@ -35,6 +35,7 @@
 #define IDC_PASS_CONFIRM 3002
 #define IDC_PASS_OK      3003
 #define IDC_PASS_CANCEL  3004
+#define IDC_PASS_EDIT2   3005
 
 #define IDC_FIND_EDIT  3101
 #define IDC_FIND_NEXT  3102
@@ -46,6 +47,7 @@ static HWND g_hWnd;
 static HWND g_hTree, g_hEditor, g_hStatus, g_hSplitter;
 static HWND g_hFindDlg;
 static int g_passOk;
+static int g_passEncrypt;
 static int g_treeW = 200;
 static int g_splitDrag;
 static AppConfig g_cfg;
@@ -68,7 +70,7 @@ static int PromptSave(void);
 static void UpdateTitle(void);
 static void UpdateStatus(void);
 static void SetEditorFont(HWND hEd);
-static int AskPassword(char *passBuf, int bufsize);
+static int AskPassword(char *passBuf, int bufsize, int encrypt);
 
 static int is_tombo_ext(const char *name) {
   const char *dot = strrchr(name, '.');
@@ -633,7 +635,7 @@ static void TomboOpenFile(const char *path) {
     unsigned char *plain;
     size_t plainlen;
 
-    if (!AskPassword(pass, sizeof(pass)))
+    if (!AskPassword(pass, sizeof(pass), 0))
       return;
 
     fin = fopen(path, "rb");
@@ -714,7 +716,7 @@ static void SaveCurrentFile(void) {
     unsigned char *cipher;
     size_t cipherlen;
     FILE *f;
-    if (!AskPassword(pass, sizeof(pass))) {
+    if (!AskPassword(pass, sizeof(pass), 1)) {
       free(buf);
       return;
     }
@@ -888,9 +890,10 @@ static void UpdateStatus(void) {
 
 /* --- Password Dialog --- */
 
-static int AskPassword(char *passBuf, int bufsize) {
+static int AskPassword(char *passBuf, int bufsize, int encrypt) {
   MSG msg;
-  HWND hPass, hEdit, hOk, hCancel;
+  HWND hPass, hEdit, hEdit2, hOk, hCancel;
+  HWND hLabel2;
   HFONT hDlgFont;
   RECT rc;
 
@@ -901,29 +904,44 @@ static int AskPassword(char *passBuf, int bufsize) {
   GetWindowRect(g_hWnd, &rc);
   hPass = CreateWindowEx(WS_EX_DLGMODALFRAME, "PassDialog", "Password",
     WS_POPUP | WS_CAPTION | WS_SYSMENU,
-    (rc.left + rc.right) / 2 - 120, (rc.top + rc.bottom) / 2 - 50,
-    240, 120, g_hWnd, NULL, g_hInst, NULL);
+    (rc.left + rc.right) / 2 - 120, (rc.top + rc.bottom) / 2 - 110,
+    240, 220, g_hWnd, NULL, g_hInst, NULL);
 
   CreateWindow("STATIC", "Enter password:", WS_CHILD | WS_VISIBLE,
     10, 10, 200, 20, hPass, NULL, g_hInst, NULL);
   hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_PASSWORD | ES_AUTOHSCROLL,
     10, 35, 210, 24, hPass, (HMENU)IDC_PASS_EDIT, g_hInst, NULL);
+
+  hLabel2 = CreateWindow("STATIC", "Confirm password:", WS_CHILD | WS_VISIBLE,
+    10, 65, 200, 20, hPass, NULL, g_hInst, NULL);
+  hEdit2 = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_PASSWORD | ES_AUTOHSCROLL,
+    10, 85, 210, 24, hPass, (HMENU)IDC_PASS_EDIT2, g_hInst, NULL);
+
   hOk = CreateWindow("BUTTON", "OK",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON,
-    10, 70, 95, 28, hPass, (HMENU)IDC_PASS_OK, g_hInst, NULL);
+    10, 118, 95, 28, hPass, (HMENU)IDC_PASS_OK, g_hInst, NULL);
   hCancel = CreateWindow("BUTTON", "Cancel",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-    115, 70, 95, 28, hPass, (HMENU)IDC_PASS_CANCEL, g_hInst, NULL);
+    115, 118, 95, 28, hPass, (HMENU)IDC_PASS_CANCEL, g_hInst, NULL);
 
   SendMessage(hEdit, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
+  SendMessage(hLabel2, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
+  SendMessage(hEdit2, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
   SendMessage(hOk, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
   SendMessage(hCancel, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
+
+  if (!encrypt) {
+    EnableWindow(hLabel2, FALSE);
+    EnableWindow(hEdit2, FALSE);
+  }
 
   SetWindowLongPtr(hPass, GWLP_USERDATA, (LONG_PTR)passBuf);
   SetWindowLongPtr(hPass, GWLP_HINSTANCE, (LONG_PTR)bufsize);
 
   g_passOk = 0;
+  g_passEncrypt = encrypt;
   ShowWindow(hPass, SW_SHOW);
   SetFocus(hEdit);
   EnableWindow(g_hWnd, FALSE);
@@ -951,6 +969,15 @@ static LRESULT CALLBACK PassWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
       char *dst = (char *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
       int bufsize = (int)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
       GetDlgItemText(hWnd, IDC_PASS_EDIT, dst, bufsize);
+      if (g_passEncrypt) {
+        char confirm[256] = "";
+        GetDlgItemText(hWnd, IDC_PASS_EDIT2, confirm, sizeof(confirm));
+        if (strcmp(dst, confirm) != 0) {
+          MessageBox(hWnd, "Passwords do not match", "Error", MB_OK | MB_ICONERROR);
+          SetFocus(GetDlgItem(hWnd, IDC_PASS_EDIT));
+          return 0;
+        }
+      }
       g_passOk = 1;
       DestroyWindow(hWnd);
       return 0;
