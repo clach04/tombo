@@ -114,6 +114,8 @@ $(TARGET): $(SRCS)
 
 ## TODO Items
 
+  * Add option for safe-saving, save to a temp file, once successful, delete old filename and rename temp to old
+      * double safe paranoid mode could load temp file from disk and compare contents before delete/rename step
   * convert text file to encrypted
   * convert encrypted file to text
   * working find/search support
