@@ -737,7 +737,7 @@ static void SaveCurrentFile(void) {
       if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
 #ifdef DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK
       fwrite(cipher, 1, cipherlen-1, f);  // DEBUG corrupt the file to see if paranoid mode catches it
-else
+#else
       fwrite(cipher, 1, cipherlen, f);
 #endif
       fclose(f);
@@ -788,7 +788,7 @@ else
       len = strip_cr(buf, len);
 #ifdef DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK
       fwrite(buf, 1, len-1, f);  // DEBUG corrupt the file to see if paranoid mode catches it
-else
+#else
       fwrite(buf, 1, len, f);
 #endif
       fclose(f);
