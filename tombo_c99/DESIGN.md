@@ -59,7 +59,7 @@ Single-file Win32 GUI. Key components:
       - Save .chi: `GetWindowText` -> write plaintext to temp FILE* -> `bf01_encrypt_stream` -> write to .chi file
   * **Password dialog**: `DialogBoxParam` with custom `DlgProc`. Two `EDIT` controls (password + confirm). ES_PASSWORD style. Returns password string via `SetWindowLongPtr(DWLP_USER, ...)`.
   * **Find dialog**: Simple modeless dialog with text input + "Find Next" / "Find Previous" buttons. Uses `EM_FINDTEXT` on the edit control.
-  * **Config**: Load on startup (window pos, last dir), save on exit. Section `[window]` for geometry, `[general]` for last_dir and safe_save (default 1 = on).
+  * **Config**: Load on startup (window pos, last dir), save on exit. Section `[window]` for geometry, `[general]` for last_dir, safe_save (default 1 = on), paranoid_save (default 0 = off).
 
 ### `config.c`
 Thin wrapper around rxi/ini:
@@ -94,7 +94,7 @@ $(TARGET): $(SRCS)
   * **File associations**: Only show .txt and .chi in the tree view. Other files hidden.
   * **Encoding**: UTF-8 with BOM handling. The edit control uses `EM_SETTEXTLEN` for large files. Keep it simple - no Unicode conversion layer.
   * **Safe save**: When `safe_save=1` in config (default on), writes to a timestamped temp file in the same directory (e.g. `file.txt.tmp.20260704_153012`), then deletes original and renames temp to original. Preserves original until save is confirmed successful. On failure, temp file is cleaned up.
-  * **Paranoid mode**: Extension of safe save. After writing temp file, reads it back from disk and compares byte-for-byte against the source data before proceeding with delete/rename. Protects against silent disk write failures (full disk, bit rot, hardware errors).
+  * **Paranoid mode**: Extension of safe save. When `paranoid_save=1` in config (default off), after writing temp file, reads it back from disk and compares byte-for-byte against the source data before proceeding with delete/rename. Protects against silent disk write failures (full disk, bit rot, hardware errors).
 
 ## Build & Test
 
