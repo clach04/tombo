@@ -737,6 +737,20 @@ static void SaveCurrentFile(void) {
       if (!f) { free(cipher); free(buf); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
       fwrite(cipher, 1, cipherlen, f);
       fclose(f);
+      {
+        unsigned char *verify = (unsigned char *)malloc(cipherlen);
+        FILE *fv = fopen(tmpPath, "rb");
+        int ok = verify && fv && fread(verify, 1, cipherlen, fv) == cipherlen && memcmp(verify, cipher, cipherlen) == 0;
+        if (fv) fclose(fv);
+        free(verify);
+        if (!ok) {
+          char msg[MAX_PATH + 64];
+          free(cipher); free(buf);
+          snprintf(msg, sizeof(msg), "Verify failed: temp file does not match source\n%s", tmpPath);
+          MessageBox(g_hWnd, msg, "Error", MB_OK | MB_ICONERROR);
+          return;
+        }
+      }
       if (!DeleteFile(g_curFile) && GetLastError() != ERROR_FILE_NOT_FOUND) {
         DeleteFile(tmpPath);
         free(cipher); free(buf);
@@ -770,6 +784,20 @@ static void SaveCurrentFile(void) {
       len = strip_cr(buf, len);
       fwrite(buf, 1, len, f);
       fclose(f);
+      {
+        char *verify = (char *)malloc(len);
+        FILE *fv = fopen(tmpPath, "rb");
+        int ok = verify && fv && fread(verify, 1, len, fv) == (size_t)len && memcmp(verify, buf, len) == 0;
+        if (fv) fclose(fv);
+        free(verify);
+        if (!ok) {
+          char msg[MAX_PATH + 64];
+          free(buf);
+          snprintf(msg, sizeof(msg), "Verify failed: temp file does not match source\n%s", tmpPath);
+          MessageBox(g_hWnd, msg, "Error", MB_OK | MB_ICONERROR);
+          return;
+        }
+      }
       if (!DeleteFile(g_curFile) && GetLastError() != ERROR_FILE_NOT_FOUND) {
         DeleteFile(tmpPath);
         free(buf);

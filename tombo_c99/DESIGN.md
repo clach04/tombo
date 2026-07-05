@@ -59,7 +59,7 @@ Single-file Win32 GUI. Key components:
       - Save .chi: `GetWindowText` -> write plaintext to temp FILE* -> `bf01_encrypt_stream` -> write to .chi file
   * **Password dialog**: `DialogBoxParam` with custom `DlgProc`. Two `EDIT` controls (password + confirm). ES_PASSWORD style. Returns password string via `SetWindowLongPtr(DWLP_USER, ...)`.
   * **Find dialog**: Simple modeless dialog with text input + "Find Next" / "Find Previous" buttons. Uses `EM_FINDTEXT` on the edit control.
-  * **Config**: Load on startup (window pos, last dir), save on exit. Section `[window]` for geometry, `[general]` for last_dir.
+  * **Config**: Load on startup (window pos, last dir), save on exit. Section `[window]` for geometry, `[general]` for last_dir and safe_save (default 1 = on).
 
 ### `config.c`
 Thin wrapper around rxi/ini:
@@ -93,6 +93,8 @@ $(TARGET): $(SRCS)
   * **Tree view**: Manual `FindFirstFile`/`FindNextFile` recursion. No `SHBrowseForFolder` - we own the tree and populate it ourselves for full control.
   * **File associations**: Only show .txt and .chi in the tree view. Other files hidden.
   * **Encoding**: UTF-8 with BOM handling. The edit control uses `EM_SETTEXTLEN` for large files. Keep it simple - no Unicode conversion layer.
+  * **Safe save**: When `safe_save=1` in config (default on), writes to a timestamped temp file in the same directory (e.g. `file.txt.tmp.20260704_153012`), then deletes original and renames temp to original. Preserves original until save is confirmed successful. On failure, temp file is cleaned up.
+  * **Paranoid mode**: Extension of safe save. After writing temp file, reads it back from disk and compares byte-for-byte against the source data before proceeding with delete/rename. Protects against silent disk write failures (full disk, bit rot, hardware errors).
 
 ## Build & Test
 
@@ -114,8 +116,8 @@ $(TARGET): $(SRCS)
 
 ## TODO Items
 
-  * Add option for safe-saving, save to a temp file, once successful, delete old filename and rename temp to old
-      * double safe paranoid mode could load temp file from disk and compare contents before delete/rename step
+  * ~~Add option for safe-saving, save to a temp file, once successful, delete old filename and rename temp to old~~ (done)
+  * ~~paranoid mode: after writing temp file, read it back from disk and compare contents before delete/rename step~~ (done)
   * Undo still shows file as modified, even though it is not changed
   * Add support for caching password in memory, with auto-forget on an inactivity timer
   * New Folder support, menu and right click
