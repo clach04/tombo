@@ -114,7 +114,6 @@ $(TARGET): $(SRCS)
 
 ## TODO Items
 
-  * Add a Root note to top of tree
   * convert text file to encrypted
   * convert encrypted file to text
   * working find/search support
