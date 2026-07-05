@@ -40,6 +40,7 @@
 #define IDC_PASS_OK      3003
 #define IDC_PASS_CANCEL  3004
 #define IDC_PASS_EDIT2   3005
+#define IDC_PASS_SHOW    3006
 
 #define IDC_FIND_EDIT  3101
 #define IDC_FIND_NEXT  3102
@@ -1035,8 +1036,8 @@ static int AskPassword(char *passBuf, int bufsize, int encrypt) {
   GetWindowRect(g_hWnd, &rc);
   hPass = CreateWindowEx(WS_EX_DLGMODALFRAME, "PassDialog", "Password",
     WS_POPUP | WS_CAPTION | WS_SYSMENU,
-    (rc.left + rc.right) / 2 - 120, (rc.top + rc.bottom) / 2 - 110,
-    240, 192, g_hWnd, NULL, g_hInst, NULL);
+    (rc.left + rc.right) / 2 - 120, (rc.top + rc.bottom) / 2 - 124,
+    240, 220, g_hWnd, NULL, g_hInst, NULL);
 
   CreateWindow("STATIC", "Enter password:", WS_CHILD | WS_VISIBLE,
     10, 10, 200, 20, hPass, NULL, g_hInst, NULL);
@@ -1050,12 +1051,16 @@ static int AskPassword(char *passBuf, int bufsize, int encrypt) {
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_PASSWORD | ES_AUTOHSCROLL,
     10, 85, 210, 24, hPass, (HMENU)IDC_PASS_EDIT2, g_hInst, NULL);
 
+  CreateWindow("BUTTON", "Show password",
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX,
+    10, 118, 210, 20, hPass, (HMENU)IDC_PASS_SHOW, g_hInst, NULL);
+
   hOk = CreateWindow("BUTTON", "OK",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON,
-    10, 118, 95, 28, hPass, (HMENU)IDC_PASS_OK, g_hInst, NULL);
+    10, 148, 95, 28, hPass, (HMENU)IDC_PASS_OK, g_hInst, NULL);
   hCancel = CreateWindow("BUTTON", "Cancel",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-    115, 118, 95, 28, hPass, (HMENU)IDC_PASS_CANCEL, g_hInst, NULL);
+    115, 148, 95, 28, hPass, (HMENU)IDC_PASS_CANCEL, g_hInst, NULL);
 
   SendMessage(hEdit, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
   SendMessage(hLabel2, WM_SETFONT, (WPARAM)hDlgFont, TRUE);
@@ -1115,6 +1120,17 @@ static LRESULT CALLBACK PassWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM l
     }
     if (LOWORD(wParam) == IDC_PASS_CANCEL || LOWORD(wParam) == IDCANCEL) {
       DestroyWindow(hWnd);
+      return 0;
+    }
+    if (LOWORD(wParam) == IDC_PASS_SHOW && HIWORD(wParam) == BN_CLICKED) {
+      HWND hEdit1 = GetDlgItem(hWnd, IDC_PASS_EDIT);
+      HWND hEdit2 = GetDlgItem(hWnd, IDC_PASS_EDIT2);
+      int show = (int)SendMessage(GetDlgItem(hWnd, IDC_PASS_SHOW), BM_GETCHECK, 0, 0);
+      WPARAM ch = (show == BST_CHECKED) ? 0 : '*';
+      SendMessage(hEdit1, EM_SETPASSWORDCHAR, ch, 0);
+      InvalidateRect(hEdit1, NULL, TRUE);
+      SendMessage(hEdit2, EM_SETPASSWORDCHAR, ch, 0);
+      InvalidateRect(hEdit2, NULL, TRUE);
       return 0;
     }
     break;
