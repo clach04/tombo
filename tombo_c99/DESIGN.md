@@ -18,6 +18,7 @@ Medium feature set:
   * Multi-line text editor pane with status bar
   * Open/save .txt, .md (plain) and .chi, .chs (encrypted) files
   * Password dialog for encrypt/decrypt (confirm field on encrypt only)
+  * Password caching with inactivity timer (configurable timeout, auto-forget, manual forget via Tools menu)
   * Text search (find next/prev, modeless find dialog)
   * Word wrap toggle
   * Unix newline normalization (LF on disk, CRLF in editor)
@@ -52,7 +53,7 @@ Single-file Win32 GUI (~1076 lines). Key components:
 
   * **WinMain**: Register window classes (TomboClass, PassDialog, FindDialog, Splitter). Clamp window pos/size to screen. Create main window. Message loop with pre-dispatch keyboard handling (global shortcuts intercepted before TranslateMessage).
   * **WndProc**: WM_CREATE (menu, tree, splitter, editor, status bar, load last dir from config), WM_SIZE (layout with DeferWindowPos), WM_NOTIFY (tree double-click, tree Enter/+/− keys), WM_COMMAND (menu actions), WM_GETMINMAXINFO (min 400x300), WM_CLOSE (prompt save, save config), WM_DESTROY.
-  * **Menu**: File > New (Ctrl+N), Open (Ctrl+O), Save (Ctrl+S), Save As, Exit; Edit > Undo (Ctrl+Z), Cut (Ctrl+X), Copy (Ctrl+C), Paste (Ctrl+V), Find (Ctrl+F), Find Next (F3), Find Previous (Shift+F3); View > Word Wrap; Help > About.
+  * **Menu**: File > New (Ctrl+N), Open (Ctrl+O), Save (Ctrl+S), Save As, Exit; Edit > Undo (Ctrl+Z), Cut (Ctrl+X), Copy (Ctrl+C), Paste (Ctrl+V), Find (Ctrl+F), Find Next (F3), Find Previous (Shift+F3); View > Word Wrap; Tools > Forget Password; Help > About.
 
   * **Tree view**: `TV_INSERTSTRUCT` with `TVI_SORT` for alphabetical ordering. `FindFirstFile`/`FindNextFile` recursion for subdirectories. Shows .txt, .md, .chi, .chs files. Directories have lParam=0 (leaf marker), files have lParam pointing to malloc'd full path string. "Root" node at top. Double-click or Enter opens file. +/- keys expand/collapse. Enter toggles expand for directories.
   * **Splitter**: Custom "Splitter" window class between tree and editor. Drag to resize. Cursor changes to `IDC_SIZEWE`. Min tree width 50px. Position persisted in config as `tree_w`.
@@ -73,6 +74,7 @@ Single-file Win32 GUI (~1076 lines). Key components:
   * **Safe save**: Write to temp file (`file.ext.tmp.YYYYMMDD_HHMMSS` in same directory), delete original, rename temp to original. Preserves original until save confirmed successful. Temp file cleaned up on failure.
   * **Paranoid mode**: Extension of safe save. After writing temp file, reads it back and compares byte-for-byte against source data before delete/rename. Only detects truncation and content changes (not longer files). Controlled by `paranoid_save` config. Debug ifdef `DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK` writes one fewer byte to test the verify path.
   * **Password dialog**: Custom "PassDialog" window class (not DialogBox). Modal: disables parent window. Two `EDIT` controls with `ES_PASSWORD`. Confirm field enabled only for encrypt, disabled for decrypt. Enter triggers OK, Escape triggers Cancel. Returns password via `g_passOk`/buffer. Focus returns to tree after successful password entry.
+  * **Password caching**: When `password_timeout > 0`, password is cached in memory after successful encrypt/decrypt. Subsequent operations reuse cached password without prompting. Inactivity timer (1-second `WM_TIMER` tick) clears cache after timeout expires. Every successful encrypt/decrypt resets the timer. Tools > Forget Password clears cache immediately. Cache cleared on app exit (`WM_CLOSE`). Password buffer zeroed with `SecureZeroMemory` on clear.
   * **Find dialog**: Custom "FindDialog" window class. Modeless tool window (`WS_EX_TOOLWINDOW`). Text input + Next/Prev/Close buttons. Uses `EM_FINDTEXT` on the edit control. "Not found" message box on no match. Ctrl+F opens, F3/Shift+F3 for next/prev (from message loop).
   * **Focus policy**: Tree focused on startup. Editor focused after New note. Focus returns to tree after password dialog. Tab/Shift+Tab toggles between tree and editor.
   * **Prompt to save**: `PromptSave()` called before New, Open, tree double-click/Enter. Shows Yes/No/Cancel dialog. Returns IDCANCEL to abort operation.
@@ -80,12 +82,12 @@ Single-file Win32 GUI (~1076 lines). Key components:
 ### `config.c` / `config.h`
 Thin wrapper around rxi/ini with write support:
 
-  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`
+  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`
   * `config_load(cfg, path)` -> fills AppConfig from INI, applies defaults if missing
   * `config_save(cfg, path)` -> writes AppConfig to INI via `fprintf`
-  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off)
+  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled)
   * **Config path**: hardcoded as `"tombo.ini"` (same directory as executable)
-  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save), `[view]` (word_wrap)
+  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout), `[view]` (word_wrap)
 
 ### `Makefile`
 ```makefile
@@ -120,6 +122,7 @@ $(TARGET): $(SRCS)
   * **Editor font**: Consolas 14pt fixed-width. Created with `CreateFont` and applied via WM_SETFONT.
   * **Keyboard shortcuts**: Global keys (Ctrl+N/O/S/F/Z, F3, Shift+F3, Tab, +/-, Enter) intercepted in message loop pre-dispatch, before TranslateMessage. This avoids accelerator table overhead.
   * **Password confirm**: Confirmation field shown only for encrypt. Disabled (grayed out) for decrypt. Prevents typo on encrypt without burdening decrypt.
+  * **Password caching**: Avoids re-prompting during active sessions. `PasswordCache_Set` on successful encrypt/decrypt, `PasswordCache_Get` at `AskPassword` entry, `PasswordCache_Clear` on timeout/manual/exit. Inactivity timer resets on each crypto operation. `SetTimer`/`KillTimer` in WM_CREATE/WM_CLOSE. 1-second WM_TIMER tick checks `GetTickCount()` expiry.
   * **Modal password dialog**: Custom window class, not DialogBox. Disables parent window. Custom message loop until dialog destroyed.
   * **Dirty state**: Tracked via `EN_CHANGE` notification (sets `g_dirty` on first change). Title shows `*` prefix. `EM_GETMODIFY` also tracked. `PromptSave()` called on destructive actions.
   * **Menu state**: Save grayed when no file is loaded (`g_curFile[0] == 0`). SaveAs always enabled. Updated on open/new/save.
@@ -139,6 +142,8 @@ $(TARGET): $(SRCS)
   10. Test keyboard: Tab/Shift+Tab between tree and editor, +/- in tree, Enter in tree
   11. Test safe save: Save a file, verify temp file is cleaned up
   12. Test prompt to save: Modify text, try to open another file, verify prompt appears
+  13. Test password caching: Set `password_timeout=10` in tombo.ini. Open .chi file, enter password. Save it without re-prompting. Wait >10s, next operation prompts again.
+  14. Test Tools > Forget Password: Cache password, then Tools > Forget Password, next operation prompts immediately.
 
 ## Critical Files
 
@@ -161,7 +166,6 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
-  * Add support for caching password in memory, with auto-forget on an inactivity timer
   * New Folder support, menu and right click
   * Delete New Folder support
   * Delete File support

@@ -8,6 +8,8 @@ Plain text editor with encryption for Windows, built with C99 and Win32 API.
   * Multi-line text editor with word wrap
   * Open/save plain text (.txt, .md) and encrypted (.chi, .chs) files
   * Password dialog for encrypt/decrypt
+  * Password caching with inactivity timer (configurable via `password_timeout`)
+  * Tools menu with manual "Forget Password"
   * Basic text search (find next/prev)
   * Safe save by default (writes to temp file, then renames)
   * Optional paranoid mode (read-back verification)
@@ -52,6 +54,7 @@ tree_w=200
 last_dir=C:\path\to\last\folder
 safe_save=1
 paranoid_save=0
+password_timeout=300
 
 [word]
 word_wrap=0
@@ -59,6 +62,7 @@ word_wrap=0
 
   * `safe_save` - Write to temp file first, then rename. Default: 1 (on)
   * `paranoid_save` - Read back temp file and verify contents before rename. Default: 0 (off)
+  * `password_timeout` - Cache password in memory for N seconds after successful encrypt/decrypt. Inactivity resets the timer. 0 = disabled (prompt every time). Default: 0
 
 ## License
 
