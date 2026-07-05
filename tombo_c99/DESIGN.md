@@ -6,20 +6,23 @@
 The C++ Tombo app is ~80% platform-agnostic logic but deeply coupled to C++ patterns (classes, virtual dispatch, STL-like containers). The YAEdit custom editor engine alone is thousands of lines of complex C++. Converting means rewriting almost everything anyway, but with the burden of preserving C++ idioms translated to C. A fresh C99 implementation is cleaner, simpler, and can directly reuse the existing C99 TomboCrypt library (`bf01_file.c`) with zero adaptation.
 
 **What we reuse from C++ codebase:**
-- Architecture patterns (tree view + editor pane layout)
-- BF01 file format (via `contrib/TomboCrypt/bf01_file.c` + dependencies)
-- Menu structure ideas from `Src/MainFrame.h`
+  * Architecture patterns (tree view + editor pane layout)
+  * BF01 file format (via `contrib/TomboCrypt/bf01_file.c` + dependencies)
+  * Menu structure ideas from `Src/MainFrame.h`
 
 ## Scope
 
 Medium feature set:
-  * Tree view sidebar (file system directories, nested)
-  * Multi-line text editor pane
-  * Open/save .txt (plain) and .chi (encrypted) files
-  * Password dialog for encrypt/decrypt
-  * Basic text search (find next/prev)
+  * Tree view sidebar (file system directories, nested) with "Root" node and sorted entries
+  * Movable splitter between tree and editor
+  * Multi-line text editor pane with status bar
+  * Open/save .txt, .md (plain) and .chi, .chs (encrypted) files
+  * Password dialog for encrypt/decrypt (confirm field on encrypt only)
+  * Text search (find next/prev, modeless find dialog)
   * Word wrap toggle
-  * INI config file (window size, last directory)
+  * Unix newline normalization (LF on disk, CRLF in editor)
+  * Keyboard shortcuts (Ctrl+N/O/S/F/Z, F3, Shift+F3, Tab, +/-, Enter)
+  * INI config file (window size/pos, tree width, last dir, wrap, safe/paranoid save)
 
 ## Architecture
 
@@ -32,41 +35,57 @@ tombo_c99/
 
 Shared code reused as-is (NOT copied, linked):
 ```
-contrib/TomboCrypt/bf01_file.c
-contrib/TomboCrypt/blowfish.c
-contrib/TomboCrypt/md5.c
+contrib/TomboCrypt/bf01_file.c     in-memory encrypt/decrypt (bf01_encrypt_mem / bf01_decrypt_mem)
+contrib/TomboCrypt/blowfish.c      Blowfish cipher
+contrib/TomboCrypt/md5.c           MD5 hash for key derivation
 ```
 
 External dependency (vendored copy):
 ```
-tombo_c99/ini.c + ini.h   from C:\code\terminal\colortool_alt_clean (rxi/ini, MIT)
+tombo_c99/ini.c + ini.h            rxi/ini (MIT license), read-only INI parser
 ```
 
 ## File Details
 
 ### `main.c`
-Single-file Win32 GUI. Key components:
+Single-file Win32 GUI (~1076 lines). Key components:
 
-  * **WinMain**: Register class, create window with `WS_OVERLAPPEDWINDOW`, create child controls (TreeView left, Edit right), message loop
-  * **WndProc**: Handle WM_CREATE (init tree + edit), WM_SIZE (layout children), WM_NOTIFY (tree selection), WM_COMMAND (menu actions), WM_DESTROY (save config, exit)
-  * **Menu**: File > New, Open, Save, Save As, Exit; Edit > Undo, Cut, Copy, Paste, Find; View > Word Wrap; Help > About
-  * **Tree view**: `TV_INSERTSTRUCT` to populate from directory scan. `FindFirstFile`/`FindNextFile` recursion for subdirectories. Show .txt and .chi files. Double-click opens file in editor.
-  * **Editor**: `CreateWindow("EDIT", ..., WS_CHILD|WS_VISIBLE|ES_MULTILINE|ES_WANTRETURN|ES_AUTOVSCROLL|WS_VSCROLL, ...)`. `WM_SETFONT` with fixed-width font. Track dirty state via `EM_GETMODIFY`.
-  * **File open/save flow**:
-      - Open .txt: `fopen` + `fread` into buffer, `SetWindowText` to edit
-      - Open .chi: `fopen` -> `fseek`/`fread` to temp FILE* -> `bf01_decrypt_stream` -> read plaintext -> `SetWindowText`
-      - Save .txt: `GetWindowText` length + buffer, `fwrite`
-      - Save .chi: `GetWindowText` -> write plaintext to temp FILE* -> `bf01_encrypt_stream` -> write to .chi file
-  * **Password dialog**: `DialogBoxParam` with custom `DlgProc`. Two `EDIT` controls (password + confirm). ES_PASSWORD style. Returns password string via `SetWindowLongPtr(DWLP_USER, ...)`.
-  * **Find dialog**: Simple modeless dialog with text input + "Find Next" / "Find Previous" buttons. Uses `EM_FINDTEXT` on the edit control.
-  * **Config**: Load on startup (window pos, last dir), save on exit. Section `[window]` for geometry, `[general]` for last_dir, safe_save (default 1 = on), paranoid_save (default 0 = off).
+  * **WinMain**: Register window classes (TomboClass, PassDialog, FindDialog, Splitter). Clamp window pos/size to screen. Create main window. Message loop with pre-dispatch keyboard handling (global shortcuts intercepted before TranslateMessage).
+  * **WndProc**: WM_CREATE (menu, tree, splitter, editor, status bar, load last dir from config), WM_SIZE (layout with DeferWindowPos), WM_NOTIFY (tree double-click, tree Enter/+/− keys), WM_COMMAND (menu actions), WM_GETMINMAXINFO (min 400x300), WM_CLOSE (prompt save, save config), WM_DESTROY.
+  * **Menu**: File > New (Ctrl+N), Open (Ctrl+O), Save (Ctrl+S), Save As, Exit; Edit > Undo (Ctrl+Z), Cut (Ctrl+X), Copy (Ctrl+C), Paste (Ctrl+V), Find (Ctrl+F), Find Next (F3), Find Previous (Shift+F3); View > Word Wrap; Help > About.
 
-### `config.c`
-Thin wrapper around rxi/ini:
-  * `config_load(path)` -> returns `ini_t*`
-  * `config_get(ini, section, key)` -> `const char*`
-  * `config_get_int(ini, section, key, default)` -> `int`
-  * For write support: simple `fprintf` to INI format (rxi/ini is read-only, but we can write manually for the few settings we need)
+  * **Tree view**: `TV_INSERTSTRUCT` with `TVI_SORT` for alphabetical ordering. `FindFirstFile`/`FindNextFile` recursion for subdirectories. Shows .txt, .md, .chi, .chs files. Directories have lParam=0 (leaf marker), files have lParam pointing to malloc'd full path string. "Root" node at top. Double-click or Enter opens file. +/- keys expand/collapse. Enter toggles expand for directories.
+  * **Splitter**: Custom "Splitter" window class between tree and editor. Drag to resize. Cursor changes to `IDC_SIZEWE`. Min tree width 50px. Position persisted in config as `tree_w`.
+  * **Editor**: `CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", ...)` with `ES_MULTILINE|ES_WANTRETURN|ES_AUTOVSCROLL|WS_VSCROLL`. Optional `WS_HSCROLL|ES_AUTOHSCROLL` when word wrap off. Font: Consolas 14pt fixed-width. `EM_SETLIMITTEXT(0, 0)` for unlimited text size. Dirty state tracked via `EN_CHANGE` notification; title shows `*` prefix when modified. Tab inserts tab character (`EM_REPLACESEL`), Shift+Tab moves focus to tree.
+  * **Status bar**: `STATUSCLASSNAME` with `SBARS_SIZEGRIP`. Shows current file path or "No file".
+  * **File open flow**:
+      - Plain (.txt, .md): `fopen` + `fread` into malloc'd buffer, expand LF to CRLF, `SetWindowText` to edit
+      - Encrypted (.chi, .chs): `fopen` + `fread` entire file into memory, `bf01_decrypt_mem` with password, expand LF to CRLF, `SetWindowText`
+      - Open dialog filter: "Text Files (*.txt;*.md)" / "Encrypted (*.chi;*.chs)" / "All Files"
+      - After open: set `g_curFile`, update `g_curDir` from path, clear dirty state, update title/status/menu/refresh tree
+  * **File save flow**:
+      - `GetWindowText` from editor, strip CR (`strip_cr`) to normalize to LF-only on disk
+      - Plain (.txt, .md): write directly or via safe_save temp file
+      - Encrypted (.chi, .chs): `bf01_encrypt_mem` with password, write cipher or via safe_save temp file
+      - Save dialog filter: "Text Files (*.txt)" / "Encrypted (*.chi)" / "All Files"
+      - Auto-appends `.txt` if no recognized extension provided
+      - After save: clear dirty state, update title/menu, `RefreshTree()` to update filenames
+  * **Safe save**: Write to temp file (`file.ext.tmp.YYYYMMDD_HHMMSS` in same directory), delete original, rename temp to original. Preserves original until save confirmed successful. Temp file cleaned up on failure.
+  * **Paranoid mode**: Extension of safe save. After writing temp file, reads it back and compares byte-for-byte against source data before delete/rename. Only detects truncation and content changes (not longer files). Controlled by `paranoid_save` config. Debug ifdef `DEBUG_TRUNCATE_SAVE_CORRUPTION_CHECK` writes one fewer byte to test the verify path.
+  * **Password dialog**: Custom "PassDialog" window class (not DialogBox). Modal: disables parent window. Two `EDIT` controls with `ES_PASSWORD`. Confirm field enabled only for encrypt, disabled for decrypt. Enter triggers OK, Escape triggers Cancel. Returns password via `g_passOk`/buffer. Focus returns to tree after successful password entry.
+  * **Find dialog**: Custom "FindDialog" window class. Modeless tool window (`WS_EX_TOOLWINDOW`). Text input + Next/Prev/Close buttons. Uses `EM_FINDTEXT` on the edit control. "Not found" message box on no match. Ctrl+F opens, F3/Shift+F3 for next/prev (from message loop).
+  * **Focus policy**: Tree focused on startup. Editor focused after New note. Focus returns to tree after password dialog. Tab/Shift+Tab toggles between tree and editor.
+  * **Prompt to save**: `PromptSave()` called before New, Open, tree double-click/Enter. Shows Yes/No/Cancel dialog. Returns IDCANCEL to abort operation.
+
+### `config.c` / `config.h`
+Thin wrapper around rxi/ini with write support:
+
+  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`
+  * `config_load(cfg, path)` -> fills AppConfig from INI, applies defaults if missing
+  * `config_save(cfg, path)` -> writes AppConfig to INI via `fprintf`
+  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off)
+  * **Config path**: hardcoded as `"tombo.ini"` (same directory as executable)
+  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save), `[view]` (word_wrap)
 
 ### `Makefile`
 ```makefile
@@ -88,36 +107,59 @@ $(TARGET): $(SRCS)
 
   * **Single-file GUI** (`main.c`): Keeps things simple. YAGNI applies - no need for separate tree/editor modules until code gets unwieldy.
   * **Win32 API only** (no MFC, no WTL): Direct API calls. Compiles with gcc via mingw.
-  * **In memory for crypto**: avoid plaintext on disk unless requested, requires entire file to fit into memory (twice, plaintext and encrypted).
-  * **INI write**: Manual `fprintf` for saving config (only 2-3 settings). No need for a write-capable INI library.
-  * **Tree view**: Manual `FindFirstFile`/`FindNextFile` recursion. No `SHBrowseForFolder` - we own the tree and populate it ourselves for full control.
-  * **File associations**: Only show .txt and .chi in the tree view. Other files hidden.
-  * **Encoding**: UTF-8 with BOM handling. The edit control uses `EM_SETTEXTLEN` for large files. Keep it simple - no Unicode conversion layer.
-  * **Safe save**: When `safe_save=1` in config (default on), writes to a timestamped temp file in the same directory (e.g. `file.txt.tmp.20260704_153012`), then deletes original and renames temp to original. Preserves original until save is confirmed successful. On failure, temp file is cleaned up.
-  * **Paranoid mode**: Extension of safe save. When `paranoid_save=1` in config (default off), after writing temp file, reads it back from disk and compares byte-for-byte against the source data before proceeding with delete/rename. Protects against silent disk write failures (full disk, bit rot, hardware errors).
+  * **In-memory crypto**: Uses `bf01_encrypt_mem` / `bf01_decrypt_mem` (not stream functions). Entire file loaded into memory for both plaintext and ciphertext. Requires file to fit in memory (twice). Avoids plaintext on disk.
+  * **INI write**: Manual `fprintf` for saving config. rxi/ini is read-only; manual output for the few settings needed.
+  * **Tree view**: Manual `FindFirstFile`/`FindNextFile` recursion. No `SHBrowseForFolder` - we own the tree and populate it ourselves for full control. Sorted with `TVI_SORT`. Root node labels the directory root.
+  * **File associations**: Tree shows .txt, .md, .chi, .chs files. Open dialog also shows these. Other files hidden.
+  * **Encoding**: UTF-8 with BOM handling. Edit control uses `EM_SETLIMITTEXT(0, 0)` for unlimited text. No Unicode conversion layer.
+  * **Newline normalization**: Unix LF files expanded to CR+LF on load (via `expand_lf`) for Windows edit control compatibility. CR stripped on save (via `strip_cr`) so files are stored with LF only. Works for both plain and encrypted files.
+  * **Safe save**: When `safe_save=1` (default on), writes to timestamped temp file (e.g. `file.txt.tmp.20260704_153012`), deletes original, renames temp. Preserves original until save succeeds. Temp file cleaned up on failure.
+  * **Paranoid mode**: When `paranoid_save=1` (default off), reads temp file back and compares byte-for-byte before delete/rename. Protects against silent disk write failures. Only detects truncation/content changes, not longer files.
+  * **Window geometry**: Position and size clamped to screen bounds before window creation. Minimum size 400x300 enforced via WM_GETMINMAXINFO. Tree width persisted across sessions.
+  * **Word wrap toggle**: Destroys and recreates the entire EDIT control (Win32 EDIT control cannot change scroll style dynamically). Text is saved/restored across the recreation.
+  * **Editor font**: Consolas 14pt fixed-width. Created with `CreateFont` and applied via WM_SETFONT.
+  * **Keyboard shortcuts**: Global keys (Ctrl+N/O/S/F/Z, F3, Shift+F3, Tab, +/-, Enter) intercepted in message loop pre-dispatch, before TranslateMessage. This avoids accelerator table overhead.
+  * **Password confirm**: Confirmation field shown only for encrypt. Disabled (grayed out) for decrypt. Prevents typo on encrypt without burdening decrypt.
+  * **Modal password dialog**: Custom window class, not DialogBox. Disables parent window. Custom message loop until dialog destroyed.
+  * **Dirty state**: Tracked via `EN_CHANGE` notification (sets `g_dirty` on first change). Title shows `*` prefix. `EM_GETMODIFY` also tracked. `PromptSave()` called on destructive actions.
+  * **Menu state**: Save grayed when no file is loaded (`g_curFile[0] == 0`). SaveAs always enabled. Updated on open/new/save.
+  * **RefreshTree after save**: Tree is repopulated after save to reflect any filename changes.
 
 ## Build & Test
 
   1. `cd tombo_c99 && make` (requires mingw gcc on Windows)
   2. Run `tombo.exe`
   3. Test plain text: File > New, type text, File > Save as .txt, close, reopen
-  4. Test encrypted: File > Save as .chi, enter password, close, reopen .chi, enter password
-  5. Test tree: Navigate directories, open files from tree
-  6. Test search: Edit > Find, search for text
-  7. Test word wrap: View > Word Wrap toggle
+  4. Test encrypted: File > Save as .chi, enter password+confirm, close, reopen .chi, enter password
+  5. Test .md and .chs: same as above with different extensions
+  6. Test tree: Navigate directories, open files from tree (double-click or Enter)
+  7. Test splitter: Drag between tree and editor to resize
+  8. Test search: Edit > Find (Ctrl+F), search for text, F3 for next
+  9. Test word wrap: View > Word Wrap toggle
+  10. Test keyboard: Tab/Shift+Tab between tree and editor, +/- in tree, Enter in tree
+  11. Test safe save: Save a file, verify temp file is cleaned up
+  12. Test prompt to save: Modify text, try to open another file, verify prompt appears
 
 ## Critical Files
 
   * `C:\code\c\tombo\contrib\TomboCrypt\bf01_file.c` - encryption library (reuse as-is)
-  * `C:\code\c\tombo\contrib\TomboCrypt\bf01_file.h` - encryption API
+  * `C:\code\c\tombo\contrib\TomboCrypt\bf01_file.h` - encryption API: `bf01_encrypt_mem`, `bf01_decrypt_mem`, `bf01_derive_key`, `bf01_rand_bytes`
   * `C:\code\c\tombo\contrib\TomboCrypt\blowfish.c` - Blowfish cipher (reuse as-is)
-  * `C:\code\c\tombo\contrib\TomboCrypt\md5.c` - MD5 hash (reuse as-is)
-  * `C:\code\terminal\colortool_alt_clean\ini.c` + `ini.h` - INI library (vendor copy)
+  * `C:\code\c\tombo\contrib\TomboCrypt\md5.c` - MD5 hash for key derivation (reuse as-is)
+  * `C:\code\terminal\colortool_alt_clean\ini.c` + `ini.h` - INI library (vendor copy, rxi/ini MIT)
+
+## BF01 Encryption Format
+
+  * Algorithm: Blowfish in CBC mode
+  * Key derivation: MD5 hash of password
+  * Salt: 8 random bytes (via `bf01_rand_bytes`)
+  * API: `bf01_encrypt_mem(plaintext, len, password, &out_len, hard_exit)` -> malloc'd ciphertext buffer
+  * API: `bf01_decrypt_mem(cipherdata, len, password, &out_len, hard_exit)` -> malloc'd plaintext buffer
+  * The `hard_exit` parameter: 0 = return NULL on error (current usage), 1 = call exit()
+  * Password: plain C string, null-terminated
 
 ## TODO Items
 
-  * ~~Add option for safe-saving, save to a temp file, once successful, delete old filename and rename temp to old~~ (done)
-  * ~~paranoid mode: after writing temp file, read it back from disk and compare contents before delete/rename step~~ (done)
   * Undo still shows file as modified, even though it is not changed
   * Add support for caching password in memory, with auto-forget on an inactivity timer
   * New Folder support, menu and right click
@@ -125,11 +167,10 @@ $(TARGET): $(SRCS)
   * Delete File support
   * convert text file to encrypted
   * convert encrypted file to text
-  * working find/search support
-  * Icon support
+  * Icon support (tree has placeholder image indices 0/1 but no actual image list)
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
   * support command line arguments, for example file to open, folder to use as root
   * add a view-only mode, to prevent accidental editing and/or deleting
   * support external editor support, under config
-  * support templats/snippets, e.g. todays date, time, timestamp, and static text in config file
+  * support templates/snippets, e.g. today's date, time, timestamp, and static text in config file
