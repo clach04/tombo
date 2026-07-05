@@ -69,7 +69,7 @@ word_wrap=0
   * `paranoid_save` - Read back temp file and verify contents before rename. Default: 0 (off)
   * `password_timeout` - Cache password in memory for N seconds after successful encrypt/decrypt. Inactivity resets the timer. 0 = disabled (prompt every time). Default: 0
   * `persist_window` - Save and restore window position/size across sessions. 0 = always open at default size/position. Default: 1
-  * `sort_dirs_first` - Show directories at the top of the tree view. Default: 0
+  * `sort_dirs_first` - Show directories at the top of the tree view. Default: 1
   * `encoding_list` - Comma-separated list of character encodings to try when opening files. First encoding used for saving. BOM detection tried before the list. Default: `utf8`
 
 ## License
