@@ -88,7 +88,7 @@ $(TARGET): $(SRCS)
 
   * **Single-file GUI** (`main.c`): Keeps things simple. YAGNI applies - no need for separate tree/editor modules until code gets unwieldy.
   * **Win32 API only** (no MFC, no WTL): Direct API calls. Compiles with gcc via mingw.
-  * **Temp files for crypto**: `bf01_encrypt_stream`/`bf01_decrypt_stream` work on `FILE*`. Use `tmpfile()` for in-memory encryption round-trips without temp files on disk.
+  * **In memory for crypto**: avoid plaintext on disk unless requested, requires entire file to fit into memory (twice, plaintext and encrypted).
   * **INI write**: Manual `fprintf` for saving config (only 2-3 settings). No need for a write-capable INI library.
   * **Tree view**: Manual `FindFirstFile`/`FindNextFile` recursion. No `SHBrowseForFolder` - we own the tree and populate it ourselves for full control.
   * **File associations**: Only show .txt and .chi in the tree view. Other files hidden.
