@@ -17,7 +17,7 @@ Medium feature set:
   * Movable splitter between tree and editor
   * Multi-line text editor pane with status bar
   * Open/save .txt, .md (plain) and .chi, .chs (encrypted) files
-  * Unicode text support via configurable encoding list (UTF-8, CP1252, etc.)
+  * Unicode text support via configurable encoding list (UTF-8, CP1252, etc.). Tries each encoding in turn
   * BOM detection (UTF-8, UTF-16 LE/BE)
   * Password dialog for encrypt/decrypt (confirm field on encrypt only)
   * Password caching with inactivity timer (configurable timeout, auto-forget, manual forget via Tools menu)
@@ -184,8 +184,6 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
-  * Review file encoding support
-  * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
   * Show/Display password option
   * Support quick filter/search for tree view - ideally from keyboard short cut. New entry field above Tree view
   * New Folder support, menu and right click
