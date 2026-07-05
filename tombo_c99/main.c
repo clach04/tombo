@@ -905,7 +905,7 @@ static int AskPassword(char *passBuf, int bufsize, int encrypt) {
   hPass = CreateWindowEx(WS_EX_DLGMODALFRAME, "PassDialog", "Password",
     WS_POPUP | WS_CAPTION | WS_SYSMENU,
     (rc.left + rc.right) / 2 - 120, (rc.top + rc.bottom) / 2 - 110,
-    240, 220, g_hWnd, NULL, g_hInst, NULL);
+    240, 192, g_hWnd, NULL, g_hInst, NULL);
 
   CreateWindow("STATIC", "Enter password:", WS_CHILD | WS_VISIBLE,
     10, 10, 200, 20, hPass, NULL, g_hInst, NULL);
