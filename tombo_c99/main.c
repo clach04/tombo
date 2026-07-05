@@ -24,7 +24,10 @@
 #define IDM_FINDNEXT 1015
 #define IDM_FINDPREV 1016
 #define IDM_WORDWRAP 1020
+#define IDM_FORGETPASSWORD 1040
 #define IDM_ABOUT    1030
+
+#define IDT_PASSWORD 1
 
 #define ID_TREE      2001
 #define ID_EDITOR    2002
@@ -57,6 +60,10 @@ static BOOL g_dirty;
 static HFONT g_hFont;
 static char g_findText[256];
 
+static char g_cached_pass[256];
+static int g_pass_cached;
+static DWORD g_pass_expire_tick;
+
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PassWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -71,6 +78,33 @@ static void UpdateTitle(void);
 static void UpdateStatus(void);
 static void SetEditorFont(HWND hEd);
 static int AskPassword(char *passBuf, int bufsize, int encrypt);
+
+static void PasswordCache_Set(const char *pass) {
+  strncpy(g_cached_pass, pass, sizeof(g_cached_pass) - 1);
+  g_cached_pass[sizeof(g_cached_pass) - 1] = '\0';
+  g_pass_cached = 1;
+  if (g_cfg.password_timeout > 0)
+    g_pass_expire_tick = GetTickCount() + (DWORD)g_cfg.password_timeout * 1000;
+}
+
+static int PasswordCache_Get(char *passBuf, int bufsize) {
+  if (g_pass_cached && g_cfg.password_timeout > 0 && GetTickCount() < g_pass_expire_tick) {
+    strncpy(passBuf, g_cached_pass, bufsize - 1);
+    passBuf[bufsize - 1] = '\0';
+    return 1;
+  }
+  return 0;
+}
+
+static void PasswordCache_Clear(void) {
+  SecureZeroMemory(g_cached_pass, sizeof(g_cached_pass));
+  g_pass_cached = 0;
+}
+
+static void PasswordCache_ResetTimer(void) {
+  if (g_pass_cached && g_cfg.password_timeout > 0)
+    g_pass_expire_tick = GetTickCount() + (DWORD)g_cfg.password_timeout * 1000;
+}
 
 static int is_tombo_ext(const char *name) {
   const char *dot = strrchr(name, '.');
@@ -251,6 +285,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     HMENU hFile = CreatePopupMenu();
     HMENU hEdit = CreatePopupMenu();
     HMENU hView = CreatePopupMenu();
+    HMENU hTools = CreatePopupMenu();
     HMENU hHelp = CreatePopupMenu();
 
     AppendMenu(hFile, MF_STRING, IDM_NEW, "&New\tCtrl+N");
@@ -274,6 +309,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
     AppendMenu(hView, MF_STRING, IDM_WORDWRAP, "&Word Wrap");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hView, "&View");
+
+    AppendMenu(hTools, MF_STRING, IDM_FORGETPASSWORD, "&Forget Password");
+    AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hTools, "&Tools");
 
     AppendMenu(hHelp, MF_STRING, IDM_ABOUT, "&About");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hHelp, "&Help");
@@ -301,6 +339,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     g_treeW = g_cfg.tree_w;
     RefreshTree();
     SetFocus(g_hTree);
+    if (g_cfg.password_timeout > 0)
+      SetTimer(hWnd, IDT_PASSWORD, 1000, NULL);
     return 0;
   }
 
@@ -442,6 +482,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         g_cfg.word_wrap ? MF_CHECKED : MF_UNCHECKED);
       break;
     }
+    case IDM_FORGETPASSWORD:
+      PasswordCache_Clear();
+      UpdateStatus();
+      break;
     case IDM_ABOUT:
       MessageBox(hWnd, "Tombo C99 - Plain text editor with encryption",
         "About Tombo", MB_OK | MB_ICONINFORMATION);
@@ -499,6 +543,13 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     return 0;
   }
 
+  case WM_TIMER:
+    if (wParam == IDT_PASSWORD) {
+      if (g_pass_cached && GetTickCount() >= g_pass_expire_tick)
+        PasswordCache_Clear();
+    }
+    return 0;
+
   case WM_GETMINMAXINFO: {
     MINMAXINFO *mmi = (MINMAXINFO *)lParam;
     mmi->ptMinTrackSize.x = 400;
@@ -508,6 +559,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
   case WM_CLOSE:
     if (PromptSave() == IDCANCEL) return 0;
+    PasswordCache_Clear();
+    KillTimer(hWnd, IDT_PASSWORD);
     {
       RECT rc;
       GetWindowRect(hWnd, &rc);
@@ -654,6 +707,8 @@ static void TomboOpenFile(const char *path) {
       MessageBox(g_hWnd, "Decryption failed (wrong password?)", "Error", MB_OK | MB_ICONERROR);
       return;
     }
+    PasswordCache_Set(pass);
+    PasswordCache_ResetTimer();
     {
       char *exp;
       long explen;
@@ -727,6 +782,8 @@ static void SaveCurrentFile(void) {
       free(buf);
       return;
     }
+    PasswordCache_Set(pass);
+    PasswordCache_ResetTimer();
 
     if (g_cfg.safe_save) {
       SYSTEMTIME st;
@@ -896,6 +953,8 @@ static int AskPassword(char *passBuf, int bufsize, int encrypt) {
   HWND hLabel2;
   HFONT hDlgFont;
   RECT rc;
+
+  if (PasswordCache_Get(passBuf, bufsize)) return 1;
 
   hDlgFont = CreateFont(-14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
     DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
