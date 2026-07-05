@@ -82,13 +82,13 @@ Single-file Win32 GUI (~1076 lines). Key components:
 ### `config.c` / `config.h`
 Thin wrapper around rxi/ini with write support:
 
-  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`
+  * **AppConfig struct**: `win_x`, `win_y`, `win_w`, `win_h`, `tree_w`, `last_dir[260]`, `word_wrap`, `safe_save`, `paranoid_save`, `password_timeout`, `persist_window`
   * `config_load(cfg, path)` -> fills AppConfig from INI, applies defaults if missing
   * `config_save(cfg, path)` -> writes AppConfig to INI via `fprintf`
   * `config_equal(a, b)` -> returns 1 if two AppConfig structs are identical (field-by-field comparison)
-  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled)
+  * **Defaults**: win 800x600 at (100,100), tree_w=200, word_wrap=0, safe_save=1 (on), paranoid_save=0 (off), password_timeout=0 (disabled), persist_window=1 (on)
   * **Config path**: hardcoded as `"tombo.ini"` (same directory as executable)
-  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout), `[view]` (word_wrap)
+  * **INI sections**: `[window]` (x, y, w, h, tree_w), `[general]` (last_dir, safe_save, paranoid_save, password_timeout, persist_window), `[view]` (word_wrap)
 
 ### `Makefile`
 ```makefile
@@ -168,7 +168,6 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
-  * New config option to not persist window config
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
   * Show/Display password option

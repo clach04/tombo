@@ -13,6 +13,7 @@ typedef struct {
   int safe_save;
   int paranoid_save;
   int password_timeout;
+  int persist_window;
 } AppConfig;
 
 void config_load(AppConfig *cfg, const char *path);

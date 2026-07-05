@@ -564,9 +564,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     {
       RECT rc;
       AppConfig saved = g_cfg;
-      GetWindowRect(hWnd, &rc);
-      g_cfg.win_x = rc.left; g_cfg.win_y = rc.top;
-      g_cfg.win_w = rc.right - rc.left; g_cfg.win_h = rc.bottom - rc.top;
+      if (g_cfg.persist_window) {
+        GetWindowRect(hWnd, &rc);
+        g_cfg.win_x = rc.left; g_cfg.win_y = rc.top;
+        g_cfg.win_w = rc.right - rc.left; g_cfg.win_h = rc.bottom - rc.top;
+      }
       g_cfg.tree_w = g_treeW;
       if (!config_equal(&g_cfg, &saved))
         config_save(&g_cfg, CFG_PATH);

@@ -55,6 +55,7 @@ last_dir=C:\path\to\last\folder
 safe_save=1
 paranoid_save=0
 password_timeout=300
+persist_window=1
 
 [word]
 word_wrap=0
@@ -63,6 +64,7 @@ word_wrap=0
   * `safe_save` - Write to temp file first, then rename. Default: 1 (on)
   * `paranoid_save` - Read back temp file and verify contents before rename. Default: 0 (off)
   * `password_timeout` - Cache password in memory for N seconds after successful encrypt/decrypt. Inactivity resets the timer. 0 = disabled (prompt every time). Default: 0
+  * `persist_window` - Save and restore window position/size across sessions. 0 = always open at default size/position. Default: 1
 
 ## License
 
