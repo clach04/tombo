@@ -166,6 +166,8 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
+  * Review file encoding support
+  * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
   * New Folder support, menu and right click
   * Delete New Folder support
   * Delete File support
@@ -173,8 +175,6 @@ $(TARGET): $(SRCS)
   * convert encrypted file to text
   * working find/search support
   * Icon support (tree has placeholder image indices 0/1 but no actual image list)
-  * Review file encoding support
-  * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
   * support command line arguments, for example file to open, folder to use as root
   * add a view-only mode, to prevent accidental editing and/or deleting
   * support external editor support, under config
