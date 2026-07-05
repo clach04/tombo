@@ -128,7 +128,7 @@ $(TARGET): $(SRCS)
   * **Dirty state**: Tracked via `EN_CHANGE` notification (sets `g_dirty` on first change). Title shows `*` prefix. `EM_GETMODIFY` also tracked. `PromptSave()` called on destructive actions.
   * **Menu state**: Save grayed when no file is loaded (`g_curFile[0] == 0`). SaveAs always enabled. Updated on open/new/save.
   * **RefreshTree after save**: Tree is repopulated after save to reflect any filename changes.
-  * **Conditional config save**: On exit (`WM_CLOSE`), config is only written to disk if it differs from the originally loaded values. Saves a copy of loaded config before applying live window geometry, then compares with `config_equal` before calling `config_save`. Avoids unnecessary disk writes when nothing changed.
+  * **Conditional config save**: Do not save config, if config has not changed. On exit (`WM_CLOSE`), config is only written to disk if it differs from the originally loaded values. Saves a copy of loaded config before applying live window geometry, then compares with `config_equal` before calling `config_save`. Avoids unnecessary disk writes when nothing changed.
 
 ## Build & Test
 
@@ -168,7 +168,6 @@ $(TARGET): $(SRCS)
 ## TODO Items
 
   * Undo still shows file as modified, even though it is not changed
-  * Do not save config, if config has not changed
   * New config option to not persist window config
   * Review file encoding support
   * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
