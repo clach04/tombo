@@ -116,7 +116,13 @@ $(TARGET): $(SRCS)
 
   * Add option for safe-saving, save to a temp file, once successful, delete old filename and rename temp to old
       * double safe paranoid mode could load temp file from disk and compare contents before delete/rename step
+  * Add support for caching password in memory, with auto-forget on an inactivity timer
+  * New Folder support, menu and right click
+  * Delete New Folder support
+  * Delete File support
   * convert text file to encrypted
   * convert encrypted file to text
   * working find/search support
   * Icon support
+  * Review file encoding support
+  * BOM support, right now see the 3-bytes as (what I suspect is) cp1252
