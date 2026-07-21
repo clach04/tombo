@@ -5,6 +5,7 @@
  *
  * Compile:
  *   gcc -std=c99 -DTOMBO -o chi_crypt chi_crypt.c bf01_file.c blowfish.c md5.c
+ *   zig cc -std=c99 -DTOMBO -o chi_crypt chi_crypt.c bf01_file.c blowfish.c md5.c
  *
  *   Debug (deterministic salt for testing):
  *   gcc -std=c99 -DTOMBO -DFIXED_VALUES -o chi_crypt_salted chi_crypt.c bf01_file.c blowfish.c md5.c

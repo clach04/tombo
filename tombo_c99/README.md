@@ -25,6 +25,13 @@ cd tombo_c99
 gmake
 ```
 
+Alternatively zig:
+
+```
+zig cc -std=c99 -Wall -Wextra -DTOMBO -I../contrib/TomboCrypt   -lgdi32 -lcomctl32 -lcomdlg32 -lshell32   main.c config.c encoding.c ini.c ../contrib/TomboCrypt/bf01_file.c ../contrib/TomboCrypt/blowfish.c ../contrib/TomboCrypt/md5.c
+```
+
+
 ## Usage
 
 Run `tombo.exe`. The left pane shows a file tree; double-click a file to open it, or use keyboard and enter/return key.

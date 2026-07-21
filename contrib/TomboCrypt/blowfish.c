@@ -427,8 +427,8 @@ encrypt_block( BLOWFISH_context *bc, byte *outbuf, byte *inbuf )
 {
     u32 d1, d2;
 
-    d1 = inbuf[0] << 24 | inbuf[1] << 16 | inbuf[2] << 8 | inbuf[3];
-    d2 = inbuf[4] << 24 | inbuf[5] << 16 | inbuf[6] << 8 | inbuf[7];
+    d1 = (u32) inbuf[0] << 24 | (u32) inbuf[1] << 16 | (u32) inbuf[2] << 8 | (u32) inbuf[3];
+    d2 = (u32) inbuf[4] << 24 | (u32) inbuf[5] << 16 | (u32) inbuf[6] << 8 | (u32) inbuf[7];
     encrypt( bc, &d1, &d2 );
     outbuf[0] = (d1 >> 24) & 0xff;
     outbuf[1] = (d1 >> 16) & 0xff;
@@ -446,8 +446,8 @@ decrypt_block( BLOWFISH_context *bc, byte *outbuf, byte *inbuf )
 {
     u32 d1, d2;
 
-    d1 = inbuf[0] << 24 | inbuf[1] << 16 | inbuf[2] << 8 | inbuf[3];
-    d2 = inbuf[4] << 24 | inbuf[5] << 16 | inbuf[6] << 8 | inbuf[7];
+    d1 = (u32) inbuf[0] << 24 | (u32) inbuf[1] << 16 | (u32) inbuf[2] << 8 | (u32) inbuf[3];
+    d2 = (u32) inbuf[4] << 24 | (u32)inbuf[5] << 16 | (u32)inbuf[6] << 8 | (u32) inbuf[7];
     decrypt( bc, &d1, &d2 );
     outbuf[0] = (d1 >> 24) & 0xff;
     outbuf[1] = (d1 >> 16) & 0xff;
@@ -503,7 +503,7 @@ bf_setkey( BLOWFISH_context *c, byte *key, unsigned keylen )
 	selftest_failed = selftest();
 #ifndef TOMBO
 	if( selftest_failed )
-	    fprintf(stderr,"%s\n", selftest_failed ); 
+	    fprintf(stderr,"%s\n", selftest_failed );
 #endif
     }
     if( selftest_failed )
@@ -611,7 +611,7 @@ typedef struct browfish_cbc {
 	byte buf[BLOWFISH_BLOCKSIZE];
 	BLOWFISH_context ctx;
 } BLOWFISH_CBC;
- 
+
 void *BF_Init(byte *key, unsigned keylen)
 {
 	char *IV = "BLOWFISH";
@@ -713,7 +713,7 @@ void BlowFishTest()
 		}
 		BF_Enc(&ctx, cp, (byte*)pp, l);
 	}
-	
+
 
 	BF_Init(&ctx, (byte*)key, strlen(key));
 	BF_Dec(&ctx, plain     , chipher     );
