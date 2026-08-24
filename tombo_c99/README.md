@@ -12,6 +12,8 @@ Plain text editor with encryption for Windows, built with C99 and Win32 API.
   * Password dialog for encrypt/decrypt
   * Password caching with inactivity timer (configurable via `password_timeout`)
   * Tools menu with manual "Forget Password"
+  * Right-click context menu on tree items (open, rename, encrypt, decrypt, new folder)
+  * In-place rename in tree view (F2 or right-click)
   * Basic text search (find next/prev)
   * Safe save by default (writes to temp file, then renames)
   * Optional paranoid mode (read-back verification)
@@ -82,3 +84,7 @@ word_wrap=0
 ## License
 
 See individual source files for licensing. Uses rxi/ini (MIT) for INI parsing.
+
+## Known Issues
+
+  * Right-click **Encrypt** / **Decrypt** preserves the original file as `<filename>.<ext>.bak`. This is *not secure* (plaintext remains on disk) but prevents accidental data loss during this early proof-of-concept stage.

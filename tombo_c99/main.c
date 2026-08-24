@@ -53,6 +53,7 @@
 #define IDM_ENCRYPT_FILE 2004
 #define IDM_DECRYPT_FILE 2005
 #define IDM_RENAME       2006
+#define WM_START_LABEL_EDIT (WM_APP + 1)
 
 static HINSTANCE g_hInst;
 static HWND g_hWnd;
@@ -235,6 +236,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
       case 'Z': id = IDM_UNDO; break;
       }
       if (id) { SendMessage(g_hWnd, WM_COMMAND, id, 0); continue; }
+    }
+    if (msg.message == WM_KEYDOWN && msg.wParam == VK_F2 && GetFocus() == g_hTree) {
+      HTREEITEM hSel = TreeView_GetSelection(g_hTree);
+      if (hSel && hSel != TreeView_GetRoot(g_hTree))
+        SendMessage(g_hTree, TVM_EDITLABEL, 0, (LPARAM)hSel);
+      continue;
     }
     TranslateMessage(&msg);
     DispatchMessage(&msg);
@@ -660,44 +667,45 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         return 0;
       }
     }
-    if (nm->idFrom == ID_TREE && nm->code == TVN_BEGINLABELEDITW) {
-      NMTVDISPINFOW *di = (NMTVDISPINFOW *)lParam;
+    if (nm->idFrom == ID_TREE && nm->code == TVN_BEGINLABELEDITA) {
+      NMTVDISPINFOA *di = (NMTVDISPINFOA *)lParam;
       HTREEITEM hRoot = TreeView_GetRoot(g_hTree);
       if (di->item.hItem == hRoot)
         return TRUE;
       return FALSE;
     }
-    if (nm->idFrom == ID_TREE && nm->code == TVN_ENDLABELEDITW) {
-      NMTVDISPINFOW *di = (NMTVDISPINFOW *)lParam;
+    if (nm->idFrom == ID_TREE && nm->code == TVN_ENDLABELEDITA) {
+      NMTVDISPINFOA *di = (NMTVDISPINFOA *)lParam;
       if (di->item.pszText) {
         TVITEM ti;
         ZeroMemory(&ti, sizeof(ti));
         ti.mask = TVIF_PARAM;
         ti.hItem = di->item.hItem;
         if (TreeView_GetItem(g_hTree, &ti) && ti.lParam) {
-          char oldPath[MAX_PATH];
+          char oldPath[MAX_PATH], parentDir[MAX_PATH], newPath[MAX_PATH];
+          char *lastSep;
           strncpy(oldPath, (const char *)ti.lParam, MAX_PATH - 1);
           oldPath[MAX_PATH - 1] = '\0';
-          {
-            char parentDir[MAX_PATH], newPath[MAX_PATH], newNameA[MAX_PATH];
-            strncpy(parentDir, oldPath, MAX_PATH - 1);
-            {
-              char *slash = strrchr(parentDir, '\\');
-              if (slash) {
-                *slash = '\0';
-                WideCharToMultiByte(CP_ACP, 0, di->item.pszText, -1,
-                  newNameA, MAX_PATH - 1, NULL, NULL);
-                snprintf(newPath, MAX_PATH, "%s\\%s", parentDir, newNameA);
-                if (MoveFileA(oldPath, newPath)) {
-                  free((void *)ti.lParam);
-                  ti.mask = TVIF_PARAM;
-                  ti.lParam = (LPARAM)_strdup(newPath);
-                  TreeView_SetItem(g_hTree, &ti);
-                } else {
-                  MessageBox(g_hWnd, "Cannot rename: name may be in use or invalid",
-                    "Error", MB_OK | MB_ICONERROR);
-                  return FALSE;
+          strncpy(parentDir, oldPath, MAX_PATH - 1);
+          lastSep = strrchr(parentDir, '\\');
+          if (lastSep) {
+            *lastSep = '\0';
+            snprintf(newPath, MAX_PATH, "%s\\%s", parentDir, di->item.pszText);
+            if (strcmp(oldPath, newPath) != 0) {
+              if (MoveFileA(oldPath, newPath)) {
+                free((void *)ti.lParam);
+                ti.lParam = (LPARAM)_strdup(newPath);
+                TreeView_SetItem(g_hTree, &ti);
+                if (_stricmp(oldPath, g_curFile) == 0) {
+                  strncpy(g_curFile, newPath, MAX_PATH - 1);
+                  g_curFile[MAX_PATH - 1] = '\0';
+                  UpdateTitle();
+                  UpdateStatus();
                 }
+              } else {
+                MessageBox(g_hWnd, "Cannot rename: name may be in use or invalid",
+                  "Error", MB_OK | MB_ICONERROR);
+                return FALSE;
               }
             }
           }
@@ -707,6 +715,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     }
     return 0;
   }
+
+  case WM_START_LABEL_EDIT:
+    if (lParam) {
+      SendMessage(g_hTree, TVM_EDITLABEL, 0, (LPARAM)lParam);
+    }
+    return 0;
 
   case WM_TIMER:
     if (wParam == IDT_PASSWORD) {
@@ -860,7 +874,7 @@ static void NewFolderAt(HWND hTree, HTREEITEM hParent, const char *parentPath) {
       if (hParent)
         TreeView_Expand(hTree, hParent, TVE_EXPAND);
       TreeView_EnsureVisible(hTree, hNew);
-      TreeView_EditLabel(hTree, hNew);
+      PostMessage(g_hWnd, WM_START_LABEL_EDIT, 0, (LPARAM)hNew);
     }
   }
 }
@@ -1273,7 +1287,12 @@ static void EncryptFileToDisk(const char *path) {
   }
   free(cipher);
 
-  DeleteFileA(path);
+  {
+    char bakPath[MAX_PATH];
+    snprintf(bakPath, MAX_PATH, "%s.bak", path);
+    DeleteFileA(bakPath);
+    MoveFileA(path, bakPath);
+  }
 
   if (_stricmp(path, g_curFile) == 0) {
     g_curFile[0] = '\0';
@@ -1361,7 +1380,12 @@ static void DecryptFileToDisk(const char *path) {
   }
   free(plain);
 
-  DeleteFileA(path);
+  {
+    char bakPath[MAX_PATH];
+    snprintf(bakPath, MAX_PATH, "%s.bak", path);
+    DeleteFileA(bakPath);
+    MoveFileA(path, bakPath);
+  }
 
   if (_stricmp(path, g_curFile) == 0) {
     g_curFile[0] = '\0';
