@@ -16,7 +16,8 @@
 #define IDM_OPEN     1002
 #define IDM_SAVE     1003
 #define IDM_SAVEAS   1004
-#define IDM_EXIT     1005
+#define IDM_RENAMEFILE 1005
+#define IDM_EXIT     1006
 #define IDM_UNDO     1010
 #define IDM_CUT      1011
 #define IDM_COPY     1012
@@ -320,6 +321,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     AppendMenu(hFile, MF_STRING, IDM_OPEN, "&Open...\tCtrl+O");
     AppendMenu(hFile, MF_STRING, IDM_SAVE, "&Save\tCtrl+S");
     AppendMenu(hFile, MF_STRING, IDM_SAVEAS, "Save &As...");
+    AppendMenu(hFile, MF_STRING, IDM_RENAMEFILE, "Re&name\tF2");
     AppendMenu(hFile, MF_SEPARATOR, 0, NULL);
     AppendMenu(hFile, MF_STRING, IDM_EXIT, "E&xit");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFile, "&File");
@@ -533,6 +535,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       NewFolderAt(g_hTree, g_rightClickItem,
         g_rightClickPath[0] ? g_rightClickPath : g_curDir);
       break;
+    case IDM_RENAMEFILE: {
+      HTREEITEM hSel = TreeView_GetSelection(g_hTree);
+      if (hSel && hSel != TreeView_GetRoot(g_hTree))
+        TreeView_EditLabel(g_hTree, hSel);
+      break;
+    }
     case IDM_RENAME:
       if (g_rightClickItem)
         TreeView_EditLabel(g_hTree, g_rightClickItem);
