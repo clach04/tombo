@@ -186,14 +186,36 @@ $(TARGET): $(SRCS)
 
   * Undo still shows file as modified, even though it is not changed
   * Support quick filter/search for tree view - ideally from keyboard short cut. New entry field above Tree view
-  * New Folder support, menu and right click
-  * Delete New Folder support
+  * Delete Folder support
   * Delete File support
-  * convert text file to encrypted
-  * convert encrypted file to text
   * working find/search support
   * Icon support (tree has placeholder image indices 0/1 but no actual image list)
   * support command line arguments, for example file to open, folder to use as root
   * add a view-only mode, to prevent accidental editing and/or deleting
   * support external editor support, under config
   * support templates/snippets, e.g. today's date, time, timestamp, and static text in config file
+
+## Right-Click Context Menu
+
+Right-click on tree items opens a context menu with type-appropriate actions:
+
+  * **Directories**: "Open Directory" (opens in File Explorer via `ShellExecute("explore",...)`), "New Folder" (creates auto-named directory + in-place label editing)
+  * **Text files (.txt, .md)**: "Open" (opens with default file association), "Encrypt" (reads file, encrypts to .chi, deletes original via safe_save)
+  * **Encrypted files (.chi, .chs)**: "Open" (opens with default file association), "Decrypt" (reads file, decrypts to .txt, deletes original via safe_save)
+  * **Empty tree area**: "New Folder" (creates at current root directory level)
+
+Encrypt/Decrypt from context menu:
+  * Operates on the on-disk file, independent of the editor
+  * Uses `safe_save` (temp file + rename) when enabled
+  * If the file is currently open in the editor and dirty, prompts to save before encrypting/decrypting
+  * Clears editor state if the operated-on file was the active editor file
+
+### Implementation notes
+
+  * `NM_RCLICK` notification triggers the popup; `TVM_HITTEST` selects the item under cursor
+  * Command IDs `IDM_OPEN_DIR`, `IDM_OPEN_ASSOC`, `IDM_NEW_FOLDER`, `IDM_ENCRYPT_FILE`, `IDM_DECRYPT_FILE` in WM_COMMAND
+  * `g_rightClickPath` + `g_rightClickItem` globals carry context from NM_RCLICK to WM_COMMAND
+  * Tree uses `TVS_EDITLABELS` for in-place label editing (F2); `TVN_BEGINLABELEDITW` blocks root edit; `TVN_ENDLABELEDITW` renames on disk via `MoveFile` and updates `lParam`
+  * Directories now store their full path in `lParam` (via `_strdup(childPath)`), matching the existing file lParam pattern
+  * `TVN_DELETEITEM` handler frees all lParam allocations (fixes the pre-existing file-path memory leak)
+  * Item type is now determined by `is_tombo_ext()` on lParam path rather than `lParam != 0`

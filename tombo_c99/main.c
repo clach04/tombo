@@ -47,6 +47,13 @@
 #define IDC_FIND_PREV  3103
 #define IDC_FIND_CLOSE 3104
 
+#define IDM_OPEN_DIR     2001
+#define IDM_OPEN_ASSOC   2002
+#define IDM_NEW_FOLDER   2003
+#define IDM_ENCRYPT_FILE 2004
+#define IDM_DECRYPT_FILE 2005
+#define IDM_RENAME       2006
+
 static HINSTANCE g_hInst;
 static HWND g_hWnd;
 static HWND g_hTree, g_hEditor, g_hStatus, g_hSplitter;
@@ -69,6 +76,8 @@ static DWORD g_pass_expire_tick;
 static wchar_t *g_editor_wtext;
 static int g_editor_wlen;
 static UINT g_file_cp;
+static char g_rightClickPath[MAX_PATH];
+static HTREEITEM g_rightClickItem;
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PassWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -86,6 +95,10 @@ static void SetEditorFont(HWND hEd);
 static int AskPassword(char *passBuf, int bufsize, int encrypt);
 static void SetEditorTextW(const wchar_t *wtext);
 static int GetEditorTextW(wchar_t **out_w, int *out_wlen);
+static void NewFolderAt(HWND hTree, HTREEITEM hParent, const char *parentPath);
+static void EncryptFileToDisk(const char *path);
+static void DecryptFileToDisk(const char *path);
+static int is_chi_file(const char *path);
 
 static void PasswordCache_Set(const char *pass) {
   strncpy(g_cached_pass, pass, sizeof(g_cached_pass) - 1);
@@ -327,7 +340,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     InitMenu(hWnd);
 
     g_hTree = CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, "",
-      WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS,
+      WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_EDITLABELS,
       0, 0, 200, 400, hWnd, (HMENU)ID_TREE, g_hInst, NULL);
 
     g_hSplitter = CreateWindow("Splitter", "",
@@ -501,23 +514,122 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       MessageBox(hWnd, "Tombo C99 - Plain text editor with encryption",
         "About Tombo", MB_OK | MB_ICONINFORMATION);
       break;
+    case IDM_OPEN_DIR:
+      if (g_rightClickPath[0])
+        ShellExecuteA(hWnd, "explore", g_rightClickPath, NULL, NULL, SW_SHOW);
+      break;
+    case IDM_OPEN_ASSOC:
+      if (g_rightClickPath[0])
+        ShellExecuteA(hWnd, "open", g_rightClickPath, NULL, NULL, SW_SHOW);
+      break;
+    case IDM_NEW_FOLDER:
+      NewFolderAt(g_hTree, g_rightClickItem,
+        g_rightClickPath[0] ? g_rightClickPath : g_curDir);
+      break;
+    case IDM_RENAME:
+      if (g_rightClickItem)
+        TreeView_EditLabel(g_hTree, g_rightClickItem);
+      break;
+    case IDM_ENCRYPT_FILE:
+      if (g_rightClickPath[0] && g_rightClickItem) {
+        if (_stricmp(g_rightClickPath, g_curFile) == 0 && PromptSave() == IDCANCEL)
+          break;
+        EncryptFileToDisk(g_rightClickPath);
+      }
+      break;
+    case IDM_DECRYPT_FILE:
+      if (g_rightClickPath[0] && g_rightClickItem) {
+        if (_stricmp(g_rightClickPath, g_curFile) == 0 && PromptSave() == IDCANCEL)
+          break;
+        DecryptFileToDisk(g_rightClickPath);
+      }
+      break;
     }
     return 0;
 
   case WM_NOTIFY: {
     NMHDR *nm = (NMHDR *)lParam;
+    if (nm->idFrom == ID_TREE && nm->code == TVN_DELETEITEM) {
+      NMTREEVIEW *tv = (NMTREEVIEW *)lParam;
+      if (tv->itemOld.lParam)
+        free((void *)tv->itemOld.lParam);
+      return 0;
+    }
+    if (nm->idFrom == ID_TREE && nm->code == NM_RCLICK) {
+      TVHITTESTINFO ht;
+      DWORD msgPos = GetMessagePos();
+      POINT pt;
+      pt.x = (short)LOWORD(msgPos);
+      pt.y = (short)HIWORD(msgPos);
+      ht.pt = pt;
+      ScreenToClient(g_hTree, &ht.pt);
+      {
+        HTREEITEM hItem = (HTREEITEM)SendMessage(g_hTree, TVM_HITTEST, 0, (LPARAM)&ht);
+        if (hItem && (ht.flags & TVHT_ONITEM)) {
+          TreeView_SelectItem(g_hTree, hItem);
+          {
+            TVITEM ti;
+            ZeroMemory(&ti, sizeof(ti));
+            ti.mask = TVIF_PARAM;
+            ti.hItem = hItem;
+            TreeView_GetItem(g_hTree, &ti);
+            if (ti.lParam) {
+              strncpy(g_rightClickPath, (const char *)ti.lParam, MAX_PATH - 1);
+              g_rightClickPath[MAX_PATH - 1] = '\0';
+              g_rightClickItem = hItem;
+            } else {
+              g_rightClickPath[0] = '\0';
+              g_rightClickItem = NULL;
+            }
+          }
+        } else {
+          strncpy(g_rightClickPath, g_curDir, MAX_PATH - 1);
+          g_rightClickPath[MAX_PATH - 1] = '\0';
+          g_rightClickItem = NULL;
+        }
+      }
+      {
+        HMENU hPopup = CreatePopupMenu();
+        if (g_rightClickItem) {
+          BOOL isFile = g_rightClickPath[0] && is_tombo_ext(g_rightClickPath);
+          if (isFile)
+            AppendMenuA(hPopup, MF_STRING, IDM_OPEN_ASSOC, "Open");
+          else if (g_rightClickPath[0])
+            AppendMenuA(hPopup, MF_STRING, IDM_OPEN_DIR, "Open Directory");
+          AppendMenuA(hPopup, MF_STRING, IDM_RENAME, "Rename");
+          AppendMenuA(hPopup, MF_SEPARATOR, 0, NULL);
+        }
+        {
+          BOOL isFile = g_rightClickItem && g_rightClickPath[0] && is_tombo_ext(g_rightClickPath);
+          if (isFile) {
+            if (is_chi_file(g_rightClickPath))
+              AppendMenuA(hPopup, MF_STRING, IDM_DECRYPT_FILE, "Decrypt");
+            else
+              AppendMenuA(hPopup, MF_STRING, IDM_ENCRYPT_FILE, "Encrypt");
+          } else {
+            AppendMenuA(hPopup, MF_STRING, IDM_NEW_FOLDER, "New Folder");
+          }
+        }
+        {
+          POINT scpt = pt;
+          ClientToScreen(g_hTree, &scpt);
+          TrackPopupMenu(hPopup, TPM_LEFTBUTTON, scpt.x, scpt.y, 0, hWnd, NULL);
+          SetFocus(g_hTree);
+        }
+        DestroyMenu(hPopup);
+      }
+      return 0;
+    }
     if (nm->idFrom == ID_TREE && nm->code == NM_DBLCLK) {
       HTREEITEM hSel = TreeView_GetSelection(g_hTree);
       if (hSel) {
         TVITEM ti;
-        char path[MAX_PATH];
         ZeroMemory(&ti, sizeof(ti));
-        ti.mask = TVIF_PARAM | TVIF_TEXT;
+        ti.mask = TVIF_PARAM;
         ti.hItem = hSel;
-        ti.pszText = path;
-        ti.cchTextMax = MAX_PATH;
         TreeView_GetItem(g_hTree, &ti);
-        if (ti.lParam && PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
+        if (ti.lParam && is_tombo_ext((const char *)ti.lParam) && PromptSave() != IDCANCEL)
+          TomboOpenFile((const char *)ti.lParam);
       }
     }
     if (nm->idFrom == ID_TREE && nm->code == TVN_KEYDOWN) {
@@ -526,14 +638,11 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         HTREEITEM hSel = TreeView_GetSelection(g_hTree);
         if (hSel) {
           TVITEM ti;
-          char path[MAX_PATH];
           ZeroMemory(&ti, sizeof(ti));
-          ti.mask = TVIF_PARAM | TVIF_TEXT;
+          ti.mask = TVIF_PARAM;
           ti.hItem = hSel;
-          ti.pszText = path;
-          ti.cchTextMax = MAX_PATH;
           TreeView_GetItem(g_hTree, &ti);
-          if (ti.lParam) {
+          if (ti.lParam && is_tombo_ext((const char *)ti.lParam)) {
             if (PromptSave() != IDCANCEL) TomboOpenFile((const char *)ti.lParam);
           } else {
             UINT state = TreeView_GetItemState(g_hTree, hSel, TVIS_EXPANDED);
@@ -550,6 +659,51 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
         }
         return 0;
       }
+    }
+    if (nm->idFrom == ID_TREE && nm->code == TVN_BEGINLABELEDITW) {
+      NMTVDISPINFOW *di = (NMTVDISPINFOW *)lParam;
+      HTREEITEM hRoot = TreeView_GetRoot(g_hTree);
+      if (di->item.hItem == hRoot)
+        return TRUE;
+      return FALSE;
+    }
+    if (nm->idFrom == ID_TREE && nm->code == TVN_ENDLABELEDITW) {
+      NMTVDISPINFOW *di = (NMTVDISPINFOW *)lParam;
+      if (di->item.pszText) {
+        TVITEM ti;
+        ZeroMemory(&ti, sizeof(ti));
+        ti.mask = TVIF_PARAM;
+        ti.hItem = di->item.hItem;
+        if (TreeView_GetItem(g_hTree, &ti) && ti.lParam) {
+          char oldPath[MAX_PATH];
+          strncpy(oldPath, (const char *)ti.lParam, MAX_PATH - 1);
+          oldPath[MAX_PATH - 1] = '\0';
+          {
+            char parentDir[MAX_PATH], newPath[MAX_PATH], newNameA[MAX_PATH];
+            strncpy(parentDir, oldPath, MAX_PATH - 1);
+            {
+              char *slash = strrchr(parentDir, '\\');
+              if (slash) {
+                *slash = '\0';
+                WideCharToMultiByte(CP_ACP, 0, di->item.pszText, -1,
+                  newNameA, MAX_PATH - 1, NULL, NULL);
+                snprintf(newPath, MAX_PATH, "%s\\%s", parentDir, newNameA);
+                if (MoveFileA(oldPath, newPath)) {
+                  free((void *)ti.lParam);
+                  ti.mask = TVIF_PARAM;
+                  ti.lParam = (LPARAM)_strdup(newPath);
+                  TreeView_SetItem(g_hTree, &ti);
+                } else {
+                  MessageBox(g_hWnd, "Cannot rename: name may be in use or invalid",
+                    "Error", MB_OK | MB_ICONERROR);
+                  return FALSE;
+                }
+              }
+            }
+          }
+        }
+      }
+      return TRUE;
     }
     return 0;
   }
@@ -624,7 +778,7 @@ static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent) {
         tvi.item.pszText = fd.cFileName;
         tvi.item.iImage = 0;
         tvi.item.iSelectedImage = 0;
-        tvi.item.lParam = 0;
+        tvi.item.lParam = (LPARAM)_strdup(childPath);
 
         {
           HTREEITEM hItem = TreeView_InsertItem(hTree, &tvi);
@@ -666,6 +820,49 @@ static void RefreshTree(void) {
   hRoot = TreeView_InsertItem(g_hTree, &tvi);
   PopulateTree(g_hTree, g_curDir, hRoot);
   TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
+}
+
+static void NewFolderAt(HWND hTree, HTREEITEM hParent, const char *parentPath) {
+  char newPath[MAX_PATH];
+  int n = 0;
+  do {
+    if (n == 0)
+      snprintf(newPath, MAX_PATH, "%s\\New Folder", parentPath);
+    else
+      snprintf(newPath, MAX_PATH, "%s\\New Folder (%d)", parentPath, n);
+    n++;
+  } while (GetFileAttributesA(newPath) != INVALID_FILE_ATTRIBUTES);
+
+  if (!CreateDirectoryA(newPath, NULL)) {
+    MessageBox(g_hWnd, "Cannot create directory", "Error", MB_OK | MB_ICONERROR);
+    return;
+  }
+
+  if (!hParent) {
+    hParent = TreeView_GetRoot(hTree);
+  }
+
+  {
+    TVINSERTSTRUCT tvi;
+    const char *name;
+    HTREEITEM hNew;
+    ZeroMemory(&tvi, sizeof(tvi));
+    tvi.hParent = hParent ? hParent : TVI_ROOT;
+    tvi.hInsertAfter = TVI_LAST;
+    tvi.item.mask = TVIF_TEXT | TVIF_PARAM;
+    name = strrchr(newPath, '\\');
+    tvi.item.pszText = (LPSTR)(name ? name + 1 : newPath);
+    tvi.item.lParam = (LPARAM)_strdup(newPath);
+    hNew = TreeView_InsertItem(hTree, &tvi);
+
+    if (hNew) {
+      TreeView_SelectItem(hTree, hNew);
+      if (hParent)
+        TreeView_Expand(hTree, hParent, TVE_EXPAND);
+      TreeView_EnsureVisible(hTree, hNew);
+      TreeView_EditLabel(hTree, hNew);
+    }
+  }
 }
 
 /* --- File I/O --- */
@@ -1006,6 +1203,179 @@ static int PromptSave(void) {
     if (r == IDYES) SaveCurrentFile();
     return r;
   }
+}
+
+static void EncryptFileToDisk(const char *path) {
+  FILE *f;
+  long sz;
+  unsigned char *buf, *cipher;
+  size_t cipherlen;
+  char pass[256];
+  char chiPath[MAX_PATH];
+
+  if (is_chi_file(path)) return;
+
+  f = fopen(path, "rb");
+  if (!f) { MessageBox(g_hWnd, "Cannot open file", "Error", MB_OK | MB_ICONERROR); return; }
+  fseek(f, 0, SEEK_END);
+  sz = ftell(f);
+  rewind(f);
+  buf = (unsigned char *)malloc(sz);
+  if (!buf) { fclose(f); return; }
+  fread(buf, 1, sz, f);
+  fclose(f);
+
+  if (!AskPassword(pass, sizeof(pass), 1)) { free(buf); return; }
+
+  cipher = bf01_encrypt_mem(buf, sz, pass, &cipherlen, 0);
+  free(buf);
+  if (!cipher) { MessageBox(g_hWnd, "Encryption failed", "Error", MB_OK | MB_ICONERROR); return; }
+
+  PasswordCache_Set(pass);
+  PasswordCache_ResetTimer();
+
+  strncpy(chiPath, path, MAX_PATH - 1);
+  chiPath[MAX_PATH - 1] = '\0';
+  {
+    char *dot = strrchr(chiPath, '.');
+    if (dot) *dot = '\0';
+  }
+  strncat(chiPath, ".chi", MAX_PATH - strlen(chiPath) - 1);
+
+  if (g_cfg.safe_save) {
+    SYSTEMTIME st;
+    char tmpPath[MAX_PATH];
+    FILE *ft;
+    GetLocalTime(&st);
+    snprintf(tmpPath, MAX_PATH, "%s.tmp.%04d%02d%02d_%02d%02d%02d",
+      chiPath, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    ft = fopen(tmpPath, "wb");
+    if (!ft) { free(cipher); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
+    fwrite(cipher, 1, cipherlen, ft);
+    fclose(ft);
+    if (!DeleteFileA(chiPath) && GetLastError() != ERROR_FILE_NOT_FOUND) {
+      DeleteFileA(tmpPath);
+      free(cipher);
+      MessageBox(g_hWnd, "Cannot replace encrypted file", "Error", MB_OK | MB_ICONERROR);
+      return;
+    }
+    if (!MoveFileA(tmpPath, chiPath)) {
+      DeleteFileA(tmpPath);
+      free(cipher);
+      MessageBox(g_hWnd, "Cannot rename temp file", "Error", MB_OK | MB_ICONERROR);
+      return;
+    }
+  } else {
+    FILE *fo = fopen(chiPath, "wb");
+    if (!fo) { free(cipher); MessageBox(g_hWnd, "Cannot write encrypted file", "Error", MB_OK | MB_ICONERROR); return; }
+    fwrite(cipher, 1, cipherlen, fo);
+    fclose(fo);
+  }
+  free(cipher);
+
+  DeleteFileA(path);
+
+  if (_stricmp(path, g_curFile) == 0) {
+    g_curFile[0] = '\0';
+    SetWindowTextW(g_hEditor, L"");
+    if (g_editor_wtext) { free(g_editor_wtext); g_editor_wtext = NULL; }
+    g_editor_wlen = 0;
+    g_file_cp = 0;
+    g_dirty = FALSE;
+    UpdateMenuSaveState(g_hWnd);
+    UpdateTitle();
+    UpdateStatus();
+  }
+
+  RefreshTree();
+}
+
+static void DecryptFileToDisk(const char *path) {
+  FILE *f;
+  long sz;
+  unsigned char *filedata, *plain;
+  size_t plainlen;
+  char pass[256];
+  char txtPath[MAX_PATH];
+
+  if (!is_chi_file(path)) return;
+
+  f = fopen(path, "rb");
+  if (!f) { MessageBox(g_hWnd, "Cannot open file", "Error", MB_OK | MB_ICONERROR); return; }
+  fseek(f, 0, SEEK_END);
+  sz = ftell(f);
+  rewind(f);
+  filedata = (unsigned char *)malloc(sz);
+  if (!filedata) { fclose(f); return; }
+  fread(filedata, 1, sz, f);
+  fclose(f);
+
+  if (!AskPassword(pass, sizeof(pass), 0)) { free(filedata); return; }
+
+  plain = bf01_decrypt_mem(filedata, sz, pass, &plainlen, 0);
+  free(filedata);
+  if (!plain) {
+    MessageBox(g_hWnd, "Decryption failed (wrong password?)", "Error", MB_OK | MB_ICONERROR);
+    return;
+  }
+
+  PasswordCache_Set(pass);
+  PasswordCache_ResetTimer();
+
+  strncpy(txtPath, path, MAX_PATH - 1);
+  txtPath[MAX_PATH - 1] = '\0';
+  {
+    char *dot = strrchr(txtPath, '.');
+    if (dot) strcpy(dot, ".txt");
+    else strncat(txtPath, ".txt", MAX_PATH - strlen(txtPath) - 1);
+  }
+
+  if (g_cfg.safe_save) {
+    SYSTEMTIME st;
+    char tmpPath[MAX_PATH];
+    FILE *ft;
+    GetLocalTime(&st);
+    snprintf(tmpPath, MAX_PATH, "%s.tmp.%04d%02d%02d_%02d%02d%02d",
+      txtPath, st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    ft = fopen(tmpPath, "wb");
+    if (!ft) { free(plain); MessageBox(g_hWnd, "Cannot write temp file", "Error", MB_OK | MB_ICONERROR); return; }
+    fwrite(plain, 1, plainlen, ft);
+    fclose(ft);
+    if (!DeleteFileA(txtPath) && GetLastError() != ERROR_FILE_NOT_FOUND) {
+      DeleteFileA(tmpPath);
+      free(plain);
+      MessageBox(g_hWnd, "Cannot replace text file", "Error", MB_OK | MB_ICONERROR);
+      return;
+    }
+    if (!MoveFileA(tmpPath, txtPath)) {
+      DeleteFileA(tmpPath);
+      free(plain);
+      MessageBox(g_hWnd, "Cannot rename temp file", "Error", MB_OK | MB_ICONERROR);
+      return;
+    }
+  } else {
+    FILE *fo = fopen(txtPath, "wb");
+    if (!fo) { free(plain); MessageBox(g_hWnd, "Cannot write text file", "Error", MB_OK | MB_ICONERROR); return; }
+    fwrite(plain, 1, plainlen, fo);
+    fclose(fo);
+  }
+  free(plain);
+
+  DeleteFileA(path);
+
+  if (_stricmp(path, g_curFile) == 0) {
+    g_curFile[0] = '\0';
+    SetWindowTextW(g_hEditor, L"");
+    if (g_editor_wtext) { free(g_editor_wtext); g_editor_wtext = NULL; }
+    g_editor_wlen = 0;
+    g_file_cp = 0;
+    g_dirty = FALSE;
+    UpdateMenuSaveState(g_hWnd);
+    UpdateTitle();
+    UpdateStatus();
+  }
+
+  RefreshTree();
 }
 
 static void UpdateTitle(void) {
