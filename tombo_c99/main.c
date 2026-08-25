@@ -90,7 +90,7 @@ static LRESULT CALLBACK SplitterWndProc(HWND, UINT, WPARAM, LPARAM);
 static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent);
 static void RefreshTree(void);
 static void ExpandAllItems(HWND hTree, HTREEITEM hItem, int expand);
-static void BatchTreeOp(HTREEITEM hRoot, int expand);
+static void BatchTreeOp(HWND hTree, HTREEITEM hRoot, int expand);
 static void TomboOpenFile(const char *path);
 static void SaveCurrentFile(void);
 static void SaveFileAs(void);
@@ -498,24 +498,19 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       break;
     }
     case IDM_EXPANDALL:
-      BatchTreeOp(TreeView_GetRoot(g_hTree), 1);
+      BatchTreeOp(g_hTree, TreeView_GetRoot(g_hTree), 1);
       break;
     case IDM_COLLAPSEALL: {
       HTREEITEM hRoot = TreeView_GetRoot(g_hTree);
-      HTREEITEM child;
       if (!hRoot) break;
-      SendMessage(g_hTree, WM_SETREDRAW, FALSE, 0);
       {
-        SCROLLINFO si;
-        si.cbSize = sizeof(si);
-        si.fMask = SIF_POS;
-        if (!GetScrollInfo(g_hTree, SB_VERT, &si)) ZeroMemory(&si, sizeof(si));
+        HTREEITEM child;
+        SendMessage(g_hTree, WM_SETREDRAW, FALSE, 0);
         for (child = TreeView_GetChild(g_hTree, hRoot); child;
              child = TreeView_GetNextSibling(g_hTree, child))
           ExpandAllItems(g_hTree, child, 0);
         TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
         SendMessage(g_hTree, WM_SETREDRAW, TRUE, 0);
-        SetScrollInfo(g_hTree, SB_VERT, &si, TRUE);
       }
       InvalidateRect(g_hTree, NULL, TRUE);
       break;
@@ -918,17 +913,16 @@ static void ApplyExpandedState(HWND hTree, HTREEITEM hItem) {
 }
 
 /* TreeView_Expand implicitly scrolls the affected item into view; run a
-   batch of expands/collapses with redraw off and restore the scroll pos */
-static void BatchTreeOp(HTREEITEM hRoot, int expand) {
-  SCROLLINFO si;
-  si.cbSize = sizeof(si);
-  si.fMask = SIF_POS;
-  if (!GetScrollInfo(g_hTree, SB_VERT, &si)) ZeroMemory(&si, sizeof(si));
-  SendMessage(g_hTree, WM_SETREDRAW, FALSE, 0);
-  ExpandAllItems(g_hTree, hRoot, expand);
-  SendMessage(g_hTree, WM_SETREDRAW, TRUE, 0);
-  SetScrollInfo(g_hTree, SB_VERT, &si, TRUE);
-  InvalidateRect(g_hTree, NULL, TRUE);
+   batch of expands/collapses with redraw off, then re-anchor the same
+   first-visible item. Item anchoring beats raw scroll offsets because the
+   layout (item count/positions) changes during the batch. */
+static void BatchTreeOp(HWND hTree, HTREEITEM hRoot, int expand) {
+  HTREEITEM hFirst = TreeView_GetFirstVisible(hTree);
+  SendMessage(hTree, WM_SETREDRAW, FALSE, 0);
+  ExpandAllItems(hTree, hRoot, expand);
+  SendMessage(hTree, WM_SETREDRAW, TRUE, 0);
+  if (hFirst) TreeView_SelectSetFirstVisible(hTree, hFirst);
+  InvalidateRect(hTree, NULL, TRUE);
 }
 
 static void ExpandAllItems(HWND hTree, HTREEITEM hItem, int expand) {
