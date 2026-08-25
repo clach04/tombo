@@ -28,6 +28,8 @@
 #define IDM_WORDWRAP 1020
 #define IDM_FORGETPASSWORD 1040
 #define IDM_ABOUT    1030
+#define IDM_EXPANDALL 1031
+#define IDM_COLLAPSEALL 1032
 
 #define IDT_PASSWORD 1
 
@@ -87,6 +89,7 @@ static LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK SplitterWndProc(HWND, UINT, WPARAM, LPARAM);
 static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent);
 static void RefreshTree(void);
+static void ExpandAllItems(HWND hTree, HTREEITEM hItem, int expand);
 static void TomboOpenFile(const char *path);
 static void SaveCurrentFile(void);
 static void SaveFileAs(void);
@@ -235,6 +238,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
       case 'S': id = g_curFile[0] ? IDM_SAVE : IDM_SAVEAS; break;
       case 'F': id = IDM_FIND; break;
       case 'Z': id = IDM_UNDO; break;
+      case VK_MULTIPLY: id = IDM_EXPANDALL; break;
+      case VK_DIVIDE: id = IDM_COLLAPSEALL; break;
       }
       if (id) { SendMessage(g_hWnd, WM_COMMAND, id, 0); continue; }
     }
@@ -338,6 +343,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hEdit, "&Edit");
 
     AppendMenu(hView, MF_STRING, IDM_WORDWRAP, "&Word Wrap");
+    AppendMenu(hView, MF_SEPARATOR, 0, NULL);
+    AppendMenu(hView, MF_STRING, IDM_EXPANDALL, "Expand All\tCtrl+Num *");
+    AppendMenu(hView, MF_STRING, IDM_COLLAPSEALL, "Collapse All\tCtrl+Num /");
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hView, "&View");
 
     AppendMenu(hTools, MF_STRING, IDM_FORGETPASSWORD, "&Forget Password");
@@ -486,6 +494,19 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       ft.lpstrText = g_findText;
       if (g_findText[0] && (pos = (LONG)SendMessageW(g_hEditor, EM_FINDTEXTW, FR_DOWN, (LPARAM)&ft)) >= 0)
         SendMessage(g_hEditor, EM_SETSEL, pos, pos + (int)wcslen(g_findText));
+      break;
+    }
+    case IDM_EXPANDALL:
+      ExpandAllItems(g_hTree, TreeView_GetRoot(g_hTree), 1);
+      break;
+    case IDM_COLLAPSEALL: {
+      HTREEITEM hRoot = TreeView_GetRoot(g_hTree);
+      HTREEITEM child;
+      if (!hRoot) break;
+      for (child = TreeView_GetChild(g_hTree, hRoot); child;
+           child = TreeView_GetNextSibling(g_hTree, child))
+        ExpandAllItems(g_hTree, child, 0);
+      TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
       break;
     }
     case IDM_WORDWRAP: {
@@ -829,9 +850,79 @@ static void PopulateTree(HWND hTree, const char *dir, HTREEITEM hParent) {
   }
 }
 
+/* --- Expansion state preservation --- */
+
+static char **g_expandedPaths;
+static int g_nExpandedPaths;
+
+static void FreeExpandedState(void) {
+  int i;
+  for (i = 0; i < g_nExpandedPaths; i++) free(g_expandedPaths[i]);
+  free(g_expandedPaths);
+  g_expandedPaths = NULL;
+  g_nExpandedPaths = 0;
+}
+
+static void AddExpandedPath(const char *path) {
+  char **p = (char **)realloc(g_expandedPaths,
+    (g_nExpandedPaths + 1) * sizeof(char *));
+  if (!p) return;
+  g_expandedPaths = p;
+  g_expandedPaths[g_nExpandedPaths++] = _strdup(path);
+}
+
+static int IsExpandedPath(const char *path) {
+  int i;
+  for (i = 0; i < g_nExpandedPaths; i++)
+    if (strcmp(g_expandedPaths[i], path) == 0) return 1;
+  return 0;
+}
+
+static void CaptureExpandedState(HWND hTree, HTREEITEM hItem) {
+  for (; hItem; hItem = TreeView_GetNextSibling(hTree, hItem)) {
+    TVITEM tvi;
+    HTREEITEM child = TreeView_GetChild(hTree, hItem);
+    ZeroMemory(&tvi, sizeof(tvi));
+    tvi.hItem = hItem;
+    tvi.mask = TVIF_STATE | TVIF_PARAM;
+    tvi.stateMask = TVIS_EXPANDED;
+    TreeView_GetItem(hTree, &tvi);
+    if (child && (tvi.state & TVIS_EXPANDED) && tvi.lParam)
+      AddExpandedPath((const char *)tvi.lParam);
+    CaptureExpandedState(hTree, child);
+  }
+}
+
+static void ApplyExpandedState(HWND hTree, HTREEITEM hItem) {
+  for (; hItem; hItem = TreeView_GetNextSibling(hTree, hItem)) {
+    TVITEM tvi;
+    ZeroMemory(&tvi, sizeof(tvi));
+    tvi.hItem = hItem;
+    tvi.mask = TVIF_PARAM;
+    TreeView_GetItem(hTree, &tvi);
+    if (tvi.lParam && IsExpandedPath((const char *)tvi.lParam))
+      TreeView_Expand(hTree, hItem, TVE_EXPAND);
+    ApplyExpandedState(hTree, TreeView_GetChild(hTree, hItem));
+  }
+}
+
+static void ExpandAllItems(HWND hTree, HTREEITEM hItem, int expand) {
+  for (; hItem; hItem = TreeView_GetNextSibling(hTree, hItem)) {
+    HTREEITEM child = TreeView_GetChild(hTree, hItem);
+    /* NOTE: no TVE_COLLAPSERESET - it deletes child items and this
+       tree is eagerly populated, so folders would stay empty */
+    if (child) TreeView_Expand(hTree, hItem,
+      expand ? TVE_EXPAND : TVE_COLLAPSE);
+    ExpandAllItems(hTree, child, expand);
+  }
+}
+
 static void RefreshTree(void) {
   TVINSERTSTRUCT tvi;
   HTREEITEM hRoot;
+  FreeExpandedState();
+  if (g_hTree && g_curDir[0])
+    CaptureExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
   TreeView_DeleteAllItems(g_hTree);
   if (!g_curDir[0]) return;
   ZeroMemory(&tvi, sizeof(tvi));
@@ -842,6 +933,8 @@ static void RefreshTree(void) {
   hRoot = TreeView_InsertItem(g_hTree, &tvi);
   PopulateTree(g_hTree, g_curDir, hRoot);
   TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
+  ApplyExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
+  FreeExpandedState();
 }
 
 static void NewFolderAt(HWND hTree, HTREEITEM hParent, const char *parentPath) {
