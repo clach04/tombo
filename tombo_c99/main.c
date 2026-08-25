@@ -505,12 +505,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       if (!hRoot) break;
       {
         HTREEITEM child;
+        /* anchor: keep the same first-visible row after the batch */
+        HTREEITEM hFirst = TreeView_GetFirstVisible(g_hTree);
         SendMessage(g_hTree, WM_SETREDRAW, FALSE, 0);
         for (child = TreeView_GetChild(g_hTree, hRoot); child;
              child = TreeView_GetNextSibling(g_hTree, child))
           ExpandAllItems(g_hTree, child, 0);
         TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
         SendMessage(g_hTree, WM_SETREDRAW, TRUE, 0);
+        if (hFirst) TreeView_SelectSetFirstVisible(g_hTree, hFirst);
       }
       InvalidateRect(g_hTree, NULL, TRUE);
       break;
