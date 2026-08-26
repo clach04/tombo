@@ -29,6 +29,7 @@
 #define IDM_FINDNEXT 1015
 #define IDM_FINDPREV 1016
 #define IDM_WORDWRAP 1020
+#define IDM_FUZZYSEARCH 1021
 #define IDM_FORGETPASSWORD 1040
 #define IDM_ABOUT    1030
 #define IDM_EXPANDALL 1031
@@ -123,6 +124,7 @@ static void SearchSnapshot(void);
 static void SearchApply(HWND hWnd);
 static void SearchClear(int focusTree);
 static void FreeFilterCache(void);
+static int SubstrPos(const char *hay, const char *needle);
 
 static void PasswordCache_Set(const char *pass) {
   strncpy(g_cached_pass, pass, sizeof(g_cached_pass) - 1);
@@ -389,6 +391,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hEdit, "&Edit");
 
     AppendMenu(hView, MF_STRING, IDM_WORDWRAP, "&Word Wrap");
+    AppendMenu(hView, MF_STRING, IDM_FUZZYSEARCH, "&Fuzzy Search");
     AppendMenu(hView, MF_SEPARATOR, 0, NULL);
     AppendMenu(hView, MF_STRING, IDM_EXPANDALL, "Expand All\tCtrl+Num *");
     AppendMenu(hView, MF_STRING, IDM_COLLAPSEALL, "Collapse All\tCtrl+Num /");
@@ -401,6 +404,10 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hHelp, "&Help");
     SetMenu(hWnd, hMenu);
     InitMenu(hWnd);
+    CheckMenuItem(GetMenu(hWnd), IDM_WORDWRAP,
+      g_cfg.word_wrap ? MF_CHECKED : MF_UNCHECKED);
+    CheckMenuItem(GetMenu(hWnd), IDM_FUZZYSEARCH,
+      g_cfg.fuzzy_search ? MF_CHECKED : MF_UNCHECKED);
 
     g_hTree = CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, "",
       WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_HASBUTTONS | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_EDITLABELS,
@@ -616,6 +623,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
       SetFocus(g_hEditor);
       CheckMenuItem(GetMenu(hWnd), IDM_WORDWRAP,
         g_cfg.word_wrap ? MF_CHECKED : MF_UNCHECKED);
+      break;
+    }
+    case IDM_FUZZYSEARCH: {
+      g_cfg.fuzzy_search = !g_cfg.fuzzy_search;
+      CheckMenuItem(GetMenu(hWnd), IDM_FUZZYSEARCH,
+        g_cfg.fuzzy_search ? MF_CHECKED : MF_UNCHECKED);
+      /* re-run any active filter under the new match mode */
+      if (g_filterActive)
+        SetTimer(hWnd, IDT_FILTER, FILTER_DEBOUNCE_MS, NULL);
       break;
     }
     case IDM_FORGETPASSWORD:
@@ -1223,6 +1239,23 @@ static HTREEITEM EnsureDirNode(FilterNode **map, int *n, int *cap,
   return parent;
 }
 
+/* ASCII case-insensitive find; returns position or -1. */
+static int SubstrPos(const char *hay, const char *needle) {
+  size_t nlen = strlen(needle);
+  const char *p;
+  if (!nlen) return 0;
+  for (p = hay; *p; p++) {
+    size_t i;
+    for (i = 0; i < nlen; i++) {
+      if (tolower((unsigned char)p[i]) != tolower((unsigned char)needle[i]))
+        break;
+      if (!p[i]) return -1;
+    }
+    if (i == nlen) return (int)(p - hay);
+  }
+  return -1;
+}
+
 typedef struct { const char *path; int32_t score; } MatchEntry;
 
 static int MatchCmp(const void *a, const void *b) {
@@ -1254,8 +1287,17 @@ static void SearchApply(HWND hWnd) {
     if (_strnicmp(g_filterItems[i], g_curDir, baseLen) != 0) continue;
     rel = g_filterItems[i] + baseLen;
     while (*rel == '\\') rel++;
-    score = fts_fuzzy_match(pat, rel);
-    if (score == INT32_MIN) continue;
+    if (g_cfg.fuzzy_search) {
+      score = fts_fuzzy_match(pat, rel);
+    } else {
+      /* simple partial string match, case-insensitive;
+         earlier occurrence ranks better
+         TODO: option B - no ranking, first item in tree order wins */
+      int pos = SubstrPos(rel, pat);
+      if (pos < 0) continue;
+      score = -pos;
+    }
+    if (g_cfg.fuzzy_search && score == INT32_MIN) continue;
     if (nMatches == capMatches) {
       int newCap = capMatches ? capMatches * 2 : 64;
       MatchEntry *m = (MatchEntry *)realloc(matches,

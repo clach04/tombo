@@ -16,6 +16,7 @@ typedef struct {
   int password_timeout;
   int persist_window;
   int sort_dirs_first;
+  int fuzzy_search;
   int encoding_count;
   UINT encoding_cps[MAX_ENCODINGS];
 } AppConfig;
