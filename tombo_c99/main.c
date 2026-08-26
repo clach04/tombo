@@ -11,6 +11,9 @@
 #include "config.h"
 #include "encoding.h"
 #include "bf01_file.h"
+#include "fts_fuzzy_match.h"
+
+#define FILTER_DEBOUNCE_MS 250
 
 #define IDM_NEW      1001
 #define IDM_OPEN     1002
@@ -32,11 +35,13 @@
 #define IDM_COLLAPSEALL 1032
 
 #define IDT_PASSWORD 1
+#define IDT_FILTER   2
 
 #define ID_TREE      2001
 #define ID_EDITOR    2002
 #define ID_STATUS    2003
 #define ID_SPLITTER  2004
+#define ID_SEARCH    2005
 
 #define IDC_PASS_EDIT    3001
 #define IDC_PASS_CONFIRM 3002
@@ -83,6 +88,15 @@ static UINT g_file_cp;
 static char g_rightClickPath[MAX_PATH];
 static HTREEITEM g_rightClickItem;
 
+/* --- fuzzy tree filter state --- */
+static HWND g_hSearch;
+static HFONT g_hSearchFont;
+static char **g_filterItems;   /* cached full paths of all tree items */
+static int g_nFilterItems;
+static char **g_filterSnap;    /* expansion snapshot taken at filter start */
+static int g_nFilterSnap;
+static int g_filterActive;
+
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PassWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK FindWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -105,6 +119,10 @@ static void NewFolderAt(HWND hTree, HTREEITEM hParent, const char *parentPath);
 static void EncryptFileToDisk(const char *path);
 static void DecryptFileToDisk(const char *path);
 static int is_chi_file(const char *path);
+static void SearchSnapshot(void);
+static void SearchApply(HWND hWnd);
+static void SearchClear(int focusTree);
+static void FreeFilterCache(void);
 
 static void PasswordCache_Set(const char *pass) {
   strncpy(g_cached_pass, pass, sizeof(g_cached_pass) - 1);
@@ -239,10 +257,37 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmdLine, int nShow) {
       case 'S': id = g_curFile[0] ? IDM_SAVE : IDM_SAVEAS; break;
       case 'F': id = IDM_FIND; break;
       case 'Z': id = IDM_UNDO; break;
+      case 'L': SetFocus(g_hSearch); break;   /* focus tree filter box */
       case VK_MULTIPLY: id = IDM_EXPANDALL; break;
       case VK_DIVIDE: id = IDM_COLLAPSEALL; break;
       }
       if (id) { SendMessage(g_hWnd, WM_COMMAND, id, 0); continue; }
+    }
+    /* Alt combos arrive as WM_SYSKEYDOWN (menu interceptor) */
+    if (msg.message == WM_SYSKEYDOWN && msg.wParam == 'D'
+        && !(GetKeyState(VK_CONTROL) & 0x8000)) {
+      SetFocus(g_hSearch);                     /* Alt+D, like a URL bar */
+      continue;
+    }
+    /* Up/Down in the search box hands navigation to the filtered tree */
+    if (msg.message == WM_KEYDOWN
+        && (msg.wParam == VK_DOWN || msg.wParam == VK_UP)
+        && GetFocus() == g_hSearch) {
+      SetFocus(g_hTree);
+      PostMessage(g_hTree, msg.message, msg.wParam, msg.lParam);
+      continue;
+    }
+    if (msg.message == WM_KEYDOWN && msg.wParam == VK_F4
+        && GetFocus() != g_hSearch) {
+      SetFocus(g_hSearch);
+      continue;
+    }
+    if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE
+        && GetFocus() == g_hSearch) {
+      /* clear text first so EN_CHANGE restores if a filter was active */
+      SetWindowTextA(g_hSearch, "");
+      SearchClear(1);
+      continue;
     }
     if (msg.message == WM_KEYDOWN && msg.wParam == VK_F2 && GetFocus() == g_hTree) {
       HTREEITEM hSel = TreeView_GetSelection(g_hTree);
@@ -366,6 +411,14 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
     g_hEditor = CreateEditor(hWnd, 0);
 
+    g_hSearch = CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
+      WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
+      0, 0, 200, 22, hWnd, (HMENU)ID_SEARCH, g_hInst, NULL);
+    g_hSearchFont = CreateFont(-14, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+      DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+      DEFAULT_QUALITY, FIXED_PITCH | FF_MODERN, "Consolas");
+    SendMessage(g_hSearch, WM_SETFONT, (WPARAM)g_hSearchFont, TRUE);
+
     g_hStatus = CreateWindowEx(0, STATUSCLASSNAME, "",
       WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
       0, 0, 0, 0, hWnd, (HMENU)ID_STATUS, g_hInst, NULL);
@@ -394,7 +447,15 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     statusH = rc.bottom - rc.top;
 
     hdwp = BeginDeferWindowPos(4);
-    DeferWindowPos(hdwp, g_hTree, NULL, 0, 0, g_treeW, h - statusH, SWP_NOZORDER);
+    {
+      RECT src;
+      int searchH;
+      GetWindowRect(g_hSearch, &src);
+      searchH = src.bottom - src.top;
+      DeferWindowPos(hdwp, g_hSearch, NULL, 0, 0, g_treeW, searchH, SWP_NOZORDER);
+      DeferWindowPos(hdwp, g_hTree, NULL, 0, searchH, g_treeW,
+        h - statusH - searchH, SWP_NOZORDER);
+    }
     DeferWindowPos(hdwp, g_hSplitter, NULL, g_treeW, 0, 4, h - statusH, SWP_NOZORDER);
     DeferWindowPos(hdwp, g_hEditor, NULL, g_treeW + 4, 0, w - g_treeW - 4, h - statusH, SWP_NOZORDER);
     DeferWindowPos(hdwp, g_hStatus, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
@@ -404,6 +465,18 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
   }
 
   case WM_COMMAND:
+    if (LOWORD(wParam) == ID_SEARCH && HIWORD(wParam) == EN_CHANGE) {
+      char buf[256];
+      GetWindowTextA(g_hSearch, buf, sizeof(buf));
+      if (!buf[0]) {
+        KillTimer(hWnd, IDT_FILTER);
+        SearchClear(0);
+      } else {
+        if (!g_filterActive) SearchSnapshot();
+        SetTimer(hWnd, IDT_FILTER, FILTER_DEBOUNCE_MS, NULL);
+      }
+      return 0;
+    }
     if (LOWORD(wParam) == ID_EDITOR && HIWORD(wParam) == EN_CHANGE) {
       if (!g_dirty) {
         g_dirty = TRUE;
@@ -764,6 +837,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     if (wParam == IDT_PASSWORD) {
       if (g_pass_cached && GetTickCount() >= g_pass_expire_tick)
         PasswordCache_Clear();
+    } else if (wParam == IDT_FILTER) {
+      KillTimer(hWnd, IDT_FILTER);
+      SearchApply(hWnd);
     }
     return 0;
 
@@ -796,6 +872,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
   case WM_DESTROY:
     if (g_hFont) DeleteObject(g_hFont);
+    if (g_hSearchFont) DeleteObject(g_hSearchFont);
     PostQuitMessage(0);
     return 0;
   }
@@ -939,12 +1016,11 @@ static void ExpandAllItems(HWND hTree, HTREEITEM hItem, int expand) {
   }
 }
 
-static void RefreshTree(void) {
+/* Rebuild the full unfiltered tree (root + PopulateTree + expand root).
+   Caller handles expansion-state capture/apply. */
+static void RebuildFullTree(void) {
   TVINSERTSTRUCT tvi;
   HTREEITEM hRoot;
-  FreeExpandedState();
-  if (g_hTree && g_curDir[0])
-    CaptureExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
   TreeView_DeleteAllItems(g_hTree);
   if (!g_curDir[0]) return;
   ZeroMemory(&tvi, sizeof(tvi));
@@ -955,6 +1031,22 @@ static void RefreshTree(void) {
   hRoot = TreeView_InsertItem(g_hTree, &tvi);
   PopulateTree(g_hTree, g_curDir, hRoot);
   TreeView_Expand(g_hTree, hRoot, TVE_EXPAND);
+}
+
+static void RefreshTree(void) {
+  /* an external rebuild invalidates any active filter session */
+  if (g_filterActive) {
+    FreeExpandedState();
+    FreeFilterCache();
+    g_filterSnap = NULL;
+    g_nFilterSnap = 0;
+    g_filterActive = 0;
+    SetWindowTextA(g_hSearch, "");
+  }
+  FreeExpandedState();
+  if (g_hTree && g_curDir[0])
+    CaptureExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
+  RebuildFullTree();
   ApplyExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
   FreeExpandedState();
 }
@@ -1000,6 +1092,225 @@ static void NewFolderAt(HWND hTree, HTREEITEM hParent, const char *parentPath) {
       PostMessage(g_hWnd, WM_START_LABEL_EDIT, 0, (LPARAM)hNew);
     }
   }
+}
+
+/* --- Fuzzy tree filter --- */
+
+static void FreeFilterCache(void) {
+  int i;
+  for (i = 0; i < g_nFilterItems; i++) free(g_filterItems[i]);
+  free(g_filterItems);
+  g_filterItems = NULL;
+  g_nFilterItems = 0;
+}
+
+/* Recursively cache lParam paths of every non-root item. */
+static void CollectTreePaths(HWND hTree, HTREEITEM hItem) {
+  for (; hItem; hItem = TreeView_GetNextSibling(hTree, hItem)) {
+    TVITEM tvi;
+    ZeroMemory(&tvi, sizeof(tvi));
+    tvi.hItem = hItem;
+    tvi.mask = TVIF_PARAM;
+    TreeView_GetItem(hTree, &tvi);
+    if (tvi.lParam) {
+      char **p = (char **)realloc(g_filterItems,
+        (g_nFilterItems + 1) * sizeof(char *));
+      if (p) {
+        g_filterItems = p;
+        g_filterItems[g_nFilterItems++] = _strdup((const char *)tvi.lParam);
+      }
+    }
+    CollectTreePaths(hTree, TreeView_GetChild(hTree, hItem));
+  }
+}
+
+/* Called at first keystroke of a filtering session: snapshot expansion
+   state and cache all item paths (tree gets rebuilt during filtering). */
+static void SearchSnapshot(void) {
+  FreeExpandedState();
+  if (g_hTree && g_curDir[0])
+    CaptureExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
+  g_filterSnap = g_expandedPaths;
+  g_nFilterSnap = g_nExpandedPaths;
+  g_expandedPaths = NULL;
+  g_nExpandedPaths = 0;
+  FreeFilterCache();
+  CollectTreePaths(g_hTree,
+    TreeView_GetChild(g_hTree, TreeView_GetRoot(g_hTree)));
+  g_filterActive = 1;
+}
+
+/* Restore unfiltered tree from the snapshot taken at filter start. */
+static void SearchClear(int focusTree) {
+  if (!g_filterActive) {
+    if (focusTree && g_hTree) SetFocus(g_hTree);
+    return;
+  }
+  FreeExpandedState();
+  g_expandedPaths = g_filterSnap;
+  g_nExpandedPaths = g_nFilterSnap;
+  g_filterSnap = NULL;
+  g_nFilterSnap = 0;
+  RebuildFullTree();
+  ApplyExpandedState(g_hTree, TreeView_GetRoot(g_hTree));
+  FreeExpandedState();
+  FreeFilterCache();
+  g_filterActive = 0;
+  if (focusTree && g_hTree) SetFocus(g_hTree);
+}
+
+/* Folder-node map for the filtered rebuild: full dir path -> item handle. */
+typedef struct { char path[MAX_PATH]; HTREEITEM h; } FilterNode;
+
+static HTREEITEM EnsureDirNode(FilterNode **map, int *n, int *cap,
+    HTREEITEM hRoot, const char *dirFullPath) {
+  size_t baseLen = strlen(g_curDir);
+  const char *p = dirFullPath + baseLen;
+  char acc[MAX_PATH];
+  HTREEITEM parent = hRoot;
+  int i;
+
+  if (dirFullPath + baseLen != dirFullPath
+      && _strnicmp(dirFullPath, g_curDir, baseLen) != 0)
+    return hRoot; /* unexpected prefix; bail to root */
+  while (*p == '\\') p++;
+  strncpy(acc, g_curDir, MAX_PATH - 1);
+  acc[MAX_PATH - 1] = '\0';
+
+  while (p && *p) {
+    const char *q = strchr(p, '\\');
+    size_t segLen = q ? (size_t)(q - p) : strlen(p);
+    char seg[MAX_PATH];
+    if (segLen >= MAX_PATH) segLen = MAX_PATH - 1;
+    memcpy(seg, p, segLen);
+    seg[segLen] = '\0';
+    if (acc[0] && strcat_s(acc, sizeof(acc), "\\") != 0) return parent;
+    if (strlen(acc) + segLen >= MAX_PATH) return parent;
+    strcat(acc, seg);
+
+    /* find or create node for acc */
+    for (i = 0; i < *n; i++)
+      if ((*map)[i].path[0] && strcmp((*map)[i].path, acc) == 0) break;
+    if (i < *n) {
+      parent = (*map)[i].h;
+    } else {
+      TVINSERTSTRUCT tvi;
+      HTREEITEM hNew;
+      ZeroMemory(&tvi, sizeof(tvi));
+      tvi.hParent = parent;
+      tvi.hInsertAfter = TVI_LAST;
+      tvi.item.mask = TVIF_TEXT | TVIF_PARAM;
+      tvi.item.pszText = seg;
+      tvi.item.lParam = (LPARAM)_strdup(acc);
+      hNew = TreeView_InsertItem(g_hTree, &tvi);
+      if (!hNew) return parent;
+      if (*n == *cap) {
+        int newCap = *cap ? *cap * 2 : 64;
+        FilterNode *m = (FilterNode *)realloc(*map,
+          newCap * sizeof(FilterNode));
+        if (!m) return parent;
+        *map = m;
+        *cap = newCap;
+      }
+      strncpy((*map)[*n].path, acc, MAX_PATH - 1);
+      (*map)[*n].path[MAX_PATH - 1] = '\0';
+      (*map)[*n].h = hNew;
+      (*n)++;
+      parent = hNew;
+    }
+    p = q ? q + 1 : NULL;
+  }
+  return parent;
+}
+
+typedef struct { const char *path; int32_t score; } MatchEntry;
+
+static int MatchCmp(const void *a, const void *b) {
+  return strcmp(((const MatchEntry *)a)->path, ((const MatchEntry *)b)->path);
+}
+
+/* Debounced filter application: rebuild tree with matching items plus
+   their ancestor folders, all expanded; select best-scoring match. */
+static void SearchApply(HWND hWnd) {
+  char pat[256];
+  MatchEntry *matches = NULL;
+  int nMatches = 0, capMatches = 0, i;
+  FilterNode *map = NULL;
+  int nMap = 0, capMap = 0;
+  HTREEITEM hRoot, hBest = NULL;
+  int32_t bestScore = INT32_MAX;
+  TVINSERTSTRUCT tvi;
+  size_t baseLen;
+
+  if (!g_filterActive || !g_curDir[0]) return;
+  GetWindowTextA(g_hSearch, pat, sizeof(pat));
+  if (!pat[0]) { SearchClear(0); return; }
+  baseLen = strlen(g_curDir);
+
+  /* score every cached item against its path relative to root */
+  for (i = 0; i < g_nFilterItems; i++) {
+    const char *rel;
+    int32_t score;
+    if (_strnicmp(g_filterItems[i], g_curDir, baseLen) != 0) continue;
+    rel = g_filterItems[i] + baseLen;
+    while (*rel == '\\') rel++;
+    score = fts_fuzzy_match(pat, rel);
+    if (score == INT32_MIN) continue;
+    if (nMatches == capMatches) {
+      int newCap = capMatches ? capMatches * 2 : 64;
+      MatchEntry *m = (MatchEntry *)realloc(matches,
+        newCap * sizeof(MatchEntry));
+      if (!m) break;
+      matches = m;
+      capMatches = newCap;
+    }
+    matches[nMatches].path = g_filterItems[i];
+    matches[nMatches].score = score;
+    nMatches++;
+  }
+
+  SendMessage(g_hTree, WM_SETREDRAW, FALSE, 0);
+  TreeView_DeleteAllItems(g_hTree);
+  ZeroMemory(&tvi, sizeof(tvi));
+  tvi.hParent = TVI_ROOT;
+  tvi.hInsertAfter = TVI_LAST;
+  tvi.item.mask = TVIF_TEXT;
+  tvi.item.pszText = "Root";
+  hRoot = TreeView_InsertItem(g_hTree, &tvi);
+
+  if (matches) qsort(matches, nMatches, sizeof(MatchEntry), MatchCmp);
+
+  for (i = 0; matches && i < nMatches; i++) {
+    const char *fullPath = matches[i].path;
+    const char *leaf = strrchr(fullPath, '\\');
+    HTREEITEM hParent = EnsureDirNode(&map, &nMap, &capMap,
+      hRoot, fullPath);
+    HTREEITEM hNew;
+    leaf = leaf ? leaf + 1 : fullPath;
+    ZeroMemory(&tvi, sizeof(tvi));
+    tvi.hParent = hParent;
+    tvi.hInsertAfter = TVI_LAST;
+    tvi.item.mask = TVIF_TEXT | TVIF_PARAM;
+    tvi.item.pszText = (LPSTR)leaf;
+    tvi.item.lParam = (LPARAM)_strdup(fullPath);
+    hNew = TreeView_InsertItem(g_hTree, &tvi);
+    if (hNew && matches[i].score < bestScore) {
+      bestScore = matches[i].score;
+      hBest = hNew;
+    }
+  }
+
+  ExpandAllItems(g_hTree, hRoot, 1);
+  SendMessage(g_hTree, WM_SETREDRAW, TRUE, 0);
+  if (hBest) {
+    TreeView_SelectItem(g_hTree, hBest);
+    TreeView_EnsureVisible(g_hTree, hBest);
+  }
+  InvalidateRect(g_hTree, NULL, TRUE);
+
+  free(matches);
+  free(map);
+  (void)hWnd;
 }
 
 /* --- File I/O --- */
